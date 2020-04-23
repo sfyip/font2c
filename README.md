@@ -1,5 +1,5 @@
 # font2c
-A python script which can convert font to C array for embedded system (LCD Controller)
+A python script which convert font to C array, target for embedded system (e.g. LCD Controller ILI9806)
 
 Prerequisite: Python3
 
