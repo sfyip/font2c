@@ -1,0 +1,16 @@
+
+const uint8_t ${imgnamecaps}_WIDTH  = ${width};
+const uint8_t ${imgnamecaps}_HEIGHT = ${height};
+
+const uint8_t ${imgnamecaps}_BZ${compresslv}[${imglen}] = {
+    ${imgdata}
+};
+
+const font_symbol_t ${imgnamecaps} = {
+  ${imgnamecaps}_WIDTH,
+  ${imgnamecaps}_HEIGHT,
+  ${imgnamecaps}_BZ${compresslv},
+  sizeof(${imgnamecaps}_BZ${compresslv})
+};
+
+//-------------------------------------------------------------------------
