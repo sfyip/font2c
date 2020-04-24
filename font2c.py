@@ -33,7 +33,6 @@ ROWSIZE = 20
 
 #compress the steam, record continous '0' or '1'
 def compress_lv1(steam):
-
     if not isinstance(steam, bytearray):
         Print("compress_lv1 parameter *steam* incorrect")
         return None
@@ -160,14 +159,16 @@ def create_dir(directory):
 #=========================================================================================
 
 class FontPreviewFrame(Frame):
-    font = "arial"                  # font style (Test chinese font: kaiu)
-    size = 80                       # font size
-    text = "0123456789:"            # "測試間距テスト"  # output whcih symbol
-    offset = (0,0)                  # x,y offset
-    max_width = 83                  # set maximum width
-    compress_lv = 1                 # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
-    export_dir = "."                # set export directory
-    c_filename = font + str(size)   # generated c source file name
+    font = "arial"                          # font style (Test chinese font: kaiu)
+    size = 80                               # font size
+    text = "0123456789:"                \
+           "abcdefghijklmnopqrstuvwxyz" \
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
+    offset = (0,0)                          # x,y offset
+    max_width = 83                          # set maximum width
+    compress_lv = 1                         # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
+    export_dir = "./export/"                # set export directory
+    c_filename = font + str(size)           # generated c source file name
     
     def __init__(self):
         super().__init__()
@@ -199,15 +200,20 @@ class FontPreviewFrame(Frame):
             print("Char: {0}".format(c));
             print("Actual font size: {0}".format(fnt_size));
             
-            img_size = (min(self.max_width, fnt_size[0]), self.size)      # width = fnt_size[0], height = fnt_size[1]
+            img_size = (min(self.max_width, fnt_size[0]), max(self.size, fnt_size[1]))      # width = fnt_size[0], height = fnt_size[1]
             
             img = Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
             draw = ImageDraw.Draw(img)
             draw.text(self.offset, c, font=fnt, fill=1)  # 1= white color
             
-            imgname = self.font + str(self.size) + "_" + convert_special_char(c)
+            alias_c = convert_special_char(c)
             
-            img.save(self.export_dir + '/' + imgname + ".png")
+            if c.islower():
+                img.save(self.export_dir + '/' + self.font + str(self.size) + "_l" + alias_c + ".png")
+            else:
+                img.save(self.export_dir + '/' + self.font + str(self.size) +"_"+ alias_c + ".png")
+            
+            imgname = self.font + str(self.size) + "_" + alias_c
             imgdata = list(img.tobytes())
             
             # Print out image info
@@ -295,8 +301,9 @@ class FontPreviewFrame(Frame):
             count = 0
             steam = bytearray()
             
+            # Scan from left to right,  down to bottom sequentially
             for y in range(margin.top, img_size[1]-margin.bottom):
-                for x in range(margin.left, img_size[0]-margin.right):
+                for x in range(margin.left, img_size[0]-margin.right):      
                     if (img.getpixel((x, y)) & 1):
                         byte |= (1 << count)
                     
