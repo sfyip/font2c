@@ -107,6 +107,7 @@ def encoding_method_3(steam, margin):
     
     if(steam[0] & 0x01):    # if the first pixel is white color, push 0x01 to steam as indicator
         result.append(0x01)
+        sample = 1
     
     for byte in (steam):
         for bitpos in range(8):

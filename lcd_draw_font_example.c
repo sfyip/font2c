@@ -1,4 +1,5 @@
-// Example on ILI9806
+
+#define ENCODING_METHOD 0u
 
 void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
 {
@@ -44,34 +45,34 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     {
         count = fs->bitmap[i];
         if(count == 0)
-          count = 256;
+            count = 256;
         for(j=0; j<count; j++)
         {
           if(pixelColor)
           {
-            LCD_WR_DATA(_brushColor);
+              LCD_WR_DATA(_brushColor);
           }
           else
           {
-            LCD_WR_DATA(_backColor);
+              LCD_WR_DATA(_backColor);
           }
         }
         
         if(count != 256)
         {
-          pixelColor ^= 1;
+            pixelColor ^= 1;
         }
     }
 #elif (ENCODING_METHOD == 2u)
-    uint8_t pixelColor = 0;
     uint16_t bi = 4;
     
     uint8_t top = fs->bitmap[0];
-    uint8_t bottom = fs->height - fs->bitmap[1];
+    uint8_t bottom = fs->height - fs->bitmap[1]-1;
     uint8_t left = fs->bitmap[2];
-    uint8_t right = fs->width - fs->bitmap[3];
+    uint8_t right = fs->width - fs->bitmap[3]-1;
     
-    uint8_t h, w, i;
+    uint8_t h, w;
+    uint8_t i=0;
     
     for(h=0; h<fs->height; h++)
     {
@@ -79,26 +80,85 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                LCD_WR_DATA(BLUE);
+                // debug: LCD_WR_DATA(BLUE);
+                LCD_WR_DATA(_backColor);
             }
             else
             {
-                for(i=0; i<8; i++)
+                if(fs->bitmap[bi] & (1<<i))
                 {
-                    if(fs->bitmap[bi] & (1<<i))
-                    {
-                        LCD_WR_DATA(_brushColor);
-                    }
-                    else
-                    {
-                        LCD_WR_DATA(_backColor);
-                    }
+                    LCD_WR_DATA(_brushColor);
                 }
-                ++bi;
+                else
+                {
+                    LCD_WR_DATA(_backColor);
+                }
+
+                if(i==7)
+                {
+                    i = 0;
+                    ++bi;
+                }
+                else
+                {
+                    ++i;
+                }
             }
         }
     }
+#elif (ENCODING_METHOD == 3u)
+    uint8_t pixelColor = 0;
+    uint16_t bi = 4;
     
+    uint8_t top = fs->bitmap[0];
+    uint8_t bottom = fs->height - fs->bitmap[1] - 1;
+    uint8_t left = fs->bitmap[2];
+    uint8_t right = fs->width - fs->bitmap[3] - 1;
+    
+    uint8_t h, w;
+    uint16_t writeCount = 0;
+    
+    if(fs->bitmap[4] == 0x01)
+    {
+        pixelColor = 1;
+        bi = 5;
+    }
+    
+    for(h=0; h<fs->height; h++)
+    {
+        for(w=0; w<fs->width; w++)
+        {
+            if(w < left || w > right || h < top || h > bottom)
+            {
+                // debug: LCD_WR_DATA(BLUE);
+                LCD_WR_DATA(_backColor);
+            }
+            else
+            {
+                if(pixelColor)
+                {
+                    LCD_WR_DATA(_brushColor);
+                }
+                else
+                {
+                    LCD_WR_DATA(_backColor);
+                }
+                ++writeCount;
+                
+                if(writeCount == 255 && fs->bitmap[bi] == 0)
+                {
+                    writeCount = 0;
+                    bi++;
+                }
+                else if(writeCount == fs->bitmap[bi])
+                {
+                    writeCount = 0;
+                    bi++;
+                    pixelColor ^= 1;
+                }
+            }
+        }
+    }
 #else
     #error "Unsupported ENCODING_METHOD"
 #endif
