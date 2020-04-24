@@ -82,10 +82,6 @@ def encoding_method_2(steam, margin):
         return None
 
     result = [margin.top, margin.bottom, margin.left, margin.right]
-    sample = 0
-    
-    if(steam[0] & 0x01):    # if the first pixel is white color, push 0x01 to steam as indicator
-        result.append(0x01)
     
     for byte in (steam):
         result.append(byte)
