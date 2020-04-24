@@ -165,8 +165,10 @@ class FontPreviewFrame(Frame):
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
     offset = (0,0)                          # x,y offset
+    fixed_width_height = None               # fixed width and height
     max_width = 83                          # maximum width
     compress_lv = 1                         # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
+    template_file_path = "./template.txt"   # template file path
     export_dir = "./export/"                # export directory
     c_filename = font + str(size)           # generated c source file name
     
@@ -192,7 +194,7 @@ class FontPreviewFrame(Frame):
         cfile = open(self.export_dir + '/' +self.c_filename + ".c", "w")
         
         # Open the template
-        templatefile = open("template.txt", "r")
+        templatefile = open(self.template_file_path, "r")
         template = Template(templatefile.read())
         
         for c in self.text:
@@ -200,7 +202,10 @@ class FontPreviewFrame(Frame):
             print("Char: {0}".format(c));
             print("Actual font size: {0}".format(fnt_size));
             
-            img_size = (min(self.max_width, fnt_size[0]), max(self.size, fnt_size[1]))      # width = fnt_size[0], height = fnt_size[1]
+            if(self.fixed_width_height != None):
+                img_size = self.fixed_width_height
+            else:
+                img_size = (min(self.max_width, fnt_size[0]), max(self.size, fnt_size[1]))      # adaptive adjust the font size
             
             img = Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
             draw = ImageDraw.Draw(img)
