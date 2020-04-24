@@ -11,7 +11,7 @@ Output sequence: Left to right, down to bottom sequentially
 | --- | --- |
 | font = "arial" | font style |
 | size = 80 | font size |
-| text = "0123456789:"            | output whcih symbol |
+| text = "0123456789:"            | output which symbol |
 | offset = (0,0)                  | x,y offset |
 | max_width = 83                  | maximum width |
 | compress_lv = 1                 | compress level (0=no compress, 1=compress) |
