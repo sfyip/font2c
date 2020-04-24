@@ -1,7 +1,7 @@
 # font2c
 A python script which convert font to C array, target for embedded system (e.g. LCD Controller ILI9806)
 
-Prerequisite: Python3
+Prerequisite: Python3<br/>
 Additional Python Library: PIL
 
 Output sequence: Left to right, down to bottom sequentially
