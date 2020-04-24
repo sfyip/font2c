@@ -23,6 +23,7 @@ from tkinter import Tk, Canvas, Frame, BOTH, W
 from PIL import Image, ImageDraw, ImageFont
 from string import Template
 import sys
+import os
 
 #=========================================================================================
 
@@ -143,19 +144,29 @@ special_char = {
 }
 
 def convert_special_char(c):
-    if c.isalnum():
-        return c
+    if c in special_char:
+        return special_char[c]
+    elif c.isascii() and c.isprintable():
+        return c;
     else:
-        return special_char[c] if c in special_char else 'undef'
+        return str(ord(c))          # Unicode character ?
+
+#=========================================================================================
+
+def create_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 #=========================================================================================
 
 class FontPreviewFrame(Frame):
-    font = "arial"                  # font style
+    font = "arial"                  # font style (Test chinese font: kaiu)
     size = 80                       # font size
-    text = "0123456789:"            # output whcih symbol
+    text = "0123456789:"            # "測試間距テスト"  # output whcih symbol
     offset = (0,0)                  # x,y offset
+    max_width = 83                  # set maximum width
     compress_lv = 1                 # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
+    export_dir = "."                # set export directory
     c_filename = font + str(size)   # generated c source file name
     
     def __init__(self):
@@ -172,10 +183,12 @@ class FontPreviewFrame(Frame):
         canvas.pack(fill=BOTH, expand=1)
         
     def export(self):
+        create_dir(self.export_dir)
+    
         fnt = ImageFont.truetype(font=self.font, size=self.size, index=0, encoding='')
         
         # Open the C file
-        cfile = open(self.c_filename + ".c", "w")
+        cfile = open(self.export_dir + '/' +self.c_filename + ".c", "w")
         
         # Open the template
         templatefile = open("template.txt", "r")
@@ -186,7 +199,7 @@ class FontPreviewFrame(Frame):
             print("Char: {0}".format(c));
             print("Actual font size: {0}".format(fnt_size));
             
-            img_size = (fnt_size[0], self.size)      # width = fnt_size[0], height = fnt_size[1]
+            img_size = (min(self.max_width, fnt_size[0]), self.size)      # width = fnt_size[0], height = fnt_size[1]
             
             img = Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
             draw = ImageDraw.Draw(img)
@@ -194,7 +207,7 @@ class FontPreviewFrame(Frame):
             
             imgname = self.font + str(self.size) + "_" + convert_special_char(c)
             
-            img.save(imgname+".bmp")
+            img.save(self.export_dir + '/' + imgname + ".png")
             imgdata = list(img.tobytes())
             
             # Print out image info
@@ -275,8 +288,8 @@ class FontPreviewFrame(Frame):
                         break
                 
                 print("Right margin:", margin.right);
-                
-                #===========================================
+                    
+            #===========================================
             
             byte = 0x00
             count = 0
@@ -296,7 +309,7 @@ class FontPreviewFrame(Frame):
             
             if (count != 0):
                 steam.append(byte)  # push remaining byte
-                
+            
             #===========================================
             
             if (self.compress_lv == 0):    # compress the data?
