@@ -165,9 +165,9 @@ class FontPreviewFrame(Frame):
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
     offset = (0,0)                          # x,y offset
-    max_width = 83                          # set maximum width
+    max_width = 83                          # maximum width
     compress_lv = 1                         # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
-    export_dir = "./export/"                # set export directory
+    export_dir = "./export/"                # export directory
     c_filename = font + str(size)           # generated c source file name
     
     def __init__(self):
