@@ -70,6 +70,30 @@ def encoding_method_1(steam):
 
 #=========================================================================================
 
+#Encoding method 2:
+#direct dump the pixels inside the margin area
+def encoding_method_2(steam, margin):
+    if not isinstance(margin, Margin):
+        Print("encoding_method_2 parameter *margin* incorrect")
+        return None
+    
+    if not isinstance(steam, bytearray):
+        Print("encoding_method_2 parameter *steam* incorrect")
+        return None
+
+    result = [margin.top, margin.bottom, margin.left, margin.right]
+    sample = 0
+    
+    if(steam[0] & 0x01):    # if the first pixel is white color, push 0x01 to steam as indicator
+        result.append(0x01)
+    
+    for byte in (steam):
+        result.append(byte)
+    
+    return result
+
+#=========================================================================================
+
 #Encoding method 3:
 #Save the margin to the steam first, accumulate numbers of '0' and '1' inside the margin area
 def encoding_method_3(steam, margin):
@@ -85,6 +109,9 @@ def encoding_method_3(steam, margin):
     sample = 0
     count = 0
     
+    if(steam[0] & 0x01):    # if the first pixel is white color, push 0x01 to steam as indicator
+        result.append(0x01)
+    
     for byte in (steam):
         for bitpos in range(8):
             bit = 1 if (byte & (1<<bitpos)) else 0
@@ -97,7 +124,7 @@ def encoding_method_3(steam, margin):
             else:
                 result.append(count)
                 count = 1
-                sample ^= 1;        #inverse the bit
+                sample ^= 1         #inverse the bit
     
     if(count != 0):
         result.append(count)    #push remaining byte
@@ -163,7 +190,7 @@ class FontPreviewFrame(Frame):
     size = 24                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
     offset = (0,0)                          # x,y offset
     fixed_width_height = (14,24)            # fixed width and height
     max_width = 24                          # maximum width
