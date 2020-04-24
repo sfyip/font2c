@@ -1,0 +1,10 @@
+
+// Compression Level: ${compresslv}
+// const uint8_t ${imgnamecaps}_WIDTH  = ${width};
+// const uint8_t ${imgnamecaps}_HEIGHT = ${height};
+
+const uint8_t ${imgnamecaps}[${imglen}] = {
+    ${imgdata}
+};
+
+//-------------------------------------------------------------------------
