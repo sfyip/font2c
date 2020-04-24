@@ -27,7 +27,7 @@ Output sequence: Left to right, down to bottom sequentially
     size = 24                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
     offset = (0,0)                          # x,y offset
     fixed_width_height = (14,24)            # fixed width and height
     max_width = 24                          # maximum width
@@ -47,7 +47,7 @@ Output sequence: Left to right, down to bottom sequentially
     size = 80                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
     offset = (0,0)                          # x,y offset
     fixed_width_height = None               # fixed width and height
     max_width = 83                          # maximum width
