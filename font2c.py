@@ -31,10 +31,18 @@ ROWSIZE = 20
 
 #=========================================================================================
 
-#compress the steam, record continous '0' or '1'
-def compress_lv1(steam):
+class Margin():
+    top = 0
+    bottom = 0
+    left = 0
+    right = 0
+
+#=========================================================================================
+
+#Encoding method 1: Accumulate numbers of '0' and '1'
+def encoding_method_1(steam):
     if not isinstance(steam, bytearray):
-        Print("compress_lv1 parameter *steam* incorrect")
+        Print("encoding_method_1 parameter *steam* incorrect")
         return None
     
     result = []
@@ -62,23 +70,15 @@ def compress_lv1(steam):
 
 #=========================================================================================
 
-class Margin():
-    top = 0
-    bottom = 0
-    left = 0
-    right = 0
-
-#=========================================================================================
-
-#Save the margin info to the steam
-#compress the steam (inside margin area), record continous '0' or '1'
-def compress_lv2(steam, margin):
+#Encoding method 3:
+#Save the margin to the steam first, accumulate numbers of '0' and '1' inside the margin area
+def encoding_method_3(steam, margin):
     if not isinstance(margin, Margin):
-        Print("compress_lv2 parameter *margin* incorrect")
+        Print("encoding_method_3 parameter *margin* incorrect")
         return None
     
     if not isinstance(steam, bytearray):
-        Print("compress_lv2 parameter *steam* incorrect")
+        Print("encoding_method_3 parameter *steam* incorrect")
         return None
 
     result = [margin.top, margin.bottom, margin.left, margin.right]
@@ -159,15 +159,19 @@ def create_dir(directory):
 #=========================================================================================
 
 class FontPreviewFrame(Frame):
-    font = "arial"                          # font style (Test chinese font: kaiu)
-    size = 80                               # font size
+    font = "cour"                           # font style (Test chinese font: kaiu)
+    size = 24                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output whcih symbol
     offset = (0,0)                          # x,y offset
-    fixed_width_height = None               # fixed width and height
-    max_width = 83                          # maximum width
-    compress_lv = 1                         # compress level (0=no compress, 1=compress, 2=chop margin and compress, not recommanded)
+    fixed_width_height = (14,24)            # fixed width and height
+    max_width = 24                          # maximum width
+    encoding_method = 0                     # encoding method
+                                            # 0=direct dump the pixels
+                                            # 1=accumulate numbers of 0 and 1
+                                            # 2=direct dump the pixels inside the margin area
+                                            # 3=accumulate numbers of 0 and 1 inside the margin area
     template_file_path = "./template.txt"   # template file path
     export_dir = "./export/"                # export directory
     c_filename = font + str(size)           # generated c source file name
@@ -227,7 +231,7 @@ class FontPreviewFrame(Frame):
             
             margin = Margin()
             
-            if (self.compress_lv == 2):
+            if (self.encoding_method == 2 or self.encoding_method == 3):
                 #===========================================
                 
                 #calculate top margin
@@ -324,14 +328,16 @@ class FontPreviewFrame(Frame):
             
             #===========================================
             
-            if (self.compress_lv == 0):    # compress the data?
+            if (self.encoding_method == 0):
                 pass
-            elif (self.compress_lv == 1):
-                steam = compress_lv1(steam)
-            elif (self.compress_lv == 2):
-                steam = compress_lv2(steam, margin)
+            elif (self.encoding_method == 1):
+                steam = encoding_method_1(steam)
+            elif (self.encoding_method == 2):
+                steam = encoding_method_2(steam, margin)
+            elif (self.encoding_method == 3):
+                steam = encoding_method_3(steam, margin)
             else:
-                print("unsupport compress level\n")
+                print("Unsupport encoding method\n")
                 cfile.close()
                 return
             
@@ -342,7 +348,7 @@ class FontPreviewFrame(Frame):
             
             data['imgname'] = imgname
             data['imgnamecaps'] = imgname.upper()
-            data['compresslv'] = self.compress_lv
+            data['encoding_method'] = self.encoding_method
             data['width'] = img.size[0]
             data['height'] = img.size[1]
             data['imglen'] = len(steam)

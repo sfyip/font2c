@@ -1,10 +1,16 @@
 
-// Compression Level: ${compresslv}
-// const uint8_t ${imgname}_WIDTH  = ${width};
-// const uint8_t ${imgname}_HEIGHT = ${height};
+const uint8_t ${imgname}_WIDTH  = ${width};
+const uint8_t ${imgname}_HEIGHT = ${height};
 
-const uint8_t ${imgname}[${imglen}] = {
+const uint8_t ${imgname}_ENC${encoding_method}[${imglen}] = {
     ${imgdata}
+};
+
+const font_symbol_t ${imgnamecaps} = {
+  ${imgname}_WIDTH,
+  ${imgname}_HEIGHT,
+  ${imgname}_ENC${encoding_method},
+  sizeof(${imgname}_ENC${encoding_method})
 };
 
 //-------------------------------------------------------------------------

@@ -16,8 +16,8 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     
     LCD_WR_REG(0x2C);                     /* Write GRAM   */
     
-#if (COMPRESS_LV == 0u)
-    // Compress LV: 0
+#if (ENCODING_METHOD == 0u)
+    // Encoding method: 0
     uint16_t i;
     uint16_t area = (fs->width * fs->height) >> 3;
     uint8_t j;
@@ -35,7 +35,7 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
             }
         }
     }
-#elif (COMPRESS_LV == 1u)
+#elif (ENCODING_METHOD == 1u)
     uint16_t count;
     uint8_t pixelColor = 0;
     uint16_t i, j;
@@ -63,7 +63,7 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
         }
     }
 #else
-    #error "COMPRESS_LV not defined"
+    #error "Unsupported ENCODING_METHOD"
 #endif
     
     /* Release the chop region */
