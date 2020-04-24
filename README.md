@@ -14,6 +14,6 @@ Output sequence: Left to right, down to bottom sequentially
 | text = "0123456789:"            | output which symbol |
 | offset = (0,0)                  | x,y offset |
 | max_width = 83                  | maximum width |
-| compress_lv = 1                 | compress level (0=no compress, 1=compress) |
+| compress_lv = 1                 | compression level (0=no compression, 1=accumulate numbers of 1 and 0) |
 | export_dir = "./export/"        | export directory |
 | c_filename = font + str(size)   | generated c source file name |
