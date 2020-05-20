@@ -32,7 +32,23 @@ import textwrap
 
 #=========================================================================================
 
-ROWSIZE = 20
+class font_config():
+    font = "cour"                           # font style (Test chinese font: kaiu)
+    size = 24                               # font size
+    text = "0123456789:"                \
+           "abcdefghijklmnopqrstuvwxyz" \
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
+    offset = (0,0)                          # x,y offset
+    fixed_width_height = (14,24)            # fixed width and height
+    max_width = 24                          # maximum width
+    encoding_method = 0                     # encoding method
+                                            # 0=direct dump the pixels
+                                            # 1=accumulate numbers of 0 and 1
+                                            # 2=direct dump the pixels inside the margin area
+                                            # 3=accumulate numbers of 0 and 1 inside the margin area
+    template_file_path = "./template.txt"   # template file path
+    export_dir = "./export/"                # export directory
+    c_filename = font + str(size)           # generated c source file name
 
 #=========================================================================================
 
@@ -227,28 +243,10 @@ class CustomFont_Message(Label):
 
 #=========================================================================================
 
-class font_config():
-    font = "cour"                           # font style (Test chinese font: kaiu)
-    size = 24                               # font size
-    text = "0123456789:"                \
-           "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
-    offset = (0,0)                          # x,y offset
-    fixed_width_height = (14,24)            # fixed width and height
-    max_width = 24                          # maximum width
-    encoding_method = 0                     # encoding method
-                                            # 0=direct dump the pixels
-                                            # 1=accumulate numbers of 0 and 1
-                                            # 2=direct dump the pixels inside the margin area
-                                            # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = "./template.txt"   # template file path
-    export_dir = "./export/"                # export directory
-    c_filename = font + str(size)           # generated c source file name
-    
-
 class font2c():
     
     conf = None
+    ROWSIZE = 20
     
     def __init__(self, conf):
         if(isinstance(conf, font_config)):
@@ -422,7 +420,7 @@ class font2c():
             data['width'] = img.size[0]
             data['height'] = img.size[1]
             data['imglen'] = len(steam)
-            data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + ROWSIZE]]) for y in range(0, len(steam), ROWSIZE)])
+            data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.ROWSIZE]]) for y in range(0, len(steam), self.ROWSIZE)])
             
             cfile.write(template.substitute(data))
             
@@ -440,5 +438,5 @@ f2c.export()
 f2c.preview()
 w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
 root.title("Font Preview")
-root.geometry("%dx%d+0+0" % (w, h))
+root.geometry("%dx%d" % (w, h))
 root.mainloop()
