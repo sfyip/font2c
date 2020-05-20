@@ -19,11 +19,16 @@
 
 #!/usr/bin/env python3
 
-from tkinter import Tk, Canvas, Frame, BOTH, W
-from PIL import Image, ImageDraw, ImageFont
+try:
+    from tkinter import Label, Tk
+except:
+    from tkinter import Label, Tk
+
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 from string import Template
 import sys
 import os
+import textwrap
 
 #=========================================================================================
 
@@ -182,7 +187,47 @@ def create_dir(directory):
 
 #=========================================================================================
 
-class FontPreviewFrame(Frame):
+def truetype_font(font_path, size):
+    return ImageFont.truetype(font_path, size)
+
+#=========================================================================================
+
+class CustomFont_Message(Label):
+    def __init__(self, master, text, width, foreground="black", truetype_font=None, font_path=None, family=None, size=None, **kwargs):   
+        if truetype_font is None:
+            if font_path is None:
+                raise ValueError("Font path can't be None")
+                
+            # Initialize font
+            truetype_font = ImageFont.truetype(font_path, size)
+        
+        lines = textwrap.wrap(text, width=width)
+        
+        width = 0
+        height = 0
+        
+        line_heights = []
+        for line in lines:
+            line_width, line_height = truetype_font.getsize(line)
+            line_heights.append(line_height)
+            
+            width = max(width, line_width)
+            height += line_height
+
+        image = Image.new("RGBA", (width, height), color=(0,0,0,0))
+        draw = ImageDraw.Draw(image)
+
+        y_text = 0
+        for i, line in enumerate(lines):
+            draw.text((0, y_text), line, font=truetype_font, fill=foreground)
+            y_text += line_heights[i]
+
+        self._photoimage = ImageTk.PhotoImage(image)
+        Label.__init__(self, master, image=self._photoimage, **kwargs)
+
+#=========================================================================================
+
+class font_config():
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24                               # font size
     text = "0123456789:"                \
@@ -200,53 +245,54 @@ class FontPreviewFrame(Frame):
     export_dir = "./export/"                # export directory
     c_filename = font + str(size)           # generated c source file name
     
-    def __init__(self):
-        super().__init__()
-        self.initUI()
+
+class font2c():
     
-    def initUI(self):
-        fnt = ImageFont.truetype(font=self.font, size=self.size, index=0, encoding='')
-        self.master.title(self.font)
-        self.pack(fill=BOTH, expand=1)
-        
-        canvas = Canvas(self)
-        canvas.create_text(5, 5, anchor="nw", font=(self.font, self.size), text=self.text)
-        canvas.pack(fill=BOTH, expand=1)
-        
+    conf = None
+    
+    def __init__(self, conf):
+        if(isinstance(conf, font_config)):
+            self.conf = conf
+        else:
+            raise TypeError("Only font_config type is allowed")
+    
+    def preview(self):
+        CustomFont_Message(root, text=self.conf.text, width=40, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
+
     def export(self):
-        create_dir(self.export_dir)
+        create_dir(self.conf.export_dir)
     
-        fnt = ImageFont.truetype(font=self.font, size=self.size, index=0, encoding='')
+        fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
         
         # Open the C file
-        cfile = open(self.export_dir + '/' +self.c_filename + ".c", "w")
+        cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w")
         
         # Open the template
-        templatefile = open(self.template_file_path, "r")
+        templatefile = open(self.conf.template_file_path, "r")
         template = Template(templatefile.read())
         
-        for c in self.text:
+        for c in self.conf.text:
             fnt_size = fnt.getsize(c)
             print("Char: {0}".format(c));
             print("Actual font size: {0}".format(fnt_size));
             
-            if(self.fixed_width_height != None):
-                img_size = self.fixed_width_height
+            if(self.conf.fixed_width_height != None):
+                img_size = self.conf.fixed_width_height
             else:
-                img_size = (min(self.max_width, fnt_size[0]), max(self.size, fnt_size[1]))      # adaptive adjust the font size
+                img_size = (min(self.conf.max_width, fnt_size[0]), max(self.conf.size, fnt_size[1]))      # adaptive adjust the font size
             
             img = Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
             draw = ImageDraw.Draw(img)
-            draw.text(self.offset, c, font=fnt, fill=1)  # 1= white color
+            draw.text(self.conf.offset, c, font=fnt, fill=1)  # 1= white color
             
             alias_c = convert_special_char(c)
             
             if c.islower():
-                img.save(self.export_dir + '/' + self.font + str(self.size) + "_l" + alias_c + ".png")
+                img.save(self.conf.export_dir + '/' + self.conf.font + str(self.conf.size) + "_l" + alias_c + ".png")
             else:
-                img.save(self.export_dir + '/' + self.font + str(self.size) +"_"+ alias_c + ".png")
+                img.save(self.conf.export_dir + '/' + self.conf.font + str(self.conf.size) +"_"+ alias_c + ".png")
             
-            imgname = self.font + str(self.size) + "_" + alias_c
+            imgname = self.conf.font + str(self.conf.size) + "_" + alias_c
             imgdata = list(img.tobytes())
             
             # Print out image info
@@ -255,7 +301,7 @@ class FontPreviewFrame(Frame):
             
             margin = Margin()
             
-            if (self.encoding_method == 2 or self.encoding_method == 3):
+            if (self.conf.encoding_method == 2 or self.conf.encoding_method == 3):
                 #===========================================
                 
                 #calculate top margin
@@ -352,13 +398,13 @@ class FontPreviewFrame(Frame):
             
             #===========================================
             
-            if (self.encoding_method == 0):
+            if (self.conf.encoding_method == 0):
                 pass
-            elif (self.encoding_method == 1):
+            elif (self.conf.encoding_method == 1):
                 steam = encoding_method_1(steam)
-            elif (self.encoding_method == 2):
+            elif (self.conf.encoding_method == 2):
                 steam = encoding_method_2(steam, margin)
-            elif (self.encoding_method == 3):
+            elif (self.conf.encoding_method == 3):
                 steam = encoding_method_3(steam, margin)
             else:
                 print("Unsupport encoding method\n")
@@ -372,7 +418,7 @@ class FontPreviewFrame(Frame):
             
             data['imgname'] = imgname
             data['imgnamecaps'] = imgname.upper()
-            data['encoding_method'] = self.encoding_method
+            data['encoding_method'] = self.conf.encoding_method
             data['width'] = img.size[0]
             data['height'] = img.size[1]
             data['imglen'] = len(steam)
@@ -387,7 +433,12 @@ class FontPreviewFrame(Frame):
 #=========================================================================================
 
 root = Tk()
-ex = FontPreviewFrame()
-ex.export()
-root.geometry("800x600")
+
+f_config = font_config()
+f2c = font2c(f_config)
+f2c.export()
+f2c.preview()
+w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
+root.title("Font Preview")
+root.geometry("%dx%d+0+0" % (w, h))
 root.mainloop()
