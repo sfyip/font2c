@@ -208,7 +208,7 @@ def truetype_font(font_path, size):
 
 #=========================================================================================
 
-class CustomFont_Message(Label):
+class ttf_label(Label):
     def __init__(self, master, text, width, foreground="black", truetype_font=None, font_path=None, family=None, size=None, **kwargs):   
         if truetype_font is None:
             if font_path is None:
@@ -244,9 +244,8 @@ class CustomFont_Message(Label):
 #=========================================================================================
 
 class font2c():
-    
     conf = None
-    ROWSIZE = 20
+    rowsize = 20
     
     def __init__(self, conf):
         if(isinstance(conf, font_config)):
@@ -255,11 +254,11 @@ class font2c():
             raise TypeError("Only font_config type is allowed")
     
     def preview(self):
-        CustomFont_Message(root, text=self.conf.text, width=40, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
+        ttf_label(root, text=self.conf.text, width=200, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
 
     def export(self):
         create_dir(self.conf.export_dir)
-    
+        
         fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
         
         # Open the C file
@@ -420,7 +419,7 @@ class font2c():
             data['width'] = img.size[0]
             data['height'] = img.size[1]
             data['imglen'] = len(steam)
-            data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.ROWSIZE]]) for y in range(0, len(steam), self.ROWSIZE)])
+            data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
             
             cfile.write(template.substitute(data))
             
