@@ -33,6 +33,7 @@ import textwrap
 #=========================================================================================
 
 class font_config():
+    bpp  = 1                                # 1-bpp
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24                               # font size
     text = "0123456789:"                \
@@ -253,6 +254,24 @@ class font2c():
         else:
             raise TypeError("Only font_config type is allowed")
     
+    def _img_init(self, img_size):
+        if(self.conf.bpp == 1):
+            return Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
+        else:
+            raise TypeError("bpp only accept 1,8 or RGB is allowed")
+    
+    def _img_is_pixel_blank(self, img, xy):
+        if(self.conf.bpp == 1):
+            return (img.getpixel(xy) & 1) == 0;
+        else:
+            raise TypeError("bpp only accept 1,8 or RGB is allowed")
+    
+    def _img_push_pixel_to_steam(self, img, xy):
+        if(self.conf.bpp == 1):
+            return 1, (img.getpixel(xy) & 1);
+        else:
+            raise TypeError("bpp only accept 1,8 or RGB is allowed")    
+    
     def preview(self):
         ttf_label(root, text=self.conf.text, width=200, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
 
@@ -278,7 +297,9 @@ class font2c():
             else:
                 img_size = (min(self.conf.max_width, fnt_size[0]), max(self.conf.size, fnt_size[1]))      # adaptive adjust the font size
             
-            img = Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
+            
+            img = self._img_init(img_size)
+            
             draw = ImageDraw.Draw(img)
             draw.text(self.conf.offset, c, font=fnt, fill=1)  # 1= white color
             
@@ -305,7 +326,7 @@ class font2c():
                 for y in range(img_size[1]) :
                     accumulateBlank = 0
                     for x in range(img_size[0]):
-                        if ((img.getpixel((x, y)) & 1) == 0):
+                        if (self._img_is_pixel_blank(img, (x,y))):
                             accumulateBlank += 1
                         else:
                             break
@@ -323,7 +344,7 @@ class font2c():
                 for y in reversed(range(img_size[1])):
                     accumulateBlank = 0
                     for x in range(img_size[0]):
-                        if ((img.getpixel((x, y)) & 1) == 0):
+                        if (self._img_is_pixel_blank(img, (x, y))):
                             accumulateBlank += 1
                         else:
                             break
@@ -341,7 +362,7 @@ class font2c():
                 for x in range(img_size[0]):
                     accumulateBlank = 0
                     for y in range(img_size[1]):
-                        if ((img.getpixel((x, y)) & 1) == 0):
+                        if (self._img_is_pixel_blank(img, (x, y))):
                             accumulateBlank += 1
                         else:
                             break
@@ -359,7 +380,7 @@ class font2c():
                 for x in reversed(range(img_size[0])):
                     accumulateBlank = 0
                     for y in range(img_size[1]):
-                        if ((img.getpixel((x, y)) & 1) == 0):
+                        if (self._img_is_pixel_blank(img, (x, y))):
                             accumulateBlank += 1
                         else:
                             break
@@ -379,16 +400,17 @@ class font2c():
             
             # Scan from left to right,  down to bottom sequentially
             for y in range(margin.top, img_size[1]-margin.bottom):
-                for x in range(margin.left, img_size[0]-margin.right):      
-                    if (img.getpixel((x, y)) & 1):
-                        byte |= (1 << count)
+                for x in range(margin.left, img_size[0]-margin.right):
+                    bit_shift, pattern = self._img_push_pixel_to_steam(img, (x,y))
+                    byte |= (pattern << count)
                     
-                    if (count == 7):
+                    count += bit_shift
+                    if (count == 8):
                         steam.append(byte)
                         count = 0
                         byte = 0x00
-                    else:
-                        count += 1
+                    elif (count > 8):
+                        raise OverflowError("The bit count should be <= 8");
             
             if (count != 0):
                 steam.append(byte)  # push remaining byte
