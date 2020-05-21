@@ -307,7 +307,7 @@ class font2c():
             raise TypeError("bpp only accept 1,8 or RGB is allowed")    
     
     def preview(self):
-        ttf_label(root, text=self.conf.text, width=200, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
+        ttf_label(root, text=self.conf.text, width=20, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
 
     def export(self):
         create_dir(self.conf.export_dir)
