@@ -29,6 +29,7 @@ from string import Template
 import sys
 import os
 import textwrap
+import configparser
 
 #=========================================================================================
 
@@ -50,6 +51,39 @@ class font_config():
     template_file_path = "./template.txt"   # template file path
     export_dir = "./export/"                # export directory
     c_filename = font + str(size)           # generated c source file name
+    
+def load_config(config_file_path):
+    cfg = configparser.ConfigParser()
+    cfg.read(config_file_path)
+    
+    
+    font_list = []
+    
+    for section in cfg.sections():
+        print("Section: %s" % section)
+        
+        c = font_config();
+        c.c_filename = section
+        c.bpp = cfg.getint(section, 'bpp')
+        c.font = cfg.get(section, 'font')
+        c.size = cfg.getint(section, 'size')
+        c.text = cfg.get(section, 'text')
+        c.offset = eval(cfg.get(section, 'offset'), {}, {})
+        c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
+        c.max_width = cfg.getint(section, 'max_width')
+        c.encoding_method = cfg.getint(section, 'encoding_method')
+        c.template_file_path = cfg.get(section, 'template_file_path')
+        c.export_dir = cfg.get(section, 'export_dir')
+        
+        font_list.append(c)
+        
+    return font_list
+
+def show_help():
+    print("font2c.py by yipxxx@gmail.com")
+    print("------------------------------------------------------");
+    print("Load the font properties from config file: python font2c.py font_config.ini")
+    print("Generated from default setting: python font2c.py")
 
 #=========================================================================================
 
@@ -284,8 +318,14 @@ class font2c():
         cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w")
         
         # Open the template
-        templatefile = open(self.conf.template_file_path, "r")
-        template = Template(templatefile.read())
+        template = None
+        
+        try:
+            templatefile = open(self.conf.template_file_path, "r")
+            template = Template(templatefile.read())
+        except IOError:
+             print('Cannot open template file: ' + self.conf.template_file_path)
+             return
         
         for c in self.conf.text:
             fnt_size = fnt.getsize(c)
@@ -453,11 +493,28 @@ class font2c():
 
 root = Tk()
 
-f_config = font_config()
-f2c = font2c(f_config)
-f2c.export()
-f2c.preview()
+argv_len = len(sys.argv)
+
+if(argv_len == 1):
+    config = font_config()
+    f2c = font2c(config)
+    f2c.export()
+    f2c.preview()
+    
+elif(argv_len == 2):
+    print("Load from config file: ", sys.argv[1])
+    font_config_list = load_config(sys.argv[1])
+    
+    for config in font_config_list:
+        f2c = font2c(config)
+        f2c.export()
+        f2c.preview()
+else:
+    show_help()
+
 w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
 root.title("Font Preview")
 root.geometry("%dx%d" % (w, h))
 root.mainloop()
+
+
