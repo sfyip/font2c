@@ -1,3 +1,4 @@
+# coding=utf-8
 '''  font2c.v
         Convert the font to C array format, output to LCD controller (e.g. ILI9806)
     
@@ -22,20 +23,24 @@
 try:
     from tkinter import Label, Tk
 except:
-    from tkinter import Label, Tk
+    from Tkinter import Label, Tk
 
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 from string import Template
 import sys
 import os
 import textwrap
-import configparser
+
+try:
+    import configparser
+except:
+    import ConfigParser
 
 #=========================================================================================
 
 class font_config():
     bpp  = 1                                # 1-bpp
-    font = "cour"                           # font style (Test chinese font: kaiu)
+    font = "cour"                           # font style (Test chinese font: kaiu) (ubuntu 18.04: /usr/share/fonts/truetype/freefont/FreeMono.ttf)
     size = 24                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
@@ -54,7 +59,7 @@ class font_config():
     
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
-    cfg.read(config_file_path)
+    cfg.read(config_file_path, encoding='utf-8')
     
     
     font_list = []
@@ -82,8 +87,8 @@ def load_config(config_file_path):
 def show_help():
     print("font2c.py by yipxxx@gmail.com")
     print("------------------------------------------------------");
-    print("Load the font properties from config file: python font2c.py font_config.ini")
-    print("Generated from default setting: python font2c.py")
+    print("Load the font properties from config file: python3 font2c.py font_config.ini")
+    print("Generated from default setting: python3 font2c.py")
 
 #=========================================================================================
 
@@ -222,11 +227,14 @@ special_char = {
     '~'   : 'tilde'
 }
 
+def is_ascii(c):
+    return ord(c) < 128
+
 def convert_special_char(c):
     if c in special_char:
         return special_char[c]
-    elif c.isascii() and c.isprintable():
-        return c;
+    elif is_ascii(c) and c.isprintable():   # c.isascii() only supports > python 3.7
+        return c
     else:
         return str(ord(c))          # Unicode character ?
 
@@ -345,12 +353,14 @@ class font2c():
             
             alias_c = convert_special_char(c)
             
+            font_name = os.path.splitext(os.path.basename(self.conf.font))[0]
+
             if c.islower():
-                img.save(self.conf.export_dir + '/' + self.conf.font + str(self.conf.size) + "_l" + alias_c + ".png")
+                img.save(self.conf.export_dir + '/' + font_name + str(self.conf.size) + "_l" + alias_c + ".png")
             else:
-                img.save(self.conf.export_dir + '/' + self.conf.font + str(self.conf.size) +"_"+ alias_c + ".png")
+                img.save(self.conf.export_dir + '/' + font_name + str(self.conf.size) +"_"+ alias_c + ".png")
             
-            imgname = self.conf.font + str(self.conf.size) + "_" + alias_c
+            imgname = font_name + str(self.conf.size) + "_" + alias_c
             imgdata = list(img.tobytes())
             
             # Print out image info

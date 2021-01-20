@@ -1,10 +1,10 @@
 # font2c
-A python script which convert font to C array, target for embedded systems (e.g. LCD Controller ILI9806)
+A python script which converts font to C array, target for embedded systems (e.g. LCD Controller ILI9806)
 
 Prerequisite: Python3<br/>
-Additional Python Library: PIL<br/>
+Additional Python Library: Pillow (PIL fork)<br/>
 Usage:<br/>
- - Load the font properties from config file: python font_config.ini<br/>
+ - Load the font properties from config file: python3 font2c.py font_config.ini<br/>
  - Export the default setting: python font2c.py
 
 Output sequence: Left to right, down to bottom sequentially
