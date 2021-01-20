@@ -167,12 +167,12 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     LCD_WR_REG(0X2A);                   /* column address control set */
     LCD_WR_DATA(0);
     LCD_WR_DATA(0);
-    LCD_WR_DATA((lcd_dev.width) >>8);
-    LCD_WR_DATA((lcd_dev.width) &0xff);
+    LCD_WR_DATA((lcd_dev.width-1) >>8);
+    LCD_WR_DATA((lcd_dev.width-1) &0xff);
     
     LCD_WR_REG(0X2B);                   /* page address control set */
     LCD_WR_DATA(0);
     LCD_WR_DATA(0);  
-    LCD_WR_DATA((lcd_dev.height) >>8);
-    LCD_WR_DATA((lcd_dev.height) &0xff);
+    LCD_WR_DATA((lcd_dev.height-1) >>8);
+    LCD_WR_DATA((lcd_dev.height-1) &0xff);
 }
