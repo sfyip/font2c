@@ -32,9 +32,21 @@ import os
 import textwrap
 
 try:
-    import configparser
+    import configparser as configparser
 except:
-    import ConfigParser
+    import ConfigParser as configparser
+
+
+#=========================================================================================
+
+def create_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+#=========================================================================================
+
+def extract_filename(path):
+    return os.path.splitext(os.path.basename(path))[0]
 
 #=========================================================================================
 
@@ -55,7 +67,7 @@ class font_config():
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
     template_file_path = "./template.txt"   # template file path
     export_dir = "./export/"                # export directory
-    c_filename = font + str(size)           # generated c source file name
+    c_filename = extract_filename(font) + str(size)           # generated c source file name
     
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
@@ -67,7 +79,7 @@ def load_config(config_file_path):
     for section in cfg.sections():
         print("Section: %s" % section)
         
-        c = font_config();
+        c = font_config()
         c.c_filename = section
         c.bpp = cfg.getint(section, 'bpp')
         c.font = cfg.get(section, 'font')
@@ -86,7 +98,7 @@ def load_config(config_file_path):
 
 def show_help():
     print("font2c.py by yipxxx@gmail.com")
-    print("------------------------------------------------------");
+    print("------------------------------------------------------")
     print("Load the font properties from config file: python3 font2c.py font_config.ini")
     print("Generated from default setting: python3 font2c.py")
 
@@ -122,7 +134,7 @@ def encoding_method_1(steam):
             else:
                 result.append(count)
                 count = 1
-                sample ^= 1;        #inverse the bit
+                sample ^= 1         #inverse the bit
     
     if(count != 0):
         result.append(count)    #push remaining byte
@@ -240,12 +252,6 @@ def convert_special_char(c):
 
 #=========================================================================================
 
-def create_dir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-#=========================================================================================
-
 def truetype_font(font_path, size):
     return ImageFont.truetype(font_path, size)
 
@@ -258,8 +264,12 @@ class ttf_label(Label):
                 raise ValueError("Font path can't be None")
                 
             # Initialize font
-            truetype_font = ImageFont.truetype(font_path, size)
-        
+            try:
+                truetype_font = ImageFont.truetype(font_path, size)
+            except IOError:
+                print('Cannot open the font: ' + font_path)
+                exit()
+
         lines = textwrap.wrap(text, width=width)
         
         width = 0
@@ -304,13 +314,13 @@ class font2c():
     
     def _img_is_pixel_blank(self, img, xy):
         if(self.conf.bpp == 1):
-            return (img.getpixel(xy) & 1) == 0;
+            return (img.getpixel(xy) & 1) == 0
         else:
             raise TypeError("bpp only accept 1,8 or RGB is allowed")
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
-            return 1, (img.getpixel(xy) & 1);
+            return 1, (img.getpixel(xy) & 1)
         else:
             raise TypeError("bpp only accept 1,8 or RGB is allowed")    
     
@@ -320,8 +330,12 @@ class font2c():
     def export(self):
         create_dir(self.conf.export_dir)
         
-        fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
-        
+        try:
+            fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
+        except IOError:
+            print('Cannot open the font: ' + self.conf.font)
+            exit()
+
         # Open the C file
         cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w")
         
@@ -333,12 +347,12 @@ class font2c():
             template = Template(templatefile.read())
         except IOError:
              print('Cannot open template file: ' + self.conf.template_file_path)
-             return
+             exit()
         
         for c in self.conf.text:
             fnt_size = fnt.getsize(c)
-            print("Char: {0}".format(c));
-            print("Actual font size: {0}".format(fnt_size));
+            print("Char: {0}".format(c))
+            print("Actual font size: {0}".format(fnt_size))
             
             if(self.conf.fixed_width_height != None):
                 img_size = self.conf.fixed_width_height
@@ -353,14 +367,11 @@ class font2c():
             
             alias_c = convert_special_char(c)
             
-            font_name = os.path.splitext(os.path.basename(self.conf.font))[0]
+            font_name = extract_filename(self.conf.font) + str(self.conf.size)
 
-            if c.islower():
-                img.save(self.conf.export_dir + '/' + font_name + str(self.conf.size) + "_l" + alias_c + ".png")
-            else:
-                img.save(self.conf.export_dir + '/' + font_name + str(self.conf.size) +"_"+ alias_c + ".png")
-            
-            imgname = font_name + str(self.conf.size) + "_" + alias_c
+            img.save(self.conf.export_dir + '/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
+
+            imgname = font_name + '_' + alias_c
             imgdata = list(img.tobytes())
             
             # Print out image info
@@ -386,7 +397,7 @@ class font2c():
                     else:
                         break
                 
-                print("Top margin:", margin.top);
+                print("Top margin:", margin.top)
                 
                 #===========================================
                 
@@ -404,7 +415,7 @@ class font2c():
                     else:
                         break
                 
-                print("Bottom margin:", margin.bottom);
+                print("Bottom margin:", margin.bottom)
                 
                 #===========================================
                 
@@ -440,7 +451,7 @@ class font2c():
                     else:
                         break
                 
-                print("Right margin:", margin.right);
+                print("Right margin:", margin.right)
                     
             #===========================================
             
@@ -460,7 +471,7 @@ class font2c():
                         count = 0
                         byte = 0x00
                     elif (count > 8):
-                        raise OverflowError("The bit count should be <= 8");
+                        raise OverflowError("The bit count should be <= 8")
             
             if (count != 0):
                 steam.append(byte)  # push remaining byte
