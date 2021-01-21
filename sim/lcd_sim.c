@@ -13,6 +13,11 @@ static point_t lcdsim_cur;
 
 //=========================================================================
 
+static lcd_color_t back_color = LCD_BLACK_COLOR;
+static lcd_color_t brush_color = LCD_WHITE_COLOR;
+
+//=========================================================================
+
 void lcdsim_init()
 {
     fp = open ("/dev/fb0",O_RDWR);
@@ -74,7 +79,7 @@ void lcdsim_clear_screen()
 
 //=========================================================================
 
-void lcdsim_draw_pixel(uint16_t x, uint16_t y, colordef_t color)
+void lcdsim_draw_pixel(uint16_t x, uint16_t y, lcd_color_t color)
 {
     if(!fbp || ((int)fbp) == -1)
     {
@@ -88,9 +93,9 @@ void lcdsim_draw_pixel(uint16_t x, uint16_t y, colordef_t color)
 
     uint32_t location = x * (vinfo.bits_per_pixel / 8) + y * finfo.line_length;
 
-    uint8_t r = ((color & 0xF800) >> 8);
-    uint8_t g = ((color & 0x07E0) >> 3);
-    uint8_t b = ((color & 0x001F) << 3);
+    uint8_t r = RGB565_TO_R8(color);
+    uint8_t g = RGB565_TO_G8(color);
+    uint8_t b = RGB565_TO_B8(color);
 
     *(fbp + location) = b;        // blue
     *(fbp + location + 1) = g;    // green
@@ -100,7 +105,7 @@ void lcdsim_draw_pixel(uint16_t x, uint16_t y, colordef_t color)
 
 //=========================================================================
 
-void lcdsim_fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, colordef_t color)
+void lcdsim_fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, lcd_color_t color)
 {
     lcdsim_set_bound(x, y, x+width, y+height);
 
@@ -126,7 +131,7 @@ void lcdsim_set_bound(uint16_t startx, uint16_t starty, uint16_t endx, uint16_t 
 
 //=========================================================================
 
-void lcdsim_write_data(colordef_t color)
+void lcdsim_write_data(lcd_color_t color)
 {
     lcdsim_draw_pixel(lcdsim_cur.x, lcdsim_cur.y, color);
 
@@ -145,3 +150,90 @@ void lcdsim_write_data(colordef_t color)
 }
 
 //=========================================================================
+
+void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
+{
+    const uint8_t *bitmap = fnt->lookup(c);
+    if(!bitmap)
+    {
+        return;
+    }
+
+    uint8_t font_width = fnt->width;
+    uint8_t font_height = fnt->height;
+
+    lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
+
+#if (CONFIG_FONT_ENC == 0u)
+    uint16_t i = 0;
+    uint8_t j = 0;
+    uint16_t area = font_width * font_height;
+    while(area--)
+    {
+        if(bitmap[i] & (1<<j))
+        {
+            lcdsim_write_data(brush_color);
+        }
+        else
+        {
+            lcdsim_write_data(back_color);
+        }
+
+        if(j == 7)
+        {
+            ++i;
+            j = 0;
+        }
+        else
+        {
+            ++j;
+        }
+    }
+#elif(CONFIG_FONT_ENC == 1u)
+
+#endif
+
+    lcdsim_set_bound(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
+}
+
+//=========================================================================
+
+void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
+{
+    uint16_t orgx = x;
+
+    char c;
+    while((c = *s) != '\0')
+    {
+        if(c == '\n')
+        {
+            y += fnt->height;
+            x = orgx;
+        }
+        else if(c == ' ')
+        {
+            x += fnt->width;
+        }
+        else
+        {
+            lcdsim_draw_char(x, y, fnt, c);
+            x += fnt->width;
+        }
+        ++s;
+    }
+
+}
+
+//=========================================================================
+
+void lcdsim_set_back_color(lcd_color_t color)
+{
+    back_color = color;
+}
+
+//=========================================================================
+
+void lcdsim_set_brush_color(lcd_color_t color)
+{
+    brush_color = color;
+}

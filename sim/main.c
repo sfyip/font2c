@@ -8,76 +8,20 @@
 
 #include <stdint.h>
 #include "lcd_sim.h"
-#include "cour24.h"
 
-#define BACK_COLOR     0x0000
-#define BRSUH_COLOR    0xF800
+//=========================================================================
 
-void lcd_draw_font(uint16_t x, uint16_t y, char c)
-{
-    const uint8_t *bitmap = cour24_lookup_font(c);
-    if(!bitmap)
-    {
-        return;
-    }
+#define CONFIG_FONT_ENC   0u
 
-    uint8_t font_width = cour24_get_width();
-    uint8_t font_height = cour24_get_height();
+#if (CONFIG_FONT_ENC == 0u)
+    #include "cour24.h"
+#endif
 
-    lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
+//=========================================================================
 
-    uint16_t i = 0;
-    uint8_t j = 0;
-    uint16_t area = font_width * font_height;
-    while(area--)
-    {
-        if(bitmap[i] & (1<<j))
-        {
-            lcdsim_write_data(BRSUH_COLOR);
-        }
-        else
-        {
-            lcdsim_write_data(BACK_COLOR);
-        }
+font_t *select_fnt = &cour24;
 
-        if(j == 7)
-        {
-            ++i;
-            j = 0;
-        }
-        else
-        {
-            ++j;
-        }
-    }
-    lcdsim_set_bound(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
-}
-
-void lcd_draw_string(uint16_t x, uint16_t y, const char *s)
-{
-    uint16_t orgx = x;
-
-    char c;
-    while((c = *s) != '\0')
-    {
-        if(c == '\n')
-        {
-            y += cour24_get_height();
-            x = orgx;
-        }
-        else if(c == ' ')
-        {
-            x += cour24_get_width();
-        }
-        else
-        {
-            lcd_draw_font(x, y, c);
-            x += cour24_get_width();
-        }
-        ++s;
-    }
-
-}
+//=========================================================================
 
 int main ()
 {
@@ -94,7 +38,9 @@ int main ()
     lcdsim_draw_pixel(100, 100, GREEN_COLOR);
 #endif
 
-    lcd_draw_string(10, 10, "01\r\n234\r\n56789");
+    lcdsim_set_brush_color(LCD_RED_COLOR);
+
+    lcdsim_draw_string(10, 10, select_fnt, "0123456789:\r\nABCDEFGHIJKLMN\r\nOPQRSTUVWXYZ\r\nabcdefghijklmn\r\nopqrstuvwxyz");
 
     lcdsim_deinit();
     
