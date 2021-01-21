@@ -19,21 +19,28 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     
 #if (ENCODING_METHOD == 0u)
     // Encoding method: 0
-    uint16_t i;
-    uint16_t area = (fs->width * fs->height) >> 3;
-    uint8_t j;
-    for( i=0; i < area; i++ )
+    uint16_t i = 0;
+    uint8_t j = 0;
+    uint16_t area = fs->width * fs->height;
+    while(area--)
     {
-        for(j=0; j<8; j++)
+        if(fs->bitmap[i] & (1<<j))
         {
-            if(fs->bitmap[i] & (1<<j))
-            {
-                LCD_WR_DATA(_brushColor);
-            }
-            else
-            {
-                LCD_WR_DATA(_backColor);
-            }
+            LCD_WR_DATA(_brushColor);
+        }
+        else
+        {
+            LCD_WR_DATA(_backColor);
+        }
+        
+        if(j == 7)
+        {
+            ++i;
+            j = 0;
+        }
+        else
+        {
+            ++j;
         }
     }
 #elif (ENCODING_METHOD == 1u)
