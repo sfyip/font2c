@@ -151,26 +151,18 @@ void lcdsim_write_data(lcd_color_t color)
 
 //=========================================================================
 
-void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
+// raw bitblt, 1bpp
+static void font_render_engine_0(uint16_t font_width, uint16_t font_height, const font_bmp_t *bitmap)
 {
-    const uint8_t *bitmap = fnt->lookup(c);
-    if(!bitmap)
-    {
-        return;
-    }
-
-    uint8_t font_width = fnt->width;
-    uint8_t font_height = fnt->height;
-
-    lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
-
-#if (CONFIG_FONT_ENC == 0u)
     uint16_t i = 0;
     uint8_t j = 0;
     uint16_t area = font_width * font_height;
+    
+    const uint8_t* bmp = (const uint8_t*)bitmap;
+
     while(area--)
     {
-        if(bitmap[i] & (1<<j))
+        if(bmp[i] & (1<<j))
         {
             lcdsim_write_data(brush_color);
         }
@@ -189,9 +181,60 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
             ++j;
         }
     }
-#elif(CONFIG_FONT_ENC == 1u)
+}
 
-#endif
+// rle, 1bpp
+/*
+static void font_render_engine_1(const font_bmp_t *bitmap)
+{
+    uint16_t count;
+    uint8_t pixelColor = 0;
+    uint16_t i, j;
+    
+    for(i=0; i<bitmap->size; i++)
+    {
+        count = bitmap->bmp[i];
+        
+        for(j=0; j<count; j++)
+        {
+            if(pixelColor)
+            {
+                lcdsim_write_data(brush_color);
+            }
+            else
+            {
+                lcdsim_write_data(back_color);
+            }
+        }
+        
+        if(count != 255)
+        {
+            pixelColor ^= 1;
+        }
+    }
+}
+*/
+
+//=========================================================================
+
+void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
+{
+    const font_bmp_t *bitmap = fnt->lookup(c);
+    if(!bitmap)
+    {
+        return;
+    }
+
+    uint8_t font_width = fnt->width;
+    uint8_t font_height = fnt->height;
+
+    lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
+
+//#if (CONFIG_FONT_ENC == 0u)
+    font_render_engine_0(font_width, font_height, bitmap);
+//#elif(CONFIG_FONT_ENC == 1u)
+//   font_render_engine_1(bitmap);
+//#endif
 
     lcdsim_set_bound(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
 }

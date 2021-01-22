@@ -51,8 +51,7 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     for(i=0; i<fs->bitmapSize; i++)
     {
         count = fs->bitmap[i];
-        if(count == 0)
-            count = 256;
+
         for(j=0; j<count; j++)
         {
           if(pixelColor)
@@ -65,7 +64,7 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
           }
         }
         
-        if(count != 256)
+        if(count != 255)
         {
             pixelColor ^= 1;
         }

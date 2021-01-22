@@ -7,19 +7,16 @@
 */
 
 #include <stdint.h>
+
 #include "lcd_sim.h"
 
 //=========================================================================
 
-#define CONFIG_FONT_ENC   0u
-
-#if (CONFIG_FONT_ENC == 0u)
-    #include "cour24.h"
-#endif
+#include "freemono24.h"
 
 //=========================================================================
 
-font_t *select_fnt = &cour24;
+font_t *select_fnt = &FreeMono24;
 
 //=========================================================================
 

@@ -48,11 +48,12 @@ def create_dir(directory):
 def extract_filename(path):
     return os.path.splitext(os.path.basename(path))[0]
 
+
 #=========================================================================================
 
 class font_config():
     bpp  = 1                                # 1-bpp
-    font = "cour"                           # font style (Test chinese font: kaiu) (ubuntu 18.04: /usr/share/fonts/truetype/freefont/FreeMono.ttf)
+    font = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'                           # font style (Test chinese font: kaiu) (ubuntu 18.04: /usr/share/fonts/truetype/freefont/FreeMono.ttf)
     size = 24                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
@@ -65,7 +66,7 @@ class font_config():
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixels inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = "./template.txt"   # template file path
+    template_file_path = "./template.ini"   # template file path
     export_dir = "./export/"                # export directory
     c_filename = extract_filename(font) + str(size)           # generated c source file name
     
@@ -96,6 +97,31 @@ def load_config(config_file_path):
         
     return font_list
 
+def load_template(template_file_path):
+
+    template = {}
+    template['header'] = None
+    template['loopbody'] = None
+    template['footer'] = None
+
+    with open(template_file_path) as tf:
+        s = tf.read()
+        substr = s.split('====split====')
+        substr_len = len(substr)
+
+        if substr_len <= 1:
+            template['loopbody'] = substr[0]
+        elif substr_len == 2:
+            template["header"] = substr[0]
+            template["loopbody"] = substr[1]
+        elif substr_len == 3:
+            template["header"] = substr[0]
+            template["loopbody"] = substr[1]
+            template["footer"] = substr[2]
+
+    return template
+
+
 def show_help():
     print("font2c.py by yipxxx@gmail.com")
     print("------------------------------------------------------")
@@ -125,12 +151,13 @@ def encoding_method_1(steam):
     for byte in (steam):
         for bitpos in range(8):
             bit = 1 if (byte & (1<<bitpos)) else 0
-            
-            if count == 256:
-                result.append(0)    # '0' means 256
-                count = 0
-            elif (bit == sample):
+
+            if (bit == sample):
                 count += 1
+
+                if count == 255:
+                    result.append(0xff)
+                    count = 0
             else:
                 result.append(count)
                 count = 1
@@ -343,12 +370,25 @@ class font2c():
         template = None
         
         try:
-            templatefile = open(self.conf.template_file_path, "r")
-            template = Template(templatefile.read())
+            template = load_template(self.conf.template_file_path)
         except IOError:
              print('Cannot open template file: ' + self.conf.template_file_path)
              exit()
+
+        data = {}
+        data['font'] = extract_filename(self.conf.font)
+        data['size'] = self.conf.size
+        data['encoding_method'] = self.conf.encoding_method
         
+        if(self.conf.fixed_width_height != None):
+            data['width'] = self.conf.fixed_width_height[0]
+        else:
+            data['width'] = 'Unknown'
+        
+        data['height'] = self.conf.size
+
+        cfile.write(Template(template["header"]).substitute(data))
+
         for c in self.conf.text:
             fnt_size = fnt.getsize(c)
             print("Char: {0}".format(c))
@@ -494,8 +534,6 @@ class font2c():
             #===========================================
             
             # Build the template parameter list
-            data = {}
-            
             data['imgname'] = imgname
             data['imgnamecaps'] = imgname.upper()
             data['encoding_method'] = self.conf.encoding_method
@@ -504,10 +542,11 @@ class font2c():
             data['imglen'] = len(steam)
             data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
             
-            cfile.write(template.substitute(data))
+            cfile.write(Template(template["loopbody"]).substitute(data))
             
             print("------------------------------------------")
   
+        cfile.write(Template(template["footer"]).substitute(data))
         cfile.close()
 
 #=========================================================================================

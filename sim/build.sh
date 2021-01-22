@@ -6,4 +6,4 @@
 # 1) In Ubuntu, press [Ctrl + Alt + F2] to open a new native console
 # 2) sudo ./lcd_sim
 
-gcc -o lcd_sim main.c lcd_sim.c cour24.c
+gcc -o lcd_sim main.c lcd_sim.c freemono24.c
