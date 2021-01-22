@@ -219,17 +219,18 @@ static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
 #endif
 
 #if (CONFIG_FONT_ENC == 2u)
-static void font_render_engine_2(const font_t *fnt, const font_symbol_t *fbmp)
+// raw bitblt, 1bpp with margin
+static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
 {
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
 
-    uint8_t top = fbmp->margin_top;
-    uint8_t bottom = font_height - fbmp->margin_bottom-1;
-    uint8_t left = fbmp->margin_left;
-    uint8_t right = font_width - fbmp->margin_right-1;
+    uint8_t top = sym->margin_top;
+    uint8_t bottom = font_height - sym->margin_bottom-1;
+    uint8_t left = sym->margin_left;
+    uint8_t right = font_width - sym->margin_right-1;
     
-    uint16_t bi = fbmp->index;
+    uint16_t bi = sym->index;
 
     uint8_t h, w;
     uint8_t i=0;
@@ -269,12 +270,76 @@ static void font_render_engine_2(const font_t *fnt, const font_symbol_t *fbmp)
 }
 #endif
 
+#if (CONFIG_FONT_ENC == 3u)
+// raw bitblt, 1bpp with margin
+static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
+{
+    uint8_t pixelColor = 0;
+
+    uint8_t font_width = fnt->width;
+    uint8_t font_height = fnt->height;
+
+    uint8_t top = sym->margin_top;
+    uint8_t bottom = font_height - sym->margin_bottom-1;
+    uint8_t left = sym->margin_left;
+    uint8_t right = font_width - sym->margin_right-1;
+    
+    uint16_t bi = sym->index;
+
+    uint8_t h, w;
+    uint16_t writeCount = 0;
+
+    if(fnt->bmp_base[bi] == 0)
+    {
+        pixelColor ^= 1;
+        ++bi;
+    }
+
+    for(h=0; h<font_height; h++)
+    {
+        for(w=0; w<font_width; w++)
+        {
+            if(w < left || w > right || h < top || h > bottom)
+            {
+                // debug: lcdsim_write_data(BLUE);
+                lcdsim_write_data(back_color);
+            }
+            else
+            {
+                if(pixelColor)
+                {
+                    lcdsim_write_data(brush_color);
+                }
+                else
+                {
+                    lcdsim_write_data(back_color);
+                }
+                ++writeCount;
+                
+                if(writeCount == 255)
+                {
+                    writeCount = 0;
+                    bi++;
+                }
+                
+                if(writeCount == fnt->bmp_base[bi])
+                {
+                    writeCount = 0;
+                    bi++;
+                    pixelColor ^= 1;
+                }
+            }
+        }
+    }
+}
+#endif
+
 //=========================================================================
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 {
-    const font_symbol_t *bitmap = fnt->lookup(c);
-    if(!bitmap)
+    const font_symbol_t *sym = fnt->lookup(c);
+    if(!sym)
     {
         return;
     }
@@ -285,11 +350,15 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
     lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
 
 #if (CONFIG_FONT_ENC == 0u)
-    font_render_engine_0(fnt, bitmap);
+    font_render_engine_0(fnt, sym);
 #elif(CONFIG_FONT_ENC == 1u)
-   font_render_engine_1(bitmap);
+    font_render_engine_1(fnt, sym);
 #elif(CONFIG_FONT_ENC == 2u)
-    font_render_engine_2(fnt, bitmap);
+    font_render_engine_2(fnt, sym);
+#elif(CONFIG_FONT_ENC == 3u)
+    font_render_engine_3(fnt, sym);
+#else
+    #error "Unsupported ENCODING_METHOD"
 #endif
 
     lcdsim_set_bound(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
@@ -320,7 +389,6 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
         }
         ++s;
     }
-
 }
 
 //=========================================================================

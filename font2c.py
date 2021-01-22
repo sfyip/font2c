@@ -66,7 +66,7 @@ class font_config():
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixels inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = "./template.ini"   # template file path
+    template_file_path = ['./template_enc0.ini']   # template file path
     export_dir = "./export/"                # export directory
     c_filename = extract_filename(font) + str(size)           # generated c source file name
     

@@ -24,6 +24,17 @@
         uint16_t index;
         uint8_t size;
     }font_symbol_t;
+#elif (CONFIG_FONT_ENC == 3u)
+    //Encoding method 3 (RLE) with margin
+    typedef struct
+    {
+        uint8_t margin_top;
+        uint8_t margin_bottom;
+        uint8_t margin_left;
+        uint8_t margin_right;
+        uint16_t index;
+        uint8_t size;
+    }font_symbol_t;
 #endif
 
 typedef const font_symbol_t *(*fnt_lookup_fp)(char c);
