@@ -1,12 +1,20 @@
+/*
+    <Generate from template_enc0.ini>
+    generate font bitmap
+    font: FreeMono
+    size: 24
+    encoding method: 0
+
+    width: 14
+    height: 24
+*/
+
 #include "font.h"
 
-/*
-   <header>
-   encoding method: 0
-   width: 14
-   height: 24
-*/
-const uint8_t FreeMono24[][] = {
+#define FREEMONO24_WIDTH     14
+#define FREEMONO24_HEIGHT    24
+
+const uint8_t freemono24_bmp[][42] = {
 
     {   // FreeMono24_0
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x63, 0x40, 0x10, 0x18, 0x0C, 0x02, 0x82, 0x80, 0x20,
@@ -387,4 +395,37 @@ const uint8_t FreeMono24[][] = {
     },
 
 };
+
 //=================== End ======================
+
+static const font_symbol_t *freemono24_lookup(char c)
+{
+    if(c >= '0' && c<= '9')
+    {
+        return (const font_symbol_t *)&freemono24_bmp[(c-'0')];
+    }
+    else if(c == ':')
+    {
+        return (const font_symbol_t *)&freemono24_bmp[10];
+    }
+    else if(c >= 'A' && c <= 'Z')
+    {
+        return (const font_symbol_t *)&freemono24_bmp[((c-'A')+10+1)];
+    }
+    else if(c >= 'a' && c <= 'z')
+    {
+        return (const font_symbol_t *)&freemono24_bmp[((c-'a')+10+1+26)];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+font_t freemono24 = 
+{
+    FREEMONO24_WIDTH,
+    FREEMONO24_HEIGHT,
+    (uint8_t*)freemono24_bmp,
+    freemono24_lookup
+};

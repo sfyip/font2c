@@ -90,7 +90,7 @@ def load_config(config_file_path):
         c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
         c.max_width = cfg.getint(section, 'max_width')
         c.encoding_method = cfg.getint(section, 'encoding_method')
-        c.template_file_path = cfg.get(section, 'template_file_path')
+        c.template_file_path = eval(cfg.get(section, 'template_file_path'), {}, {})
         c.export_dir = cfg.get(section, 'export_dir')
         
         font_list.append(c)
@@ -100,24 +100,24 @@ def load_config(config_file_path):
 def load_template(template_file_path):
 
     template = {}
-    template['header'] = None
-    template['loopbody'] = None
-    template['footer'] = None
+    template['header'] = ''
+    template['loopbody'] = ''
+    template['footer'] = ''
 
     with open(template_file_path) as tf:
         s = tf.read()
-        substr = s.split('====split====')
-        substr_len = len(substr)
+        sstr = s.split('====split====\n')   #special keyword to split header, loopbpody and footer
+        sstr_len = len(sstr)
 
-        if substr_len <= 1:
-            template['loopbody'] = substr[0]
-        elif substr_len == 2:
-            template["header"] = substr[0]
-            template["loopbody"] = substr[1]
-        elif substr_len == 3:
-            template["header"] = substr[0]
-            template["loopbody"] = substr[1]
-            template["footer"] = substr[2]
+        if sstr_len <= 1:
+            template['loopbody'] = sstr[0]
+        elif sstr_len == 2:
+            template["header"] = sstr[0]
+            template["loopbody"] = sstr[1]
+        elif sstr_len >= 3:
+            template["header"] = sstr[0]
+            template["loopbody"] = sstr[1]
+            template["footer"] = sstr[2]
 
     return template
 
@@ -138,8 +138,8 @@ class Margin():
 
 #=========================================================================================
 
-#Encoding method 1: Accumulate numbers of '0' and '1'
-def encoding_method_1(steam):
+#Encoding method RLE: Accumulate numbers of '0' and '1'
+def encoding_method_rle(steam):
     if not isinstance(steam, bytearray):
         Print("encoding_method_1 parameter *steam* incorrect")
         return None
@@ -158,66 +158,6 @@ def encoding_method_1(steam):
                 if count == 255:
                     result.append(0xff)
                     count = 0
-            else:
-                result.append(count)
-                count = 1
-                sample ^= 1         #inverse the bit
-    
-    if(count != 0):
-        result.append(count)    #push remaining byte
-    
-    return result
-
-#=========================================================================================
-
-#Encoding method 2:
-#direct dump the pixels inside the margin area
-def encoding_method_2(steam, margin):
-    if not isinstance(margin, Margin):
-        Print("encoding_method_2 parameter *margin* incorrect")
-        return None
-    
-    if not isinstance(steam, bytearray):
-        Print("encoding_method_2 parameter *steam* incorrect")
-        return None
-
-    result = [margin.top, margin.bottom, margin.left, margin.right]
-    
-    for byte in (steam):
-        result.append(byte)
-    
-    return result
-
-#=========================================================================================
-
-#Encoding method 3:
-#Save the margin to the steam first, accumulate numbers of '0' and '1' inside the margin area
-def encoding_method_3(steam, margin):
-    if not isinstance(margin, Margin):
-        Print("encoding_method_3 parameter *margin* incorrect")
-        return None
-    
-    if not isinstance(steam, bytearray):
-        Print("encoding_method_3 parameter *steam* incorrect")
-        return None
-
-    result = [margin.top, margin.bottom, margin.left, margin.right]
-    sample = 0
-    count = 0
-    
-    if(steam[0] & 0x01):    # if the first pixel is white color, push 0x01 to steam as indicator
-        result.append(0x01)
-        sample = 1
-    
-    for byte in (steam):
-        for bitpos in range(8):
-            bit = 1 if (byte & (1<<bitpos)) else 0
-            
-            if count == 256:
-                result.append(0)    # '0' means 256
-                count = 0
-            elif (bit == sample):
-                count += 1
             else:
                 result.append(count)
                 count = 1
@@ -368,185 +308,191 @@ class font2c():
         
         # Open the template
         template = None
-        
-        try:
-            template = load_template(self.conf.template_file_path)
-        except IOError:
-             print('Cannot open template file: ' + self.conf.template_file_path)
-             exit()
 
-        data = {}
-        data['font'] = extract_filename(self.conf.font)
-        data['size'] = self.conf.size
-        data['encoding_method'] = self.conf.encoding_method
-        
-        if(self.conf.fixed_width_height != None):
-            data['width'] = self.conf.fixed_width_height[0]
-        else:
-            data['width'] = 'Unknown'
-        
-        data['height'] = self.conf.size
+        for template_file_path in self.conf.template_file_path:
+            
+            try:
+                template = load_template(template_file_path)
+            except IOError:
+                 print('Cannot open template file: ' + self.conf.template_file_path)
+                 exit()
 
-        cfile.write(Template(template["header"]).substitute(data))
-
-        for c in self.conf.text:
-            fnt_size = fnt.getsize(c)
-            print("Char: {0}".format(c))
-            print("Actual font size: {0}".format(fnt_size))
-            
-            if(self.conf.fixed_width_height != None):
-                img_size = self.conf.fixed_width_height
-            else:
-                img_size = (min(self.conf.max_width, fnt_size[0]), max(self.conf.size, fnt_size[1]))      # adaptive adjust the font size
-            
-            
-            img = self._img_init(img_size)
-            
-            draw = ImageDraw.Draw(img)
-            draw.text(self.conf.offset, c, font=fnt, fill=1)  # 1= white color
-            
-            alias_c = convert_special_char(c)
-            
-            font_name = extract_filename(self.conf.font) + str(self.conf.size)
-
-            img.save(self.conf.export_dir + '/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
-
-            imgname = font_name + '_' + alias_c
-            imgdata = list(img.tobytes())
-            
-            # Print out image info
-            print('Image name:   {0}'.format(imgname))
-            print('Image size:   {0}'.format(img.size))
-            
-            margin = Margin()
-            
-            if (self.conf.encoding_method == 2 or self.conf.encoding_method == 3):
-                #===========================================
-                
-                #calculate top margin
-                for y in range(img_size[1]) :
-                    accumulateBlank = 0
-                    for x in range(img_size[0]):
-                        if (self._img_is_pixel_blank(img, (x,y))):
-                            accumulateBlank += 1
-                        else:
-                            break
-                    
-                    if(accumulateBlank == img_size[0]):
-                        margin.top += 1
-                    else:
-                        break
-                
-                print("Top margin:", margin.top)
-                
-                #===========================================
-                
-                #calculate bottom margin
-                for y in reversed(range(img_size[1])):
-                    accumulateBlank = 0
-                    for x in range(img_size[0]):
-                        if (self._img_is_pixel_blank(img, (x, y))):
-                            accumulateBlank += 1
-                        else:
-                            break
-                    
-                    if(accumulateBlank == img_size[0]):
-                        margin.bottom += 1
-                    else:
-                        break
-                
-                print("Bottom margin:", margin.bottom)
-                
-                #===========================================
-                
-                #calculate left margin
-                for x in range(img_size[0]):
-                    accumulateBlank = 0
-                    for y in range(img_size[1]):
-                        if (self._img_is_pixel_blank(img, (x, y))):
-                            accumulateBlank += 1
-                        else:
-                            break
-                    
-                    if(accumulateBlank == img_size[1]):
-                        margin.left += 1
-                    else:
-                        break
-                
-                print("Left margin:", margin.left);
-                
-                #===========================================
-                
-                #calculate right margin
-                for x in reversed(range(img_size[0])):
-                    accumulateBlank = 0
-                    for y in range(img_size[1]):
-                        if (self._img_is_pixel_blank(img, (x, y))):
-                            accumulateBlank += 1
-                        else:
-                            break
-                    
-                    if(accumulateBlank == img_size[1]):
-                        margin.right += 1
-                    else:
-                        break
-                
-                print("Right margin:", margin.right)
-                    
-            #===========================================
-            
-            byte = 0x00
-            count = 0
-            steam = bytearray()
-            
-            # Scan from left to right,  down to bottom sequentially
-            for y in range(margin.top, img_size[1]-margin.bottom):
-                for x in range(margin.left, img_size[0]-margin.right):
-                    bit_shift, pattern = self._img_push_pixel_to_steam(img, (x,y))
-                    byte |= (pattern << count)
-                    
-                    count += bit_shift
-                    if (count == 8):
-                        steam.append(byte)
-                        count = 0
-                        byte = 0x00
-                    elif (count > 8):
-                        raise OverflowError("The bit count should be <= 8")
-            
-            if (count != 0):
-                steam.append(byte)  # push remaining byte
-            
-            #===========================================
-            
-            if (self.conf.encoding_method == 0):
-                pass
-            elif (self.conf.encoding_method == 1):
-                steam = encoding_method_1(steam)
-            elif (self.conf.encoding_method == 2):
-                steam = encoding_method_2(steam, margin)
-            elif (self.conf.encoding_method == 3):
-                steam = encoding_method_3(steam, margin)
-            else:
-                print("Unsupport encoding method\n")
-                cfile.close()
-                return
-            
-            #===========================================
-            
-            # Build the template parameter list
-            data['imgname'] = imgname
-            data['imgnamecaps'] = imgname.upper()
+            data = {}
+            data['font'] = extract_filename(self.conf.font)
+            data['fontcaps'] = data['font'].upper()
+            data['size'] = self.conf.size
             data['encoding_method'] = self.conf.encoding_method
-            data['width'] = img.size[0]
-            data['height'] = img.size[1]
-            data['imglen'] = len(steam)
-            data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
-            
-            cfile.write(Template(template["loopbody"]).substitute(data))
-            
-            print("------------------------------------------")
-  
-        cfile.write(Template(template["footer"]).substitute(data))
+
+            if(self.conf.fixed_width_height != None):
+                data['width'] = self.conf.fixed_width_height[0]
+            else:
+                data['width'] = 'Unknown'
+
+            data['height'] = self.conf.size
+            data['imgaddr'] = 0
+
+            cfile.write(Template(template["header"]).substitute(data))
+
+            for c in self.conf.text:
+                fnt_size = fnt.getsize(c)
+                print("Char: {0}".format(c))
+                print("Actual font size: {0}".format(fnt_size))
+
+                if(self.conf.fixed_width_height != None):
+                    img_size = self.conf.fixed_width_height
+                else:
+                    img_size = (min(self.conf.max_width, fnt_size[0]), max(self.conf.size, fnt_size[1]))      # adaptive adjust the font size
+
+
+                img = self._img_init(img_size)
+
+                draw = ImageDraw.Draw(img)
+                draw.text(self.conf.offset, c, font=fnt, fill=1)  # 1= white color
+
+                alias_c = convert_special_char(c)
+
+                font_name = extract_filename(self.conf.font) + str(self.conf.size)
+
+                img.save(self.conf.export_dir + '/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
+
+                imgname = font_name + '_' + alias_c
+                imgdata = list(img.tobytes())
+
+                # Print out image info
+                print('Image name:   {0}'.format(imgname))
+                print('Image size:   {0}'.format(img.size))
+
+                margin = Margin()
+
+                if (self.conf.encoding_method == 2 or self.conf.encoding_method == 3):
+                    #===========================================
+
+                    #calculate top margin
+                    for y in range(img_size[1]) :
+                        accumulateBlank = 0
+                        for x in range(img_size[0]):
+                            if (self._img_is_pixel_blank(img, (x,y))):
+                                accumulateBlank += 1
+                            else:
+                                break
+
+                        if(accumulateBlank == img_size[0]):
+                            margin.top += 1
+                        else:
+                            break
+
+                    print("Top margin:", margin.top)
+
+                    #===========================================
+
+                    #calculate bottom margin
+                    for y in reversed(range(img_size[1])):
+                        accumulateBlank = 0
+                        for x in range(img_size[0]):
+                            if (self._img_is_pixel_blank(img, (x, y))):
+                                accumulateBlank += 1
+                            else:
+                                break
+
+                        if(accumulateBlank == img_size[0]):
+                            margin.bottom += 1
+                        else:
+                            break
+
+                    print("Bottom margin:", margin.bottom)
+
+                    #===========================================
+
+                    #calculate left margin
+                    for x in range(img_size[0]):
+                        accumulateBlank = 0
+                        for y in range(img_size[1]):
+                            if (self._img_is_pixel_blank(img, (x, y))):
+                                accumulateBlank += 1
+                            else:
+                                break
+
+                        if(accumulateBlank == img_size[1]):
+                            margin.left += 1
+                        else:
+                            break
+
+                    print("Left margin:", margin.left);
+
+                    #===========================================
+
+                    #calculate right margin
+                    for x in reversed(range(img_size[0])):
+                        accumulateBlank = 0
+                        for y in range(img_size[1]):
+                            if (self._img_is_pixel_blank(img, (x, y))):
+                                accumulateBlank += 1
+                            else:
+                                break
+
+                        if(accumulateBlank == img_size[1]):
+                            margin.right += 1
+                        else:
+                            break
+
+                    print("Right margin:", margin.right)
+
+                #===========================================
+
+                byte = 0x00
+                count = 0
+                steam = bytearray()
+
+                # Scan from left to right,  down to bottom sequentially
+                for y in range(margin.top, img_size[1]-margin.bottom):
+                    for x in range(margin.left, img_size[0]-margin.right):
+                        bit_shift, pattern = self._img_push_pixel_to_steam(img, (x,y))
+                        byte |= (pattern << count)
+
+                        count += bit_shift
+                        if (count == 8):
+                            steam.append(byte)
+                            count = 0
+                            byte = 0x00
+                        elif (count > 8):
+                            raise OverflowError("The bit count should be <= 8")
+
+                if (count != 0):
+                    steam.append(byte)  # push remaining byte
+
+                #===========================================
+
+                if (self.conf.encoding_method == 0 or self.conf.encoding_method == 2):
+                    pass
+                elif (self.conf.encoding_method == 1 or self.conf.encoding_method == 3):
+                    steam = encoding_method_rle(steam)
+                else:
+                    print("Unsupport encoding method\n")
+                    cfile.close()
+                    return
+
+                #===========================================
+
+                # Build the template parameter list
+                data['imgname'] = imgname
+                data['imgnamecaps'] = imgname.upper()
+                data['encoding_method'] = self.conf.encoding_method
+                data['margin_top'] = margin.top
+                data['margin_bottom'] = margin.bottom
+                data['margin_left'] = margin.left
+                data['margin_right'] = margin.right
+                data['width'] = img.size[0]
+                data['height'] = img.size[1]
+                data['imglen'] = len(steam)
+                data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
+
+                cfile.write(Template(template["loopbody"]).substitute(data))
+
+                data['imgaddr'] += len(steam)
+
+                print("------------------------------------------")
+    
+            cfile.write(Template(template["footer"]).substitute(data))
         cfile.close()
 
 #=========================================================================================

@@ -150,15 +150,15 @@ void lcdsim_write_data(lcd_color_t color)
 }
 
 //=========================================================================
-
+#if (CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp
-static void font_render_engine_0(uint16_t font_width, uint16_t font_height, const font_bmp_t *bitmap)
+static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t i = 0;
     uint8_t j = 0;
-    uint16_t area = font_width * font_height;
+    uint16_t area = fnt->width * fnt->height;
     
-    const uint8_t* bmp = (const uint8_t*)bitmap;
+    const uint8_t *bmp = (const uint8_t*)(sym);
 
     while(area--)
     {
@@ -182,18 +182,21 @@ static void font_render_engine_0(uint16_t font_width, uint16_t font_height, cons
         }
     }
 }
+#endif
 
+#if (CONFIG_FONT_ENC == 1u)
 // rle, 1bpp
-/*
-static void font_render_engine_1(const font_bmp_t *bitmap)
+static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t count;
     uint8_t pixelColor = 0;
     uint16_t i, j;
     
-    for(i=0; i<bitmap->size; i++)
+    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
+
+    for(i=0; i<sym->size; i++)
     {
-        count = bitmap->bmp[i];
+        count = bmp[i];
         
         for(j=0; j<count; j++)
         {
@@ -213,13 +216,64 @@ static void font_render_engine_1(const font_bmp_t *bitmap)
         }
     }
 }
-*/
+#endif
+
+#if (CONFIG_FONT_ENC == 2u)
+static void font_render_engine_2(const font_t *fnt, const font_symbol_t *fbmp)
+{
+    uint8_t font_width = fnt->width;
+    uint8_t font_height = fnt->height;
+
+    uint8_t top = fbmp->margin_top;
+    uint8_t bottom = font_height - fbmp->margin_bottom-1;
+    uint8_t left = fbmp->margin_left;
+    uint8_t right = font_width - fbmp->margin_right-1;
+    
+    uint16_t bi = fbmp->index;
+
+    uint8_t h, w;
+    uint8_t i=0;
+    
+    for(h=0; h<font_height; h++)
+    {
+        for(w=0; w<font_width; w++)
+        {
+            if(w < left || w > right || h < top || h > bottom)
+            {
+                // debug: lcdsim_write_data(LCD_BLUE_COLOR);
+                lcdsim_write_data(back_color);
+            }
+            else
+            {
+                if(fnt->bmp_base[bi] & (1<<i))
+                {
+                    lcdsim_write_data(brush_color);
+                }
+                else
+                {
+                    lcdsim_write_data(back_color);
+                }
+
+                if(i==7)
+                {
+                    i = 0;
+                    ++bi;
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+        }
+    }
+}
+#endif
 
 //=========================================================================
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 {
-    const font_bmp_t *bitmap = fnt->lookup(c);
+    const font_symbol_t *bitmap = fnt->lookup(c);
     if(!bitmap)
     {
         return;
@@ -230,11 +284,13 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 
     lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
 
-//#if (CONFIG_FONT_ENC == 0u)
-    font_render_engine_0(font_width, font_height, bitmap);
-//#elif(CONFIG_FONT_ENC == 1u)
-//   font_render_engine_1(bitmap);
-//#endif
+#if (CONFIG_FONT_ENC == 0u)
+    font_render_engine_0(fnt, bitmap);
+#elif(CONFIG_FONT_ENC == 1u)
+   font_render_engine_1(bitmap);
+#elif(CONFIG_FONT_ENC == 2u)
+    font_render_engine_2(fnt, bitmap);
+#endif
 
     lcdsim_set_bound(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
 }

@@ -3,24 +3,36 @@
 
 #include <stdint.h>
 
-#if 1
+#if (CONFIG_FONT_ENC == 0u)
     //Encoding method 0 (Raw Bitblt)
-    typedef const uint8_t *font_bmp_t;
-#else
+    typedef uint8_t *font_symbol_t;
+#elif (CONFIG_FONT_ENC == 1u)
     //Encoding method 1 (RLE)
     typedef struct
     {
-        uint16_t size;
-        const uint8_t *bmp;
-    }font_bmp_t;
+        uint16_t index;
+        uint8_t size;
+    }font_symbol_t;
+#elif (CONFIG_FONT_ENC == 2u)
+    //Encoding method 2 (Raw Bitblt) with margin
+    typedef struct
+    {
+        uint8_t margin_top;
+        uint8_t margin_bottom;
+        uint8_t margin_left;
+        uint8_t margin_right;
+        uint16_t index;
+        uint8_t size;
+    }font_symbol_t;
 #endif
 
-typedef const font_bmp_t *(*fnt_lookup_fp)(char c);
+typedef const font_symbol_t *(*fnt_lookup_fp)(char c);
 
 typedef struct
 {
     uint8_t width;
     uint8_t height;
+    const uint8_t *bmp_base;
     fnt_lookup_fp lookup;
 }font_t;
 

@@ -123,13 +123,13 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
     
     uint8_t h, w;
     uint16_t writeCount = 0;
-    
-    if(fs->bitmap[4] == 0x01)
+
+    if(fs->bitmap[bi] == 0)
     {
-        pixelColor = 1;
-        bi = 5;
+        pixelColor ^= 1;
+        ++bi;
     }
-    
+
     for(h=0; h<fs->height; h++)
     {
         for(w=0; w<fs->width; w++)
@@ -151,12 +151,13 @@ void LCD_DrawFont(uint16_t x, uint16_t y, const font_symbol_t *fs)
                 }
                 ++writeCount;
                 
-                if(writeCount == 255 && fs->bitmap[bi] == 0)
+                if(writeCount == 255)
                 {
                     writeCount = 0;
                     bi++;
                 }
-                else if(writeCount == fs->bitmap[bi])
+                
+                if(writeCount == fs->bitmap[bi])
                 {
                     writeCount = 0;
                     bi++;

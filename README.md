@@ -19,7 +19,7 @@ Output sequence: Left to right, down to bottom sequentially
 | fixed_width_height              | None: Size is adaptive<br />(width, height): Fixed width and height | 
 | max_width = 24                  | maximum width |
 | encoding_method = 0                 | encoding method<br/>0=direct dump the pixels<br/>1=accumulate numbers of 0 and 1<br/>2=direct dump the pixels inside the margin area <br/>3=accumulate numbers of 0 and 1 inside the margin area |
-| template_file_path = "./template.txt" | template file path |
+| template_file_path = ['./template.txt'] | template file path |
 | export_dir = "./export/"        | export directory |
 
 **Example 1: Output with fixed width and height, encoding method set to 0, use template.txt as template file**
@@ -37,7 +37,7 @@ Output sequence: Left to right, down to bottom sequentially
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixels inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = "./template.txt"   # template file path
+    template_file_path = ['./template_enc0.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
 
@@ -56,6 +56,6 @@ Output sequence: Left to right, down to bottom sequentially
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixedls inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = "./template2.txt"  # template file path
+    template_file_path = ['./template2.ini']# template file path
     export_dir = "./export/"                # export directory
 ```
