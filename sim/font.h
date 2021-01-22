@@ -1,6 +1,8 @@
 #ifndef _FONT_H_
 #define _FONT_H_
 
+#include <stdint.h>
+
 #if 1
     //Encoding method 0 (Raw Bitblt)
     typedef const uint8_t *font_bmp_t;

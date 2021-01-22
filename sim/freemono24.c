@@ -394,24 +394,24 @@ const uint8_t freemono24_bmp[][42] = {
 
 //=================== End ======================
 
-static const font_bmp_t *cour24_lookup(char c)
+static const font_bmp_t *freemono24_lookup(char c)
 {
 	if(c >= '0' && c<= '9')
 	{
-		return (const font_bmp_t*)&cour24_bmp[(c-'0')];
+		return (const font_bmp_t*)&freemono24_bmp[(c-'0')];
 	}
     else if(c == ':')
     {
-        return (const font_bmp_t*)&cour24_bmp[10];
+        return (const font_bmp_t*)&freemono24_bmp[10];
     }
     else if(c >= 'A' && c <= 'Z')
     {
-        return (const font_bmp_t*)&cour24_bmp[((c-'A')+10+1)];
+        return (const font_bmp_t*)&freemono24_bmp[((c-'A')+10+1)];
     }
 
     else if(c >= 'a' && c <= 'z')
     {
-        return (const font_bmp_t*)&cour24_bmp[((c-'a')+10+1+26)];
+        return (const font_bmp_t*)&freemono24_bmp[((c-'a')+10+1+26)];
     }
     else
     {
@@ -419,9 +419,9 @@ static const font_bmp_t *cour24_lookup(char c)
     }
 }
 
-font_t cour24 = 
+font_t freemono24 = 
 {
-    COUR24_WIDTH,
-    COUR24_HEIGHT,
-    cour24_lookup
+    FREEMONO24_WIDTH,
+    FREEMONO24_HEIGHT,
+    freemono24_lookup
 };
