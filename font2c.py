@@ -66,7 +66,7 @@ class font_config():
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixels inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./template_enc0.ini']   # template file path
+    template_file_path = ['./template_enc0_bmp.ini']   # template file path
     export_dir = "./export/"                # export directory
     c_filename = extract_filename(font) + str(size)           # generated c source file name
     
@@ -317,6 +317,7 @@ class font2c():
                  print('Cannot open template file: ' + self.conf.template_file_path)
                  exit()
 
+            # Build the template parameter list
             data = {}
             data['font'] = extract_filename(self.conf.font)
             data['font_lowercase'] = data['font'].lower()
@@ -327,7 +328,7 @@ class font2c():
             if(self.conf.fixed_width_height != None):
                 (data['width'], data['height']) = self.conf.fixed_width_height
             else:
-                (data['width'], data['height']) = ('Unknown', self.conf.size)
+                (data['width'], data['height']) = ('Adaptive', 'Adaptive')
 
             # If encoding methid is 0 and fixed_width_length, imglen can be pre-estimated   
             if self.conf.encoding_method == 0 and self.conf.fixed_width_height != None:

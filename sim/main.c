@@ -11,12 +11,18 @@
 #include "lcd_sim.h"
 
 //=========================================================================
-
-#include "freemono24.h"
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+    #include "freemono24.h"
+#else
+    #include "freesans32.h"
+#endif
 
 //=========================================================================
-
-font_t *select_fnt = &freemono24;
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+    font_t *select_fnt = &freemono24;
+#else
+    font_t *select_fnt = &freesans32;
+#endif
 
 //=========================================================================
 

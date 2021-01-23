@@ -19,7 +19,7 @@ Output sequence: Left to right, down to bottom sequentially
 | fixed_width_height              | None: Size is adaptive<br />(width, height): Fixed width and height | 
 | max_width = 24                  | maximum width |
 | encoding_method = 0                 | encoding method<br/>0=direct dump the pixels<br/>1=accumulate numbers of 0 and 1<br/>2=direct dump the pixels inside the margin area <br/>3=accumulate numbers of 0 and 1 inside the margin area |
-| template_file_path = ['./template.txt'] | template file path |
+| template_file_path = ['./template_enc0_bmp.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
 
 **Example 1: Output with fixed width and height, encoding method set to 0, use template.txt as template file**
@@ -37,25 +37,25 @@ Output sequence: Left to right, down to bottom sequentially
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixels inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./template_enc0.ini'] # template file path
+    template_file_path = ['./template_enc0_bmp.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
 
-**Example 2: Output with adaptive width and height, encoding method set to 1, use template2.txt as template file**
+**Example 2: Output with adaptive width and height, encoding method set to 2, use template2.txt as template file**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
-    size = 80                               # font size
+    size = 32                               # font size
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
     offset = (0,0)                          # x,y offset
     fixed_width_height = None               # fixed width and height
-    max_width = 83                          # maximum width
-    encoding_method = 1                     # encoding method
+    max_width = 32                          # maximum width
+    encoding_method = 2                     # encoding method
                                             # 0=direct dump the pixels
                                             # 1=accumulate numbers of 0 and 1
                                             # 2=direct dump the pixedls inside the margin area
                                             # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./template2.ini']# template file path
+    template_file_path = ['./template_enc2_bmp.ini', './template_enc2_adapt_size_offs.ini']# template file path
     export_dir = "./export/"                # export directory
 ```

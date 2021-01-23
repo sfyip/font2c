@@ -1,5 +1,5 @@
 /*
-    <Generate from template_enc0.ini>
+    <Generate from template_enc0_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24

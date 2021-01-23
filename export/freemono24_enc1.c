@@ -1,5 +1,5 @@
 /*
-    <Generate from template_enc1a.ini>
+    <Generate from template_enc1_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -187,9 +187,8 @@ static const uint8_t freemono24_bmp[] = {
     0x0C, 0x01, 0x0C, 0x01, 0x0D, 0x01, 0x05, 0x01, 0x06, 0x01, 0x06, 0x01, 0x05, 0x01, 0x07, 0x01, 0x05, 0x01, 0x07, 0x01,
     0x05, 0x09, 0x3A,  // FreeMono24_Z
 };
-
 /*
-    <Generate from template_enc1b.ini>
+    <Generate from template_enc1_offs.ini>
     generate bitmap offset
     font: FreeMono
     size: 24

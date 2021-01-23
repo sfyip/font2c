@@ -1,5 +1,5 @@
 /*
-    <Generate from template_enc2a.ini>
+    <Generate from template_enc2_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -98,7 +98,7 @@ static const uint8_t freemono24_bmp[] = {
 };
 
 /*
-    <Generate from template_enc2b.ini>
+    <Generate from template_enc2_offs.ini>
     generate margin and bitmap offset
     font: FreeMono
     size: 24
