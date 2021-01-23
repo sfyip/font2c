@@ -125,8 +125,8 @@ def load_template(template_file_path):
 def show_help():
     print("font2c.py by yipxxx@gmail.com")
     print("------------------------------------------------------")
-    print("Load the font properties from config file: python3 font2c.py font_config.ini")
-    print("Generated from default setting: python3 font2c.py")
+    print("Load the setting from config file: python3 font2c.py font_config.ini")
+    print("Use default setting: python3 font2c.py")
 
 #=========================================================================================
 
@@ -319,16 +319,23 @@ class font2c():
 
             data = {}
             data['font'] = extract_filename(self.conf.font)
-            data['fontcaps'] = data['font'].upper()
+            data['font_lowercase'] = data['font'].lower()
+            data['font_uppercase'] = data['font'].upper()
             data['size'] = self.conf.size
             data['encoding_method'] = self.conf.encoding_method
 
             if(self.conf.fixed_width_height != None):
-                data['width'] = self.conf.fixed_width_height[0]
+                (data['width'], data['height']) = self.conf.fixed_width_height
             else:
-                data['width'] = 'Unknown'
+                (data['width'], data['height']) = ('Unknown', self.conf.size)
 
-            data['height'] = self.conf.size
+            # If encoding methid is 0 and fixed_width_length, imglen can be pre-estimated   
+            if self.conf.encoding_method == 0 and self.conf.fixed_width_height != None:
+                pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
+                data['imglen'] =  int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 )
+            else:
+                data['imglen'] = 'Unknown'
+            
             data['imgaddr'] = 0
 
             cfile.write(Template(template["header"]).substitute(data))
@@ -475,8 +482,8 @@ class font2c():
 
                 # Build the template parameter list
                 data['imgname'] = imgname
-                data['imgnamecaps'] = imgname.upper()
-                data['encoding_method'] = self.conf.encoding_method
+                data['imgname_lowercase'] = imgname.lower()
+                data['imgname_uppercase'] = imgname.upper()
                 data['margin_top'] = margin.top
                 data['margin_bottom'] = margin.bottom
                 data['margin_left'] = margin.left
