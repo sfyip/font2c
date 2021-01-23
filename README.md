@@ -1,5 +1,5 @@
 # font2c
-A python script which converts font to C array, target for embedded systems (e.g. LCD Controller ILI9806)
+A python script that converts font to C array, target for embedded systems (e.g. LCD Controller ILI9806)
 
 Prerequisite: Python3<br/>
 Additional Python Library: Pillow (PIL fork)<br/>
@@ -22,7 +22,7 @@ Output sequence: Left to right, down to bottom sequentially
 | template_file_path = ['./template_enc0_bmp.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
 
-**Example 1: Output with fixed width and height, encoding method set to 0, use template.txt as template file**
+**Example 1: Output with fixed width and height, encoding method set to 0, use template_enc0_bmp.ini as template file**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24                               # font size
@@ -41,7 +41,7 @@ Output sequence: Left to right, down to bottom sequentially
     export_dir = "./export/"                # export directory
 ```
 
-**Example 2: Output with adaptive width and height, encoding method set to 2, use template2.txt as template file**
+**Example 2: Output with adaptive width and height, encoding method set to 2, use template_enc2_bmp.ini and template_enc2_adapt_size_offs.ini as template file**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
     size = 32                               # font size
