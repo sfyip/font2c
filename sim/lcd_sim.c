@@ -52,7 +52,7 @@ void lcdsim_init()
 
     fbp =(char *) mmap (0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fp,0);
 
-    if (((int) fbp) == -1)
+    if (fbp == (void*)-1)
     {
         printf ("Error: failed to map framebuffer device to memory.\n");
         exit (4);
@@ -83,7 +83,7 @@ void lcdsim_clear_screen()
 
 void lcdsim_draw_pixel(uint16_t x, uint16_t y, lcd_color_t color)
 {
-    if(!fbp || ((int)fbp) == -1)
+    if(!fbp ||  (fbp == (void*)-1))
     {
         return;
     }
@@ -191,7 +191,7 @@ static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
 static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t count;
-    uint8_t pixelColor = 0;
+    bool pixelColor = 0;
     uint16_t i, j;
     
     const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
@@ -214,7 +214,7 @@ static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
         
         if(count != 255)
         {
-            pixelColor ^= 1;
+            pixelColor = !pixelColor;
         }
     }
 }
@@ -281,7 +281,7 @@ static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
 // raw bitblt, 1bpp with margin
 static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
 {
-    uint8_t pixelColor = 0;
+    bool pixelColor = 0;
 
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
@@ -298,7 +298,7 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
 
     if(fnt->bmp_base[bi] == 0)
     {
-        pixelColor ^= 1;
+        pixelColor = !pixelColor;
         ++bi;
     }
 
@@ -333,7 +333,7 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
                 {
                     writeCount = 0;
                     bi++;
-                    pixelColor ^= 1;
+                    pixelColor = !pixelColor;
                 }
             }
         }

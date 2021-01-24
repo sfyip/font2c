@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+// define the maximum size of margin top, margin bottom, margin left, margin width
+#define FONT_MARGIN_DATABIT_SIZE        4
+
+
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u) 
     // Fixed width and height
     #if (CONFIG_FONT_ENC == 0u)
@@ -19,10 +23,10 @@
         //Encoding method 2 (Raw Bitblt) with margin
         typedef struct
         {
-            uint8_t margin_top;
-            uint8_t margin_bottom;
-            uint8_t margin_left;
-            uint8_t margin_right;
+            uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
             uint16_t index;
             uint8_t size;
         }font_symbol_t;
@@ -30,10 +34,10 @@
         //Encoding method 3 (RLE) with margin
         typedef struct
         {
-            uint8_t margin_top;
-            uint8_t margin_bottom;
-            uint8_t margin_left;
-            uint8_t margin_right;
+            uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
             uint16_t index;
             uint8_t size;
         }font_symbol_t;
@@ -74,10 +78,10 @@
         {
             uint8_t width;
             uint8_t height;
-            uint8_t margin_top;
-            uint8_t margin_bottom;
-            uint8_t margin_left;
-            uint8_t margin_right;
+            uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
             uint16_t index;
             uint8_t size;
         }font_symbol_t;
@@ -88,10 +92,10 @@
         {
             uint8_t width;
             uint8_t height;
-            uint8_t margin_top;
-            uint8_t margin_bottom;
-            uint8_t margin_left;
-            uint8_t margin_right;
+            uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+            uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
             uint16_t index;
             uint8_t size;
         }font_symbol_t;

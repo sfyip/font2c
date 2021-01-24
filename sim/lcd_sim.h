@@ -9,6 +9,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h> 
 #include <stdint.h>
+#include <stdbool.h>
 #include "font.h"
 
 //=========================================================================
