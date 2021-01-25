@@ -16,7 +16,7 @@ Preview:
 | --- | --- |
 | font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style (Windows: cour)|
 | size = 32 | font size |
-| text = 0123456789:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters |
+| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters |
 | offset = (0,0)                  | x,y offset |
 | fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height | 
 | max_width = 32                  | maximum width |
