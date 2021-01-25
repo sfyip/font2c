@@ -1,9 +1,10 @@
 /*
-    <Generate from template_enc0_bmp.ini>
+    <Generate from ./template_enc0_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
-    encoding method: 0
+    calc_margin: False
+    encoding method: raw
 
     width: 14
     height: 24

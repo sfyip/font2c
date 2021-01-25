@@ -1,9 +1,10 @@
 /*
-    <Generate from template_enc3_bmp.ini>
+    <Generate from ./template_enc3_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
-    encoding method: 3
+    calc_margin: True
+    encoding method: rle
 
     width: 14
     height: 24
@@ -183,11 +184,12 @@ static const uint8_t freemono24_bmp[] = {
     0x07, 0x0B, 0x04,  // FreeMono24_Z
 };
 /*
-    <Generate from template_enc3_offs.ini>
+    <Generate from ./template_enc3_offs.ini>
     generate margin and bitmap offset
     font: FreeMono
     size: 24
-    encoding method: 3
+    calc_margin: True
+    encoding method: rle
 
     width: 14
     height: 24

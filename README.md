@@ -18,7 +18,8 @@ Output sequence: Left to right, down to bottom sequentially
 | offset = (0,0)                  | x,y offset |
 | fixed_width_height              | None: Size is adaptive<br />(width, height): Fixed width and height | 
 | max_width = 24                  | maximum width |
-| encoding_method = 0                 | encoding method<br/>0=direct dump the pixels<br/>1=accumulate numbers of 0 and 1<br/>2=direct dump the pixels inside the margin area <br/>3=accumulate numbers of 0 and 1 inside the margin area |
+| calc_margin = true              | calculate margin area |
+| encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 inside margin area<br/> |
 | template_file_path = ['./template_enc0_bmp.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
 
@@ -32,11 +33,10 @@ Output sequence: Left to right, down to bottom sequentially
     offset = (0,0)                          # x,y offset
     fixed_width_height = (14,24)            # fixed width and height
     max_width = 24                          # maximum width
-    encoding_method = 0                     # encoding method
-                                            # 0=direct dump the pixels
-                                            # 1=accumulate numbers of 0 and 1
-                                            # 2=direct dump the pixels inside the margin area
-                                            # 3=accumulate numbers of 0 and 1 inside the margin area
+    calc_margin = true                      # calculate margin area
+    encoding_method = raw                   # encoding method
+                                            # raw: direct dump the pixels inside margin area
+                                            # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
     template_file_path = ['./template_enc0_bmp.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
@@ -49,13 +49,12 @@ Output sequence: Left to right, down to bottom sequentially
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
     offset = (0,0)                          # x,y offset
-    fixed_width_height = None               # fixed width and height
+    fixed_width_height = None               # adaptive width and height
     max_width = 32                          # maximum width
-    encoding_method = 2                     # encoding method
-                                            # 0=direct dump the pixels
-                                            # 1=accumulate numbers of 0 and 1
-                                            # 2=direct dump the pixedls inside the margin area
-                                            # 3=accumulate numbers of 0 and 1 inside the margin area
+    calc_margin = true                      # calculate margin area
+    encoding_method = raw                   # encoding method
+                                            # raw: direct dump the pixels inside margin area
+                                            # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
     template_file_path = ['./template_enc2_bmp.ini', './template_enc2_adapt_size_offs.ini']# template file path
-    export_dir = "./export/"                # export directory
+    export_dir = './export/'                # export directory
 ```

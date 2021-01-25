@@ -52,28 +52,26 @@ def extract_filename(path):
 #=========================================================================================
 
 class font_config():
-    bpp  = 1                                # 1-bpp
-    font = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'                           # font style (Test chinese font: kaiu) (ubuntu 18.04: /usr/share/fonts/truetype/freefont/FreeMono.ttf)
-    size = 24                               # font size
-    text = "0123456789:"                \
-           "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
-    offset = (0,0)                          # x,y offset
-    fixed_width_height = (14,24)            # fixed width and height
-    max_width = 24                          # maximum width
-    encoding_method = 0                     # encoding method
-                                            # 0=direct dump the pixels
-                                            # 1=accumulate numbers of 0 and 1
-                                            # 2=direct dump the pixels inside the margin area
-                                            # 3=accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./template_enc0_bmp.ini']   # template file path
-    export_dir = "./export/"                # export directory
-    c_filename = extract_filename(font) + str(size)           # generated c source file name
+    bpp  = 1                                            # 1-bpp
+    font = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'    # font style (Test chinese font: kaiu) (ubuntu 18.04: /usr/share/fonts/truetype/freefont/FreeMono.ttf)
+    size = 24                                           # font size
+    text = '0123456789:'                \
+           'abcdefghijklmnopqrstuvwxyz' \
+           'ABCDEFGHIJKLMNOPQRSTUVWXYZ'                 # '測試間距テスト'  # output which symbol
+    offset = (0,0)                                      # x,y offset
+    fixed_width_height = (14,24)                        # fixed width and height
+    max_width = 24                                      # maximum width
+    calc_margin = True                                  # Calculate margin area
+    encoding_method = 'raw'                             # encoding method (raw|rle)
+                                                        # raw: direct dump the pixels
+                                                        # rle: RLE compression, accumulate numbers of 0 and 1
+    template_file_path = ['./template_enc0_bmp.ini']    # template file path
+    export_dir = './export/'                            # export directory
+    c_filename = extract_filename(font) + str(size)     # generated c source file name
     
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
     cfg.read(config_file_path, encoding='utf-8')
-    
     
     font_list = []
     
@@ -89,7 +87,8 @@ def load_config(config_file_path):
         c.offset = eval(cfg.get(section, 'offset'), {}, {})
         c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
         c.max_width = cfg.getint(section, 'max_width')
-        c.encoding_method = cfg.getint(section, 'encoding_method')
+        c.calc_margin = cfg.getboolean(section, 'calc_margin')
+        c.encoding_method = cfg.get(section, 'encoding_method')
         c.template_file_path = eval(cfg.get(section, 'template_file_path'), {}, {})
         c.export_dir = cfg.get(section, 'export_dir')
         
@@ -98,7 +97,6 @@ def load_config(config_file_path):
     return font_list
 
 def load_template(template_file_path):
-
     template = {}
     template['header'] = ''
     template['loopbody'] = ''
@@ -219,11 +217,6 @@ def convert_special_char(c):
 
 #=========================================================================================
 
-def truetype_font(font_path, size):
-    return ImageFont.truetype(font_path, size)
-
-#=========================================================================================
-
 class ttf_label(Label):
     def __init__(self, master, text, width, foreground="black", truetype_font=None, font_path=None, family=None, size=None, **kwargs):   
         if truetype_font is None:
@@ -277,20 +270,79 @@ class font2c():
         if(self.conf.bpp == 1):
             return Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
         else:
-            raise TypeError("bpp only accept 1,8 or RGB is allowed")
+            raise TypeError("bpp only accept 1")
     
     def _img_is_pixel_blank(self, img, xy):
         if(self.conf.bpp == 1):
             return (img.getpixel(xy) & 1) == 0
         else:
-            raise TypeError("bpp only accept 1,8 or RGB is allowed")
+            raise TypeError("bpp only accept 1")
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
             return 1, (img.getpixel(xy) & 1)
         else:
-            raise TypeError("bpp only accept 1,8 or RGB is allowed")    
+            raise TypeError("bpp only accept 1")    
     
+    def _img_calc_margin(self, img, img_size):
+        margin = Margin()
+
+        #calculate top margin
+        for y in range(img_size[1]) :
+            accumulateBlank = 0
+            for x in range(img_size[0]):
+                if (self._img_is_pixel_blank(img, (x,y))):
+                    accumulateBlank += 1
+                else:
+                    break
+            if(accumulateBlank == img_size[0]):
+                margin.top += 1
+            else:
+                break
+
+        #calculate bottom margin
+        for y in reversed(range(img_size[1])):
+            accumulateBlank = 0
+            for x in range(img_size[0]):
+                if (self._img_is_pixel_blank(img, (x, y))):
+                    accumulateBlank += 1
+                else:
+                    break
+
+            if(accumulateBlank == img_size[0]):
+                margin.bottom += 1
+            else:
+                break
+
+        #calculate left margin
+        for x in range(img_size[0]):
+            accumulateBlank = 0
+            for y in range(img_size[1]):
+                if (self._img_is_pixel_blank(img, (x, y))):
+                    accumulateBlank += 1
+                else:
+                    break
+
+            if(accumulateBlank == img_size[1]):
+                margin.left += 1
+            else:
+                break
+
+        #calculate right margin
+        for x in reversed(range(img_size[0])):
+            accumulateBlank = 0
+            for y in range(img_size[1]):
+                if (self._img_is_pixel_blank(img, (x, y))):
+                    accumulateBlank += 1
+                else:
+                    break
+            if(accumulateBlank == img_size[1]):
+                margin.right += 1
+            else:
+                break
+
+        return margin
+
     def preview(self):
         ttf_label(root, text=self.conf.text, width=20, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
 
@@ -318,28 +370,30 @@ class font2c():
                  exit()
 
             # Build the template parameter list
-            data = {}
-            data['font'] = extract_filename(self.conf.font)
-            data['font_lowercase'] = data['font'].lower()
-            data['font_uppercase'] = data['font'].upper()
-            data['size'] = self.conf.size
-            data['encoding_method'] = self.conf.encoding_method
+            template_key = {}
+            template_key['font'] = extract_filename(self.conf.font)
+            template_key['font_lowercase'] = template_key['font'].lower()
+            template_key['font_uppercase'] = template_key['font'].upper()
+            template_key['size'] = self.conf.size
+            template_key['calc_margin'] = self.conf.calc_margin
+            template_key['encoding_method'] = self.conf.encoding_method
+            template_key['template_file_path'] = template_file_path
 
             if(self.conf.fixed_width_height != None):
-                (data['width'], data['height']) = self.conf.fixed_width_height
+                (template_key['width'], template_key['height']) = self.conf.fixed_width_height
             else:
-                (data['width'], data['height']) = ('Adaptive', 'Adaptive')
+                (template_key['width'], template_key['height']) = ('Adaptive', 'Adaptive')
 
-            # If encoding methid is 0 and fixed_width_length, imglen can be pre-estimated   
-            if self.conf.encoding_method == 0 and self.conf.fixed_width_height != None:
+            # If encoding methid is raw and fixed_width_length != None, imglen can be pre-estimated   
+            if self.conf.encoding_method == 'raw' and self.conf.fixed_width_height != None:
                 pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
-                data['imglen'] =  int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 )
+                template_key['imglen'] =  int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 )
             else:
-                data['imglen'] = 'Unknown'
+                template_key['imglen'] = 'Unknown'
             
-            data['imgaddr'] = 0
+            template_key['imgaddr'] = 0
 
-            cfile.write(Template(template["header"]).substitute(data))
+            cfile.write(Template(template["header"]).substitute(template_key))
 
             for c in self.conf.text:
                 fnt_size = fnt.getsize(c)
@@ -372,80 +426,14 @@ class font2c():
 
                 margin = Margin()
 
-                if (self.conf.encoding_method == 2 or self.conf.encoding_method == 3):
+                if (self.conf.calc_margin == True):
                     #===========================================
-
-                    #calculate top margin
-                    for y in range(img_size[1]) :
-                        accumulateBlank = 0
-                        for x in range(img_size[0]):
-                            if (self._img_is_pixel_blank(img, (x,y))):
-                                accumulateBlank += 1
-                            else:
-                                break
-
-                        if(accumulateBlank == img_size[0]):
-                            margin.top += 1
-                        else:
-                            break
-
+                    margin = self._img_calc_margin(img, img_size)
                     print("Top margin:", margin.top)
-
-                    #===========================================
-
-                    #calculate bottom margin
-                    for y in reversed(range(img_size[1])):
-                        accumulateBlank = 0
-                        for x in range(img_size[0]):
-                            if (self._img_is_pixel_blank(img, (x, y))):
-                                accumulateBlank += 1
-                            else:
-                                break
-
-                        if(accumulateBlank == img_size[0]):
-                            margin.bottom += 1
-                        else:
-                            break
-
                     print("Bottom margin:", margin.bottom)
-
-                    #===========================================
-
-                    #calculate left margin
-                    for x in range(img_size[0]):
-                        accumulateBlank = 0
-                        for y in range(img_size[1]):
-                            if (self._img_is_pixel_blank(img, (x, y))):
-                                accumulateBlank += 1
-                            else:
-                                break
-
-                        if(accumulateBlank == img_size[1]):
-                            margin.left += 1
-                        else:
-                            break
-
-                    print("Left margin:", margin.left);
-
-                    #===========================================
-
-                    #calculate right margin
-                    for x in reversed(range(img_size[0])):
-                        accumulateBlank = 0
-                        for y in range(img_size[1]):
-                            if (self._img_is_pixel_blank(img, (x, y))):
-                                accumulateBlank += 1
-                            else:
-                                break
-
-                        if(accumulateBlank == img_size[1]):
-                            margin.right += 1
-                        else:
-                            break
-
+                    print("Left margin:", margin.left)
                     print("Right margin:", margin.right)
-
-                #===========================================
+                    #===========================================
 
                 byte = 0x00
                 count = 0
@@ -470,9 +458,9 @@ class font2c():
 
                 #===========================================
 
-                if (self.conf.encoding_method == 0 or self.conf.encoding_method == 2):
+                if (self.conf.encoding_method == 'raw'):
                     pass
-                elif (self.conf.encoding_method == 1 or self.conf.encoding_method == 3):
+                elif (self.conf.encoding_method == 'rle'):
                     steam = encoding_method_rle(steam)
                 else:
                     print("Unsupport encoding method\n")
@@ -482,25 +470,25 @@ class font2c():
                 #===========================================
 
                 # Build the template parameter list
-                data['imgname'] = imgname
-                data['imgname_lowercase'] = imgname.lower()
-                data['imgname_uppercase'] = imgname.upper()
-                data['margin_top'] = margin.top
-                data['margin_bottom'] = margin.bottom
-                data['margin_left'] = margin.left
-                data['margin_right'] = margin.right
-                data['width'] = img.size[0]
-                data['height'] = img.size[1]
-                data['imglen'] = len(steam)
-                data['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
+                template_key['imgname'] = imgname
+                template_key['imgname_lowercase'] = imgname.lower()
+                template_key['imgname_uppercase'] = imgname.upper()
+                template_key['margin_top'] = margin.top
+                template_key['margin_bottom'] = margin.bottom
+                template_key['margin_left'] = margin.left
+                template_key['margin_right'] = margin.right
+                template_key['width'] = img.size[0]
+                template_key['height'] = img.size[1]
+                template_key['imglen'] = len(steam)
+                template_key['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
 
-                cfile.write(Template(template["loopbody"]).substitute(data))
+                cfile.write(Template(template["loopbody"]).substitute(template_key))
 
-                data['imgaddr'] += len(steam)
+                template_key['imgaddr'] += len(steam)
 
                 print("------------------------------------------")
     
-            cfile.write(Template(template["footer"]).substitute(data))
+            cfile.write(Template(template["footer"]).substitute(template_key))
         cfile.close()
 
 #=========================================================================================
