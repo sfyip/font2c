@@ -9,12 +9,12 @@ Usage:<br/>
 
 Output sequence: Left to right, down to bottom sequentially
 
-Preview:
+#### Preview:
 ![Preview Screen Capture](img/screen_cap.png)
 
 | Configuration | Description |
 | --- | --- |
-| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style (Windows: cour)|
+| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style (Windows platform: cour)|
 | size = 32 | font size |
 | text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters |
 | offset = (0,0)                  | x,y offset |
