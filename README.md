@@ -14,16 +14,16 @@ Preview:
 
 | Configuration | Description |
 | --- | --- |
-| font = "cour" | font style |
-| size = 24 | font size |
-| text = "0123456789:" | output characters |
+| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style (Windows: cour)|
+| size = 32 | font size |
+| text = 0123456789:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters |
 | offset = (0,0)                  | x,y offset |
-| fixed_width_height              | None: Flexible size<br/>(width, height): Fixed width and height | 
-| max_width = 24                  | maximum width |
-| calc_margin = false             | calculate margin area |
+| fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height | 
+| max_width = 32                  | maximum width |
+| calc_margin = true             | calculate margin area |
 | encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
-| template_file_path = ['./template_bmp_fixed_array_size.ini'] | template file path |
-| export_dir = "./export/"        | export directory |
+| template_file_path = ['./template_bmp.ini', './template_font_table_width_height_margin_index.ini'] | template file path |
+| export_dir = ./export/        | export directory |
 
 **Example 1: Output with fixed width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index.ini as template files, the generated c source file and preview font images is placed under './export' directory**
 ```python
