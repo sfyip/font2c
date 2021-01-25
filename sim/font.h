@@ -36,23 +36,19 @@ typedef struct
 
 typedef bool (*fnt_lookup_fp)(char c, font_symbol_t *sym);
 
+typedef struct
+{
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u) 
-    typedef struct
-    {
-        uint8_t width;
-        uint8_t height;
-        const uint8_t *bmp_base;
-        fnt_lookup_fp lookup;
-    }font_t;
+    uint8_t width;
+    uint8_t height;
 #else
-    typedef struct
-    {
-        uint8_t default_width;
-        uint8_t default_height;
-        const uint8_t *bmp_base;
-        fnt_lookup_fp lookup;
-    }font_t;
+    uint8_t default_width;
+    uint8_t default_height;
 #endif
+
+    const uint8_t *bmp_base;
+    fnt_lookup_fp lookup;
+}font_t;
 
 //=================================================================
 
