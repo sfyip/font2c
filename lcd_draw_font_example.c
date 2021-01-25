@@ -1,22 +1,25 @@
 
-#if (CONFIG_FONT_ENC == 0u)
+//=========================================================================
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp
-static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t i = 0;
     uint8_t j = 0;
     uint16_t area = fnt->width * fnt->height;
     
-    const uint8_t *bmp = (const uint8_t*)(sym);
+    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
     while(area--)
     {
         if(bmp[i] & (1<<j))
         {
+            //lcdsim_write_gram(brush_color);
             LCD_WR_DATA(brush_color);
         }
         else
         {
+            //lcdsim_write_gram(back_color);
             LCD_WR_DATA(back_color);
         }
 
@@ -33,43 +36,56 @@ static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 1u)
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
 // rle, 1bpp
-static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    uint16_t count;
-    uint8_t pixelColor = 0;
-    uint16_t i, j;
-    
+    bool pixelColor = 0;
+    bool nibbleToogle = false;
+    uint16_t i = 0;
+    uint8_t j, count;
+
     const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
-    for(i=0; i<sym->size; i++)
+    while(i<sym->size)
     {
-        count = bmp[i];
-        
+        if(!nibbleToogle)
+        {
+            count = bmp[i] >> 4;
+        }
+        else
+        {
+            count = bmp[i] & 0x0F;
+            ++i;
+        }
+
+        nibbleToogle = !nibbleToogle;
+
         for(j=0; j<count; j++)
         {
             if(pixelColor)
             {
+                //lcdsim_write_gram(brush_color);
                 LCD_WR_DATA(brush_color);
             }
             else
             {
+                //lcdsim_write_gram(back_color);
                 LCD_WR_DATA(back_color);
             }
         }
         
-        if(count != 255)
+        if(count != 15)
         {
-            pixelColor ^= 1;
+            pixelColor = !pixelColor;
         }
     }
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 2u)
+#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp with margin
-static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t *sym)
 {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
@@ -95,17 +111,20 @@ static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                // debug: LCD_WR_DATA(LCD_BLUE_COLOR);
+                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
+                //lcdsim_write_gram(back_color);
                 LCD_WR_DATA(back_color);
             }
             else
             {
                 if(fnt->bmp_base[bi] & (1<<i))
                 {
+                    //lcdsim_write_gram(brush_color);
                     LCD_WR_DATA(brush_color);
                 }
                 else
                 {
+                    //lcdsim_write_gram(back_color);
                     LCD_WR_DATA(back_color);
                 }
 
@@ -124,14 +143,19 @@ static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 3u)
-// raw bitblt, 1bpp with margin
-static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
+#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
+// rle bitblt, 1bpp with margin
+static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    uint8_t pixelColor = 0;
+    bool pixelColor = 0;
 
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
+#else
+    uint8_t font_width = sym->width;
+    uint8_t font_height = sym->height;
+#endif
 
     uint8_t top = sym->margin_top;
     uint8_t bottom = font_height - sym->margin_bottom-1;
@@ -141,12 +165,20 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
     uint16_t bi = sym->index;
 
     uint8_t h, w;
-    uint16_t writeCount = 0;
 
-    if(fnt->bmp_base[bi] == 0)
+    uint8_t j = 0, count;
+
+    bool nibbleToogle = false;
+
+    count = fnt->bmp_base[bi] >> 4;
+    nibbleToogle = !nibbleToogle;
+
+    if(count == 0)
     {
-        pixelColor ^= 1;
+        pixelColor = !pixelColor;
+        count = fnt->bmp_base[bi] & 0x0F;
         ++bi;
+        nibbleToogle = !nibbleToogle;
     }
 
     for(h=0; h<font_height; h++)
@@ -155,32 +187,47 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                // debug: LCD_WR_DATA(BLUE);
+                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
+                //lcdsim_write_gram(back_color);
                 LCD_WR_DATA(back_color);
             }
             else
             {
                 if(pixelColor)
                 {
+                    //lcdsim_write_gram(brush_color);
                     LCD_WR_DATA(brush_color);
                 }
                 else
                 {
+                    //lcdsim_write_gram(back_color);
                     LCD_WR_DATA(back_color);
                 }
-                ++writeCount;
                 
-                if(writeCount == 255)
+                ++j;
+                if(j == count && j != 15)
                 {
-                    writeCount = 0;
-                    bi++;
+                    pixelColor = !pixelColor;
                 }
-                
-                if(writeCount == fnt->bmp_base[bi])
+                if(j == count)
                 {
-                    writeCount = 0;
-                    bi++;
-                    pixelColor ^= 1;
+                    j = 0;
+NEXT_NIBBLE:
+                    if(!nibbleToogle)
+                    {
+                        count = fnt->bmp_base[bi] >> 4;
+                    }
+                    else
+                    {
+                        count = fnt->bmp_base[bi] & 0x0F;
+                        ++bi;
+                    }
+                    nibbleToogle = !nibbleToogle;
+                    if(count == 0)
+                    {
+                        pixelColor = !pixelColor;
+                        goto NEXT_NIBBLE;
+                    }
                 }
             }
         }
@@ -192,8 +239,8 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 {
-    const font_symbol_t *sym = fnt->lookup(c);
-    if(!sym)
+    font_symbol_t sym;
+    if(!fnt->lookup(c, &sym))
     {
         return;
     }
@@ -202,8 +249,8 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
 #else
-    uint8_t font_width = sym->width;
-    uint8_t font_height = sym->height;
+    uint8_t font_width = sym.width;
+    uint8_t font_height = sym.height;
 #endif
 
     //lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
@@ -221,14 +268,14 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
     
     LCD_WR_REG(0x2C);                     /* Write GRAM   */
 
-#if (CONFIG_FONT_ENC == 0u)
-    font_render_engine_0(fnt, sym);
-#elif(CONFIG_FONT_ENC == 1u)
-    font_render_engine_1(fnt, sym);
-#elif(CONFIG_FONT_ENC == 2u)
-    font_render_engine_2(fnt, sym);
-#elif(CONFIG_FONT_ENC == 3u)
-    font_render_engine_3(fnt, sym);
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
+    font_render_engine_nomargin_raw(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
+    font_render_engine_nomargin_rle(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
+    font_render_engine_margin_raw(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
+    font_render_engine_margin_rle(fnt, &sym);
 #else
     #error "Unsupported ENCODING_METHOD"
 #endif
@@ -250,66 +297,47 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 
 //=========================================================================
 
+void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
+{
+    uint16_t orgx = x;
+
+    char c;
+    while((c = *s) != '\0')
+    {
+        if(c == '\n')
+        {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
-
-void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
-{
-    uint16_t orgx = x;
-
-    char c;
-    while((c = *s) != '\0')
-    {
-        if(c == '\n')
-        {
             y += (fnt->height + ROW_CLERANCE_SIZE);
-            x = orgx;
-        }
-        else if(c == ' ')
-        {
-            x += fnt->width;
-        }
-        else
-        {
-            lcdsim_draw_char(x, y, fnt, c);
-            x += fnt->width;
-        }
-        ++s;
-    }
-}
-
 #else
-
-void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
-{
-    uint16_t orgx = x;
-    
-    char c;
-    while((c = *s) != '\0')
-    {
-        if(c == '\n')
-        {
             y += (fnt->default_height + ROW_CLERANCE_SIZE);
+#endif
             x = orgx;
         }
         else if(c == ' ')
         {
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+            x += fnt->width;
+#else
             x += fnt->default_width;
+#endif
         }
         else
         {
             lcdsim_draw_char(x, y, fnt, c);
-            const font_symbol_t *sym = fnt->lookup(c);
-            if(!sym)
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+            x += fnt->width;
+#else
+            font_symbol_t sym;
+            if(!fnt->lookup(c, &sym))
             {
                 x += fnt->default_width;
             }
             else
             {
-                x += sym->width;
+                x += sym.width;
             }
+#endif
         }
         ++s;
     }
 }
-
-#endif

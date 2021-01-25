@@ -114,7 +114,7 @@ void lcdsim_fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, l
     uint32_t area = width * height;
     while(area--)
     {
-        lcdsim_write_data(color);
+        lcdsim_write_gram(color);
     }
 }
 
@@ -133,7 +133,7 @@ void lcdsim_set_bound(uint16_t startx, uint16_t starty, uint16_t endx, uint16_t 
 
 //=========================================================================
 
-void lcdsim_write_data(lcd_color_t color)
+void lcdsim_write_gram(lcd_color_t color)
 {
     lcdsim_draw_pixel(lcdsim_cur.x, lcdsim_cur.y, color);
 
@@ -166,11 +166,11 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
     {
         if(bmp[i] & (1<<j))
         {
-            lcdsim_write_data(brush_color);
+            lcdsim_write_gram(brush_color);
         }
         else
         {
-            lcdsim_write_data(back_color);
+            lcdsim_write_gram(back_color);
         }
 
         if(j == 7)
@@ -188,7 +188,6 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 
 #if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
 // rle, 1bpp
-#include <stdio.h>
 static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
     bool pixelColor = 0;
@@ -216,11 +215,11 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
         {
             if(pixelColor)
             {
-                lcdsim_write_data(brush_color);
+                lcdsim_write_gram(brush_color);
             }
             else
             {
-                lcdsim_write_data(back_color);
+                lcdsim_write_gram(back_color);
             }
         }
         
@@ -260,18 +259,18 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                // debug: lcdsim_write_data(LCD_BLUE_COLOR);
-                lcdsim_write_data(back_color);
+                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
+                lcdsim_write_gram(back_color);
             }
             else
             {
                 if(fnt->bmp_base[bi] & (1<<i))
                 {
-                    lcdsim_write_data(brush_color);
+                    lcdsim_write_gram(brush_color);
                 }
                 else
                 {
-                    lcdsim_write_data(back_color);
+                    lcdsim_write_gram(back_color);
                 }
 
                 if(i==7)
@@ -333,18 +332,18 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                // debug: lcdsim_write_data(LCD_BLUE_COLOR);
-                lcdsim_write_data(back_color);
+                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
+                lcdsim_write_gram(back_color);
             }
             else
             {
                 if(pixelColor)
                 {
-                    lcdsim_write_data(brush_color);
+                    lcdsim_write_gram(brush_color);
                 }
                 else
                 {
-                    lcdsim_write_data(back_color);
+                    lcdsim_write_gram(back_color);
                 }
                 
                 ++j;

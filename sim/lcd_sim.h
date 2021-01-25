@@ -66,7 +66,7 @@ void lcdsim_clear_screen(void);
 void lcdsim_draw_pixel(uint16_t x, uint16_t y, lcd_color_t color);
 void lcdsim_fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, lcd_color_t color);
 void lcdsim_set_bound(uint16_t startx, uint16_t starty, uint16_t endx, uint16_t endy);
-void lcdsim_write_data(lcd_color_t color);
+void lcdsim_write_gram(lcd_color_t color);
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c);
 void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s);
 void lcdsim_set_back_color(lcd_color_t color);
