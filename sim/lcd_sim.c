@@ -109,7 +109,7 @@ void lcdsim_draw_pixel(uint16_t x, uint16_t y, lcd_color_t color)
 
 void lcdsim_fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, lcd_color_t color)
 {
-    lcdsim_set_bound(x, y, x+width, y+height);
+    lcdsim_set_bound(x, y, x+width-1, y+height-1);
 
     uint32_t area = width * height;
     while(area--)
@@ -283,8 +283,13 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
 {
     bool pixelColor = 0;
 
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
+#else
+    uint8_t font_width = sym->width;
+    uint8_t font_height = sym->height;
+#endif
 
     uint8_t top = sym->margin_top;
     uint8_t bottom = font_height - sym->margin_bottom-1;
@@ -378,54 +383,37 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 
 //=========================================================================
 
+
+void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
+{
+    uint16_t orgx = x;
+
+    char c;
+    while((c = *s) != '\0')
+    {
+        if(c == '\n')
+        {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
-
-void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
-{
-    uint16_t orgx = x;
-
-    char c;
-    while((c = *s) != '\0')
-    {
-        if(c == '\n')
-        {
             y += (fnt->height + ROW_CLERANCE_SIZE);
-            x = orgx;
-        }
-        else if(c == ' ')
-        {
-            x += fnt->width;
-        }
-        else
-        {
-            lcdsim_draw_char(x, y, fnt, c);
-            x += fnt->width;
-        }
-        ++s;
-    }
-}
-
 #else
-
-void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
-{
-    uint16_t orgx = x;
-    
-    char c;
-    while((c = *s) != '\0')
-    {
-        if(c == '\n')
-        {
             y += (fnt->default_height + ROW_CLERANCE_SIZE);
+#endif
             x = orgx;
         }
         else if(c == ' ')
         {
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+            x += fnt->width;
+#else
             x += fnt->default_width;
+#endif
         }
         else
         {
             lcdsim_draw_char(x, y, fnt, c);
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+            x += fnt->width;
+#else
             font_symbol_t sym;
             if(!fnt->lookup(c, &sym))
             {
@@ -435,12 +423,11 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
             {
                 x += sym.width;
             }
+#endif
         }
         ++s;
     }
 }
-
-#endif
 
 //=========================================================================
 
