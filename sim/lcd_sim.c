@@ -188,18 +188,30 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 
 #if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
 // rle, 1bpp
+#include <stdio.h>
 static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    uint16_t count;
     bool pixelColor = 0;
-    uint16_t i, j;
-    
+    bool nibbleToogle = false;
+    uint16_t i = 0;
+    uint8_t j, count;
+
     const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
-    for(i=0; i<sym->size; i++)
+    while(i<sym->size)
     {
-        count = bmp[i];
-        
+        if(!nibbleToogle)
+        {
+            count = bmp[i] >> 4;
+        }
+        else
+        {
+            count = bmp[i] & 0x0F;
+            ++i;
+        }
+
+        nibbleToogle = !nibbleToogle;
+
         for(j=0; j<count; j++)
         {
             if(pixelColor)
@@ -212,7 +224,7 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
             }
         }
         
-        if(count != 255)
+        if(count != 15)
         {
             pixelColor = !pixelColor;
         }
@@ -299,12 +311,20 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
     uint16_t bi = sym->index;
 
     uint8_t h, w;
-    uint16_t writeCount = 0;
 
-    if(fnt->bmp_base[bi] == 0)
+    uint8_t j = 0, count;
+
+    bool nibbleToogle = false;
+
+    count = fnt->bmp_base[bi] >> 4;
+    nibbleToogle = !nibbleToogle;
+
+    if(count == 0)
     {
         pixelColor = !pixelColor;
+        count = fnt->bmp_base[bi] & 0x0F;
         ++bi;
+        nibbleToogle = !nibbleToogle;
     }
 
     for(h=0; h<font_height; h++)
@@ -313,7 +333,7 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
         {
             if(w < left || w > right || h < top || h > bottom)
             {
-                // debug: lcdsim_write_data(BLUE);
+                // debug: lcdsim_write_data(LCD_BLUE_COLOR);
                 lcdsim_write_data(back_color);
             }
             else
@@ -326,19 +346,31 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
                 {
                     lcdsim_write_data(back_color);
                 }
-                ++writeCount;
                 
-                if(writeCount == 255)
+                ++j;
+                if(j == count && j != 15)
                 {
-                    writeCount = 0;
-                    bi++;
-                }
-                
-                if(writeCount == fnt->bmp_base[bi])
-                {
-                    writeCount = 0;
-                    bi++;
                     pixelColor = !pixelColor;
+                }
+                if(j == count)
+                {
+                    j = 0;
+NEXT_NIBBLE:
+                    if(!nibbleToogle)
+                    {
+                        count = fnt->bmp_base[bi] >> 4;
+                    }
+                    else
+                    {
+                        count = fnt->bmp_base[bi] & 0x0F;
+                        ++bi;
+                    }
+                    nibbleToogle = !nibbleToogle;
+                    if(count == 0)
+                    {
+                        pixelColor = !pixelColor;
+                        goto NEXT_NIBBLE;
+                    }
                 }
             }
         }

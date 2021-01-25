@@ -136,13 +136,41 @@ class Margin():
 
 #=========================================================================================
 
-#Encoding method RLE: Accumulate numbers of '0' and '1'
+class nibble_steam():
+    result = []
+    count = 0
+    prev_nibble = 0x0
+
+    def clear(self):
+        self.count = 0
+        self.result.clear()
+
+    def push_nibble(self, n):
+        if(n & 0xF0):
+            raise ValueError    #The nibble value is out of range 
+        self.count += 4
+        if(self.count == 8):
+            self.count = 0
+            self.result.append((self.prev_nibble << 4) | ((n & 0x0F)))
+        else:
+            self.prev_nibble = n & 0x0F
+
+    def get_result(self):
+        if(self.count == 4):
+            self.count = 0
+            self.result.append((self.prev_nibble << 4))
+        return self.result
+
+#=========================================================================================
+
+#Encoding method RLE: Accumulate numbers of '0' and '1' packed in nibble
 def encoding_method_rle(steam):
     if not isinstance(steam, bytearray):
         Print("encoding_method_1 parameter *steam* incorrect")
         return None
     
-    result = []
+    result = nibble_steam()
+    result.clear()
     sample = 0
     count = 0
     
@@ -153,18 +181,18 @@ def encoding_method_rle(steam):
             if (bit == sample):
                 count += 1
 
-                if count == 255:
-                    result.append(0xff)
+                if count == 15:
+                    result.push_nibble(0xf)
                     count = 0
             else:
-                result.append(count)
+                result.push_nibble(count)
                 count = 1
                 sample ^= 1         #inverse the bit
     
     if(count != 0):
-        result.append(count)    #push remaining byte
+        result.push_nibble(count)    #push remaining byte
     
-    return result
+    return result.get_result()
 
 #=========================================================================================
 

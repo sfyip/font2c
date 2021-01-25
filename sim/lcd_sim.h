@@ -19,6 +19,9 @@
 #define LCD_RED_COLOR               0xF800
 #define LCD_GREEN_COLOR             0x07E0
 #define LCD_BLUE_COLOR              0x001F
+#define LCD_CYAN_COLOR              0x07FF
+#define LCD_YELLOW_COLOR            0xFFE0
+#define LCD_PURPLE_COLOR            0xF81F
 
 #define LCD_WIDTH                   800
 #define LCD_HEIGHT                  480

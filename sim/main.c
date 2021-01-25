@@ -46,9 +46,9 @@ int main ()
 #elif (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
     lcdsim_set_brush_color(LCD_GREEN_COLOR);
 #elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
-    lcdsim_set_brush_color(LCD_BLUE_COLOR);
+    lcdsim_set_brush_color(LCD_CYAN_COLOR);
 #elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
-    lcdsim_set_brush_color(LCD_WHITE_COLOR);
+    lcdsim_set_brush_color(LCD_YELLOW_COLOR);
 #endif
 
     lcdsim_draw_string(10, 10, select_fnt, "0123456789:\r\nabcdefghijklmn\r\nopqrstuvwxyz\r\nABCDEFGHIJKLMN\r\nOPQRSTUVWXYZ\r\n");

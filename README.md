@@ -19,7 +19,7 @@ Output sequence: Left to right, down to bottom sequentially
 | fixed_width_height              | None: Size is adaptive<br />(width, height): Fixed width and height | 
 | max_width = 24                  | maximum width |
 | calc_margin = False              | calculate margin area |
-| encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 inside margin area<br/> |
+| encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
 | template_file_path = ['./template_bmp_fixed_array_size.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
 
@@ -36,7 +36,7 @@ Output sequence: Left to right, down to bottom sequentially
     calc_margin = true                      # calculate margin area
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
-                                            # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
+                                            # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
     template_file_path = ['./template_bmp.ini', './template_font_table_margin_index.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
@@ -54,7 +54,7 @@ Output sequence: Left to right, down to bottom sequentially
     calc_margin = true                      # calculate margin area
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
-                                            # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
+                                            # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
     template_file_path = ['./template_bmp.ini', './template_font_table_width_height_margin_index.ini']# template file path
     export_dir = './export/'                # export directory
 ```
