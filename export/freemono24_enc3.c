@@ -182,7 +182,6 @@ static const uint8_t freemono24_bmp[] = {
     0x08, 0x01, 0x08, 0x01, 0x08, 0x02, 0x08, 0x01, 0x05, 0x01, 0x02, 0x01, 0x06, 0x01, 0x01, 0x01, 0x07, 0x01, 0x01, 0x01,
     0x07, 0x0B, 0x04,  // FreeMono24_Z
 };
-
 /*
     <Generate from template_enc3_offs.ini>
     generate margin and bitmap offset
@@ -194,7 +193,16 @@ static const uint8_t freemono24_bmp[] = {
     height: 24
 */
 
-static const font_symbol_t freemono24_symbol[] = {
+typedef struct
+{
+    uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
+    uint16_t index;
+}font_table_t;
+
+static const font_table_t freemono24_table[] = {
     {6, 3, 3, 2, 0},  // FreeMono24_0
     {5, 4, 3, 2, 45},  // FreeMono24_1
     {5, 4, 2, 3, 82},  // FreeMono24_2

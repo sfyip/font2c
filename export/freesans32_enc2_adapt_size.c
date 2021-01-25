@@ -196,7 +196,18 @@ static const uint8_t freesans32_bmp[] = {
     height: Adaptive
 */
 
-static const font_symbol_t freesans32_symbol[] = {
+typedef struct
+{
+    uint8_t width;
+    uint8_t height;
+    uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
+    uint16_t index;
+}font_table_t;
+
+static const font_table_t freesans32_table[] = {
     {18, 32, 3, 5, 1, 2, 0},  // FreeSans32_0
     {18, 32, 3, 6, 3, 7, 45},  // FreeSans32_1
     {18, 32, 3, 6, 1, 2, 68},  // FreeSans32_2

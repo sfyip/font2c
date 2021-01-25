@@ -197,7 +197,11 @@ static const uint8_t freemono24_bmp[] = {
     height: 24
 */
 
-static const font_symbol_t freemono24_symbol[] = {
+typedef struct{
+    uint16_t index;
+}font_table_t;
+
+static const font_table_t freemono24_table[] = {
     {0},  // FreeMono24_0
     {57},  // FreeMono24_1
     {94},  // FreeMono24_2
