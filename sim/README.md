@@ -1,7 +1,7 @@
 # font2c simulator
 
-A simple LCD simualtor aims for testing the generated font characters.
-This program used Linux /dev/fb0 to direct access the framebuffer color pixel (sudo premission is required).
+A simple LCD simulator aims for testing the generated font characters.
+This program used Linux /dev/fb0 to direct access the framebuffer color pixel (sudo premission is required).<br/>
 Tested in Ubuntu 18.04
 
 Procedure:
