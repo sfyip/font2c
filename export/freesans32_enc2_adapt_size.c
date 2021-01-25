@@ -1,5 +1,5 @@
 /*
-    <Generate from ./template_enc2_bmp.ini>
+    <Generate from ./template_bmp.ini>
     generate font bitmap
     font: FreeSans
     size: 32
@@ -186,8 +186,8 @@ static const uint8_t freesans32_bmp[] = {
     0xE0, 0x01, 0x80, 0x03, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x3F,  // FreeSans32_Z
 };
 /*
-    <Generate from ./template_enc2_adapt_size_offs.ini>
-    generate margin and bitmap offset
+    <Generate from ./template_font_table_width_height_margin_index.ini>
+    generate font_table_t struct: [width, height, margin, index]
     font: FreeSans
     size: 32
     calc_margin: True

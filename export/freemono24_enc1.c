@@ -1,5 +1,5 @@
 /*
-    <Generate from ./template_enc1_bmp.ini>
+    <Generate from ./template_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -188,8 +188,8 @@ static const uint8_t freemono24_bmp[] = {
     0x07, 0x01, 0x04, 0x0A, 0x3A,  // FreeMono24_Z
 };
 /*
-    <Generate from ./template_enc1_offs.ini>
-    generate bitmap offset
+    <Generate from ./template_font_table_index.ini>
+    generate font_table_t struct: [index]
     font: FreeMono
     size: 24
     calc_margin: False

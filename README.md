@@ -20,10 +20,10 @@ Output sequence: Left to right, down to bottom sequentially
 | max_width = 24                  | maximum width |
 | calc_margin = False              | calculate margin area |
 | encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 inside margin area<br/> |
-| template_file_path = ['./template_enc0_bmp.ini'] | template file path |
+| template_file_path = ['./template_bmp_fixed_array_size.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
 
-**Example 1: Output with fixed width and height, encoding method set to 0, use template_enc0_bmp.ini as template file**
+**Example 1: Output with fixed width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index as template files**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24                               # font size
@@ -37,11 +37,11 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
                                             # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
-    template_file_path = ['./template_enc2_bmp.ini', './template_enc2_offs.ini'] # template file path
+    template_file_path = ['./template_bmp.ini', './template_font_table_margin_index.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
 
-**Example 2: Output with adaptive width and height, encoding method set to 2, use template_enc2_bmp.ini and template_enc2_adapt_size_offs.ini as template file**
+**Example 2: Output with adaptive width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_width_height_margin_index.ini as template files**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
     size = 32                               # font size
@@ -55,6 +55,6 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
                                             # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
-    template_file_path = ['./template_enc2_bmp.ini', './template_enc2_adapt_size_offs.ini']# template file path
+    template_file_path = ['./template_bmp.ini', './template_font_table_width_height_margin_index.ini']# template file path
     export_dir = './export/'                # export directory
 ```
