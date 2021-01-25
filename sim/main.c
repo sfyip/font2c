@@ -41,13 +41,13 @@ int main ()
     lcdsim_draw_pixel(100, 100, GREEN_COLOR);
 #endif
 
-#if (CONFIG_FONT_ENC == 0u)
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
     lcdsim_set_brush_color(LCD_RED_COLOR);
-#elif (CONFIG_FONT_ENC == 1u)
+#elif (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
     lcdsim_set_brush_color(LCD_GREEN_COLOR);
-#elif (CONFIG_FONT_ENC == 2u)
+#elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
     lcdsim_set_brush_color(LCD_BLUE_COLOR);
-#elif (CONFIG_FONT_ENC == 3u)
+#elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
     lcdsim_set_brush_color(LCD_WHITE_COLOR);
 #endif
 

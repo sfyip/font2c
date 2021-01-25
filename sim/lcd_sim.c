@@ -152,9 +152,9 @@ void lcdsim_write_data(lcd_color_t color)
 }
 
 //=========================================================================
-#if (CONFIG_FONT_ENC == 0u)
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp
-static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t i = 0;
     uint8_t j = 0;
@@ -186,9 +186,9 @@ static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 1u)
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
 // rle, 1bpp
-static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t count;
     bool pixelColor = 0;
@@ -220,9 +220,9 @@ static void font_render_engine_1(const font_t *fnt, const font_symbol_t *sym)
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 2u)
+#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp with margin
-static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
+static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t *sym)
 {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
@@ -277,9 +277,9 @@ static void font_render_engine_2(const font_t *fnt, const font_symbol_t *sym)
 }
 #endif
 
-#if (CONFIG_FONT_ENC == 3u)
-// raw bitblt, 1bpp with margin
-static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
+#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
+// rle bitblt, 1bpp with margin
+static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
     bool pixelColor = 0;
 
@@ -361,14 +361,14 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 
     lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
 
-#if (CONFIG_FONT_ENC == 0u)
-    font_render_engine_0(fnt, &sym);
-#elif(CONFIG_FONT_ENC == 1u)
-    font_render_engine_1(fnt, &sym);
-#elif(CONFIG_FONT_ENC == 2u)
-    font_render_engine_2(fnt, &sym);
-#elif(CONFIG_FONT_ENC == 3u)
-    font_render_engine_3(fnt, &sym);
+#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
+    font_render_engine_nomargin_raw(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
+    font_render_engine_nomargin_rle(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
+    font_render_engine_margin_raw(fnt, &sym);
+#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
+    font_render_engine_margin_rle(fnt, &sym);
 #else
     #error "Unsupported ENCODING_METHOD"
 #endif

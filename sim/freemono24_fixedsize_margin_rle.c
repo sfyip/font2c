@@ -1,9 +1,10 @@
 /*
-    <Generate from template_enc3_bmp.ini>
+    <Generate from ./template_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
-    encoding method: 3
+    calc_margin: True
+    encoding method: rle
 
     width: 14
     height: 24
@@ -183,11 +184,12 @@ static const uint8_t freemono24_bmp[] = {
     0x07, 0x0B, 0x04,  // FreeMono24_Z
 };
 /*
-    <Generate from template_enc3_offs.ini>
-    generate margin and bitmap offset
+    <Generate from ./template_font_table_margin_index.ini>
+    generate font_table_t struct: [margin, index]
     font: FreeMono
     size: 24
-    encoding method: 3
+    calc_margin: True
+    encoding method: rle
 
     width: 14
     height: 24
@@ -267,7 +269,6 @@ static const font_table_t freemono24_table[] = {
     {6, 4, 2, 1, 2640},  // FreeMono24_Y
     {6, 4, 2, 2, 2681},  // FreeMono24_Z
 };
-
 
 #define IS_LAST(e)  (((e) - freemono24_table) == (sizeof(freemono24_table) / sizeof(freemono24_table[0]) - 1)  ) 
 
