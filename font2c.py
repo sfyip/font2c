@@ -61,10 +61,10 @@ class font_config():
     offset = (0,0)                                      # x,y offset
     fixed_width_height = (14,24)                        # fixed width and height
     max_width = 24                                      # maximum width
-    calc_margin = True                                  # Calculate margin area
+    calc_margin = False                                 # Calculate margin area
     encoding_method = 'raw'                             # encoding method (raw|rle)
-                                                        # raw: direct dump the pixels
-                                                        # rle: RLE compression, accumulate numbers of 0 and 1
+                                                        # raw: direct dump the pixels inside the margin area
+                                                        # rle: RLE compression, accumulate numbers of 0 and 1 inside the margin area
     template_file_path = ['./template_enc0_bmp.ini']    # template file path
     export_dir = './export/'                            # export directory
     c_filename = extract_filename(font) + str(size)     # generated c source file name
@@ -385,7 +385,7 @@ class font2c():
                 (template_key['width'], template_key['height']) = ('Adaptive', 'Adaptive')
 
             # If encoding methid is raw and fixed_width_length != None, imglen can be pre-estimated   
-            if self.conf.encoding_method == 'raw' and self.conf.fixed_width_height != None:
+            if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
                 pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
                 template_key['imglen'] =  int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 )
             else:
@@ -458,9 +458,9 @@ class font2c():
 
                 #===========================================
 
-                if (self.conf.encoding_method == 'raw'):
+                if (self.conf.encoding_method.lower() == 'raw'):
                     pass
-                elif (self.conf.encoding_method == 'rle'):
+                elif (self.conf.encoding_method.lower() == 'rle'):
                     steam = encoding_method_rle(steam)
                 else:
                     print("Unsupport encoding method\n")

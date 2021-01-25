@@ -18,7 +18,7 @@ Output sequence: Left to right, down to bottom sequentially
 | offset = (0,0)                  | x,y offset |
 | fixed_width_height              | None: Size is adaptive<br />(width, height): Fixed width and height | 
 | max_width = 24                  | maximum width |
-| calc_margin = true              | calculate margin area |
+| calc_margin = False              | calculate margin area |
 | encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 inside margin area<br/> |
 | template_file_path = ['./template_enc0_bmp.ini'] | template file path |
 | export_dir = "./export/"        | export directory |
@@ -37,7 +37,7 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
                                             # rle: RLE compression, accumulate numbers of 0 and 1 inside margin area
-    template_file_path = ['./template_enc0_bmp.ini'] # template file path
+    template_file_path = ['./template_enc2_bmp.ini', './template_enc2_offs.ini'] # template file path
     export_dir = "./export/"                # export directory
 ```
 
