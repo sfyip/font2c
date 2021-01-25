@@ -2,7 +2,7 @@
 # Simple LCD simulator by using Linux /dev/fb0 to direct access the color pixel
 # Tested in Ubuntu 18.04
 # Procedure:
-# 1) In Ubuntu, press [Ctrl + Alt + F2] to open a new console
+# 1) In Ubuntu, press [Ctrl + Alt + F3] to open a new console
 # 2) sudo ./lcd_sim
 */
 
@@ -51,7 +51,7 @@ int main ()
     lcdsim_set_brush_color(LCD_WHITE_COLOR);
 #endif
 
-    lcdsim_draw_string(10, 10, select_fnt, "0123456789:\r\nABCDEFGHIJKLMN\r\nOPQRSTUVWXYZ\r\nabcdefghijklmn\r\nopqrstuvwxyz");
+    lcdsim_draw_string(10, 10, select_fnt, "0123456789:\r\nabcdefghijklmn\r\nopqrstuvwxyz\r\nABCDEFGHIJKLMN\r\nOPQRSTUVWXYZ\r\n");
 
     lcdsim_deinit();
     

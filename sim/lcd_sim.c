@@ -160,7 +160,7 @@ static void font_render_engine_0(const font_t *fnt, const font_symbol_t *sym)
     uint8_t j = 0;
     uint16_t area = fnt->width * fnt->height;
     
-    const uint8_t *bmp = (const uint8_t*)(sym);
+    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
     while(area--)
     {
@@ -345,8 +345,8 @@ static void font_render_engine_3(const font_t *fnt, const font_symbol_t *sym)
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 {
-    const font_symbol_t *sym = fnt->lookup(c);
-    if(!sym)
+    font_symbol_t sym;
+    if(!fnt->lookup(c, &sym))
     {
         return;
     }
@@ -355,20 +355,20 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
 #else
-    uint8_t font_width = sym->width;
-    uint8_t font_height = sym->height;
+    uint8_t font_width = sym.width;
+    uint8_t font_height = sym.height;
 #endif
 
     lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
 
 #if (CONFIG_FONT_ENC == 0u)
-    font_render_engine_0(fnt, sym);
+    font_render_engine_0(fnt, &sym);
 #elif(CONFIG_FONT_ENC == 1u)
-    font_render_engine_1(fnt, sym);
+    font_render_engine_1(fnt, &sym);
 #elif(CONFIG_FONT_ENC == 2u)
-    font_render_engine_2(fnt, sym);
+    font_render_engine_2(fnt, &sym);
 #elif(CONFIG_FONT_ENC == 3u)
-    font_render_engine_3(fnt, sym);
+    font_render_engine_3(fnt, &sym);
 #else
     #error "Unsupported ENCODING_METHOD"
 #endif
@@ -426,14 +426,14 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
         else
         {
             lcdsim_draw_char(x, y, fnt, c);
-            const font_symbol_t *sym = fnt->lookup(c);
-            if(!sym)
+            font_symbol_t sym;
+            if(!fnt->lookup(c, &sym))
             {
                 x += fnt->default_width;
             }
             else
             {
-                x += sym->width;
+                x += sym.width;
             }
         }
         ++s;

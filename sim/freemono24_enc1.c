@@ -189,8 +189,8 @@ static const uint8_t freemono24_bmp[] = {
 };
 
 /*
-    <Generate from template_enc1b.ini>
-    generate margin and bitmap offset
+    <Generate from template_enc1_offs.ini>
+    generate bitmap offset
     font: FreeMono
     size: 24
     encoding method: 1
@@ -199,95 +199,114 @@ static const uint8_t freemono24_bmp[] = {
     height: 24
 */
 
-static const font_symbol_t freemono24_symbol[] = {
-    {0, 57},  // FreeMono24_0
-    {57, 33},  // FreeMono24_1
-    {90, 41},  // FreeMono24_2
-    {131, 35},  // FreeMono24_3
-    {166, 49},  // FreeMono24_4
-    {215, 39},  // FreeMono24_5
-    {254, 49},  // FreeMono24_6
-    {303, 35},  // FreeMono24_7
-    {338, 55},  // FreeMono24_8
-    {393, 49},  // FreeMono24_9
-    {442, 13},  // FreeMono24_colon
-    {455, 31},  // FreeMono24_a
-    {486, 55},  // FreeMono24_b
-    {541, 31},  // FreeMono24_c
-    {572, 55},  // FreeMono24_d
-    {627, 29},  // FreeMono24_e
-    {656, 31},  // FreeMono24_f
-    {687, 51},  // FreeMono24_g
-    {738, 51},  // FreeMono24_h
-    {789, 27},  // FreeMono24_i
-    {816, 35},  // FreeMono24_j
-    {851, 49},  // FreeMono24_k
-    {900, 31},  // FreeMono24_l
-    {931, 61},  // FreeMono24_m
-    {992, 41},  // FreeMono24_n
-    {1033, 37},  // FreeMono24_o
-    {1070, 53},  // FreeMono24_p
-    {1123, 51},  // FreeMono24_q
-    {1174, 27},  // FreeMono24_r
-    {1201, 33},  // FreeMono24_s
-    {1234, 31},  // FreeMono24_t
-    {1265, 41},  // FreeMono24_u
-    {1306, 39},  // FreeMono24_v
-    {1345, 57},  // FreeMono24_w
-    {1402, 37},  // FreeMono24_x
-    {1439, 45},  // FreeMono24_y
-    {1484, 25},  // FreeMono24_z
-    {1509, 51},  // FreeMono24_A
-    {1560, 51},  // FreeMono24_B
-    {1611, 41},  // FreeMono24_C
-    {1652, 53},  // FreeMono24_D
-    {1705, 43},  // FreeMono24_E
-    {1748, 37},  // FreeMono24_F
-    {1785, 47},  // FreeMono24_G
-    {1832, 55},  // FreeMono24_H
-    {1887, 29},  // FreeMono24_I
-    {1916, 39},  // FreeMono24_J
-    {1955, 57},  // FreeMono24_K
-    {2012, 37},  // FreeMono24_L
-    {2049, 87},  // FreeMono24_M
-    {2136, 77},  // FreeMono24_N
-    {2213, 53},  // FreeMono24_O
-    {2266, 41},  // FreeMono24_P
-    {2307, 63},  // FreeMono24_Q
-    {2370, 53},  // FreeMono24_R
-    {2423, 45},  // FreeMono24_S
-    {2468, 37},  // FreeMono24_T
-    {2505, 55},  // FreeMono24_U
-    {2560, 53},  // FreeMono24_V
-    {2613, 83},  // FreeMono24_W
-    {2696, 53},  // FreeMono24_X
-    {2749, 43},  // FreeMono24_Y
-    {2792, 43},  // FreeMono24_Z
+typedef struct{
+    uint16_t index;
+}font_table_t;
+
+static const font_table_t freemono24_table[] = {
+    {0},  // FreeMono24_0
+    {57},  // FreeMono24_1
+    {90},  // FreeMono24_2
+    {131},  // FreeMono24_3
+    {166},  // FreeMono24_4
+    {215},  // FreeMono24_5
+    {254},  // FreeMono24_6
+    {303},  // FreeMono24_7
+    {338},  // FreeMono24_8
+    {393},  // FreeMono24_9
+    {442},  // FreeMono24_colon
+    {455},  // FreeMono24_a
+    {486},  // FreeMono24_b
+    {541},  // FreeMono24_c
+    {572},  // FreeMono24_d
+    {627},  // FreeMono24_e
+    {656},  // FreeMono24_f
+    {687},  // FreeMono24_g
+    {738},  // FreeMono24_h
+    {789},  // FreeMono24_i
+    {816},  // FreeMono24_j
+    {851},  // FreeMono24_k
+    {900},  // FreeMono24_l
+    {931},  // FreeMono24_m
+    {992},  // FreeMono24_n
+    {1033},  // FreeMono24_o
+    {1070},  // FreeMono24_p
+    {1123},  // FreeMono24_q
+    {1174},  // FreeMono24_r
+    {1201},  // FreeMono24_s
+    {1234},  // FreeMono24_t
+    {1265},  // FreeMono24_u
+    {1306},  // FreeMono24_v
+    {1345},  // FreeMono24_w
+    {1402},  // FreeMono24_x
+    {1439},  // FreeMono24_y
+    {1484},  // FreeMono24_z
+    {1509},  // FreeMono24_A
+    {1560},  // FreeMono24_B
+    {1611},  // FreeMono24_C
+    {1652},  // FreeMono24_D
+    {1705},  // FreeMono24_E
+    {1748},  // FreeMono24_F
+    {1785},  // FreeMono24_G
+    {1832},  // FreeMono24_H
+    {1887},  // FreeMono24_I
+    {1916},  // FreeMono24_J
+    {1955},  // FreeMono24_K
+    {2012},  // FreeMono24_L
+    {2049},  // FreeMono24_M
+    {2136},  // FreeMono24_N
+    {2213},  // FreeMono24_O
+    {2266},  // FreeMono24_P
+    {2307},  // FreeMono24_Q
+    {2370},  // FreeMono24_R
+    {2423},  // FreeMono24_S
+    {2468},  // FreeMono24_T
+    {2505},  // FreeMono24_U
+    {2560},  // FreeMono24_V
+    {2613},  // FreeMono24_W
+    {2696},  // FreeMono24_X
+    {2749},  // FreeMono24_Y
+    {2792},  // FreeMono24_Z
 };
 
+#define IS_LAST(e)  (((e) - freemono24_table) == (sizeof(freemono24_table) / sizeof(freemono24_table[0]) - 1)  ) 
 
-static const font_symbol_t *freemono24_lookup(char c)
+static bool freemono24_lookup(char c, font_symbol_t *sym)
 {
+    const font_table_t *t = 0;
+    
     if(c >= '0' && c<= '9')
     {
-        return (const font_symbol_t*)&freemono24_symbol[(c-'0')];
+        t = &freemono24_table[(c-'0')];
     }
     else if(c == ':')
     {
-        return (const font_symbol_t*)&freemono24_symbol[10];
-    }
-    else if(c >= 'A' && c <= 'Z')
-    {
-        return (const font_symbol_t*)&freemono24_symbol[((c-'A')+10+1)];
+        t = &freemono24_table[10];
     }
     else if(c >= 'a' && c <= 'z')
     {
-        return (const font_symbol_t*)&freemono24_symbol[((c-'a')+10+1+26)];
+        t = &freemono24_table[((c-'a')+10+1)];
+    }
+    else if(c >= 'A' && c <= 'Z')
+    {
+        t = &freemono24_table[((c-'A')+10+1+26)];
     }
     else
     {
-        return 0;
+        return false;
     }
+    
+    sym->index = t->index;
+    if(IS_LAST(t))
+    {
+        sym->size = sizeof(freemono24_bmp) - t->index;
+    }
+    else
+    {
+        sym->size = (t+1)->index - t->index;
+    }
+
+    return true;
 }
 
 font_t freemono24 = 

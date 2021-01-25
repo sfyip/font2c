@@ -1,5 +1,5 @@
 /*
-    <Generate from template_enc0.ini>
+    <Generate from template_enc0_bmp.ini>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -398,28 +398,30 @@ const uint8_t freemono24_bmp[][42] = {
 
 //=================== End ======================
 
-static const font_symbol_t *freemono24_lookup(char c)
+static bool freemono24_lookup(char c, font_symbol_t *sym)
 {
     if(c >= '0' && c<= '9')
     {
-        return (const font_symbol_t *)&freemono24_bmp[(c-'0')];
+        sym->index = (c-'0') * sizeof(freemono24_bmp[0]);
     }
     else if(c == ':')
     {
-        return (const font_symbol_t *)&freemono24_bmp[10];
-    }
-    else if(c >= 'A' && c <= 'Z')
-    {
-        return (const font_symbol_t *)&freemono24_bmp[((c-'A')+10+1)];
+        sym->index = 10 * sizeof(freemono24_bmp[0]);
     }
     else if(c >= 'a' && c <= 'z')
     {
-        return (const font_symbol_t *)&freemono24_bmp[((c-'a')+10+1+26)];
+        sym->index = ((c-'a')+10+1) * sizeof(freemono24_bmp[0]);
+    }
+    else if(c >= 'A' && c <= 'Z')
+    {
+        sym->index = ((c-'A')+10+1+26) * sizeof(freemono24_bmp[0]);
     }
     else
     {
-        return 0;
+        return false;
     }
+
+    return true;
 }
 
 font_t freemono24 = 

@@ -196,94 +196,126 @@ static const uint8_t freesans32_bmp[] = {
     height: Adaptive
 */
 
-static const font_symbol_t freesans32_symbol[] = {
-    {18, 32, 6, 3, 1, 2, 0, 44},  // FreeSans32_0
-    {18, 32, 6, 3, 4, 7, 44, 21},  // FreeSans32_1
-    {18, 32, 6, 3, 1, 2, 65, 44},  // FreeSans32_2
-    {18, 32, 6, 3, 2, 2, 109, 41},  // FreeSans32_3
-    {18, 32, 6, 3, 1, 2, 150, 44},  // FreeSans32_4
-    {18, 32, 6, 3, 1, 1, 194, 46},  // FreeSans32_5
-    {18, 32, 6, 3, 1, 1, 240, 46},  // FreeSans32_6
-    {18, 32, 6, 3, 1, 2, 286, 44},  // FreeSans32_7
-    {18, 32, 6, 3, 1, 1, 330, 46},  // FreeSans32_8
-    {18, 32, 6, 3, 1, 2, 376, 44},  // FreeSans32_9
-    {8, 32, 12, 3, 3, 2, 420, 7},  // FreeSans32_colon
-    {18, 32, 12, 3, 1, 1, 427, 34},  // FreeSans32_a
-    {18, 32, 5, 3, 2, 1, 461, 45},  // FreeSans32_b
-    {17, 32, 12, 3, 1, 1, 506, 32},  // FreeSans32_c
-    {18, 32, 5, 3, 1, 2, 538, 45},  // FreeSans32_d
-    {18, 32, 12, 3, 1, 2, 583, 32},  // FreeSans32_e
-    {9, 32, 5, 3, 2, 1, 615, 18},  // FreeSans32_f
-    {18, 36, 12, 0, 1, 2, 633, 45},  // FreeSans32_g
-    {18, 32, 5, 3, 2, 2, 678, 42},  // FreeSans32_h
-    {8, 32, 5, 3, 2, 3, 720, 9},  // FreeSans32_i
-    {8, 36, 5, 0, 0, 2, 729, 24},  // FreeSans32_j
-    {17, 32, 5, 3, 2, 1, 753, 42},  // FreeSans32_k
-    {7, 32, 5, 3, 2, 2, 795, 9},  // FreeSans32_l
-    {26, 32, 12, 3, 2, 2, 804, 47},  // FreeSans32_m
-    {18, 32, 12, 3, 2, 2, 851, 30},  // FreeSans32_n
-    {18, 32, 12, 3, 1, 2, 881, 32},  // FreeSans32_o
-    {18, 34, 12, 0, 2, 1, 913, 42},  // FreeSans32_p
-    {18, 34, 12, 0, 1, 2, 955, 42},  // FreeSans32_q
-    {11, 32, 12, 3, 2, 1, 997, 17},  // FreeSans32_r
-    {16, 32, 12, 3, 2, 1, 1014, 28},  // FreeSans32_s
-    {9, 32, 9, 3, 2, 1, 1042, 15},  // FreeSans32_t
-    {18, 32, 12, 3, 2, 2, 1057, 30},  // FreeSans32_u
-    {16, 32, 12, 3, 0, 1, 1087, 32},  // FreeSans32_v
-    {24, 32, 12, 3, 0, 1, 1119, 49},  // FreeSans32_w
-    {16, 32, 12, 3, 1, 1, 1168, 30},  // FreeSans32_x
-    {16, 36, 12, 0, 0, 1, 1198, 45},  // FreeSans32_y
-    {16, 32, 12, 3, 1, 1, 1243, 30},  // FreeSans32_z
-    {22, 32, 5, 3, 1, 1, 1273, 60},  // FreeSans32_A
-    {22, 32, 5, 3, 3, 2, 1333, 51},  // FreeSans32_B
-    {23, 32, 5, 3, 1, 2, 1384, 60},  // FreeSans32_C
-    {23, 32, 5, 3, 3, 2, 1444, 54},  // FreeSans32_D
-    {21, 32, 5, 3, 3, 2, 1498, 48},  // FreeSans32_E
-    {20, 32, 5, 3, 3, 2, 1546, 45},  // FreeSans32_F
-    {25, 32, 5, 3, 1, 2, 1591, 66},  // FreeSans32_G
-    {24, 32, 5, 3, 3, 3, 1657, 54},  // FreeSans32_H
-    {9, 32, 5, 3, 3, 3, 1711, 9},  // FreeSans32_I
-    {17, 32, 5, 3, 1, 3, 1720, 39},  // FreeSans32_J
-    {22, 32, 5, 3, 3, 1, 1759, 54},  // FreeSans32_K
-    {19, 32, 5, 3, 3, 2, 1813, 42},  // FreeSans32_L
-    {28, 32, 5, 3, 3, 3, 1855, 66},  // FreeSans32_M
-    {24, 32, 5, 3, 3, 3, 1921, 54},  // FreeSans32_N
-    {26, 32, 5, 3, 1, 2, 1975, 69},  // FreeSans32_O
-    {21, 32, 5, 3, 3, 2, 2044, 48},  // FreeSans32_P
-    {26, 32, 5, 2, 1, 2, 2092, 72},  // FreeSans32_Q
-    {23, 32, 5, 3, 3, 2, 2164, 54},  // FreeSans32_R
-    {22, 32, 5, 3, 1, 2, 2218, 57},  // FreeSans32_S
-    {21, 32, 5, 3, 2, 2, 2275, 51},  // FreeSans32_T
-    {24, 32, 5, 3, 3, 4, 2326, 51},  // FreeSans32_U
-    {21, 32, 5, 3, 1, 1, 2377, 57},  // FreeSans32_V
-    {30, 32, 5, 3, 0, 1, 2434, 87},  // FreeSans32_W
-    {22, 32, 5, 3, 1, 2, 2521, 57},  // FreeSans32_X
-    {22, 32, 5, 3, 0, 2, 2578, 60},  // FreeSans32_Y
-    {20, 32, 5, 3, 1, 1, 2638, 54},  // FreeSans32_Z
+typedef struct
+{
+    uint8_t width;
+    uint8_t height;
+    uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
+    uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
+    uint16_t index;
+}font_table_t;
+
+static const font_table_t freesans32_table[] = {
+    {18, 32, 6, 3, 1, 2, 0},  // FreeSans32_0
+    {18, 32, 6, 3, 4, 7, 44},  // FreeSans32_1
+    {18, 32, 6, 3, 1, 2, 65},  // FreeSans32_2
+    {18, 32, 6, 3, 2, 2, 109},  // FreeSans32_3
+    {18, 32, 6, 3, 1, 2, 150},  // FreeSans32_4
+    {18, 32, 6, 3, 1, 1, 194},  // FreeSans32_5
+    {18, 32, 6, 3, 1, 1, 240},  // FreeSans32_6
+    {18, 32, 6, 3, 1, 2, 286},  // FreeSans32_7
+    {18, 32, 6, 3, 1, 1, 330},  // FreeSans32_8
+    {18, 32, 6, 3, 1, 2, 376},  // FreeSans32_9
+    {8, 32, 12, 3, 3, 2, 420},  // FreeSans32_colon
+    {18, 32, 12, 3, 1, 1, 427},  // FreeSans32_a
+    {18, 32, 5, 3, 2, 1, 461},  // FreeSans32_b
+    {17, 32, 12, 3, 1, 1, 506},  // FreeSans32_c
+    {18, 32, 5, 3, 1, 2, 538},  // FreeSans32_d
+    {18, 32, 12, 3, 1, 2, 583},  // FreeSans32_e
+    {9, 32, 5, 3, 2, 1, 615},  // FreeSans32_f
+    {18, 36, 12, 0, 1, 2, 633},  // FreeSans32_g
+    {18, 32, 5, 3, 2, 2, 678},  // FreeSans32_h
+    {8, 32, 5, 3, 2, 3, 720},  // FreeSans32_i
+    {8, 36, 5, 0, 0, 2, 729},  // FreeSans32_j
+    {17, 32, 5, 3, 2, 1, 753},  // FreeSans32_k
+    {7, 32, 5, 3, 2, 2, 795},  // FreeSans32_l
+    {26, 32, 12, 3, 2, 2, 804},  // FreeSans32_m
+    {18, 32, 12, 3, 2, 2, 851},  // FreeSans32_n
+    {18, 32, 12, 3, 1, 2, 881},  // FreeSans32_o
+    {18, 34, 12, 0, 2, 1, 913},  // FreeSans32_p
+    {18, 34, 12, 0, 1, 2, 955},  // FreeSans32_q
+    {11, 32, 12, 3, 2, 1, 997},  // FreeSans32_r
+    {16, 32, 12, 3, 2, 1, 1014},  // FreeSans32_s
+    {9, 32, 9, 3, 2, 1, 1042},  // FreeSans32_t
+    {18, 32, 12, 3, 2, 2, 1057},  // FreeSans32_u
+    {16, 32, 12, 3, 0, 1, 1087},  // FreeSans32_v
+    {24, 32, 12, 3, 0, 1, 1119},  // FreeSans32_w
+    {16, 32, 12, 3, 1, 1, 1168},  // FreeSans32_x
+    {16, 36, 12, 0, 0, 1, 1198},  // FreeSans32_y
+    {16, 32, 12, 3, 1, 1, 1243},  // FreeSans32_z
+    {22, 32, 5, 3, 1, 1, 1273},  // FreeSans32_A
+    {22, 32, 5, 3, 3, 2, 1333},  // FreeSans32_B
+    {23, 32, 5, 3, 1, 2, 1384},  // FreeSans32_C
+    {23, 32, 5, 3, 3, 2, 1444},  // FreeSans32_D
+    {21, 32, 5, 3, 3, 2, 1498},  // FreeSans32_E
+    {20, 32, 5, 3, 3, 2, 1546},  // FreeSans32_F
+    {25, 32, 5, 3, 1, 2, 1591},  // FreeSans32_G
+    {24, 32, 5, 3, 3, 3, 1657},  // FreeSans32_H
+    {9, 32, 5, 3, 3, 3, 1711},  // FreeSans32_I
+    {17, 32, 5, 3, 1, 3, 1720},  // FreeSans32_J
+    {22, 32, 5, 3, 3, 1, 1759},  // FreeSans32_K
+    {19, 32, 5, 3, 3, 2, 1813},  // FreeSans32_L
+    {28, 32, 5, 3, 3, 3, 1855},  // FreeSans32_M
+    {24, 32, 5, 3, 3, 3, 1921},  // FreeSans32_N
+    {26, 32, 5, 3, 1, 2, 1975},  // FreeSans32_O
+    {21, 32, 5, 3, 3, 2, 2044},  // FreeSans32_P
+    {26, 32, 5, 2, 1, 2, 2092},  // FreeSans32_Q
+    {23, 32, 5, 3, 3, 2, 2164},  // FreeSans32_R
+    {22, 32, 5, 3, 1, 2, 2218},  // FreeSans32_S
+    {21, 32, 5, 3, 2, 2, 2275},  // FreeSans32_T
+    {24, 32, 5, 3, 3, 4, 2326},  // FreeSans32_U
+    {21, 32, 5, 3, 1, 1, 2377},  // FreeSans32_V
+    {30, 32, 5, 3, 0, 1, 2434},  // FreeSans32_W
+    {22, 32, 5, 3, 1, 2, 2521},  // FreeSans32_X
+    {22, 32, 5, 3, 0, 2, 2578},  // FreeSans32_Y
+    {20, 32, 5, 3, 1, 1, 2638},  // FreeSans32_Z
 };
 
-static const font_symbol_t *freesans32_lookup(char c)
+#define IS_LAST(e)  (((e) - freesans32_table) == (sizeof(freesans32_table) / sizeof(freesans32_table[0]) - 1)  ) 
+
+static bool freesans32_lookup(char c, font_symbol_t *sym)
 {
+    const font_table_t *t = 0;
+
     if(c >= '0' && c<= '9')
     {
-        return (const font_symbol_t*)&freesans32_symbol[(c-'0')];
+        t = &freesans32_table[(c-'0')];
     }
     else if(c == ':')
     {
-        return (const font_symbol_t*)&freesans32_symbol[10];
-    }
-    else if(c >= 'A' && c <= 'Z')
-    {
-        return (const font_symbol_t*)&freesans32_symbol[((c-'A')+10+1)];
+        t = &freesans32_table[10];
     }
     else if(c >= 'a' && c <= 'z')
     {
-        return (const font_symbol_t*)&freesans32_symbol[((c-'a')+10+1+26)];
+        t = &freesans32_table[((c-'a')+10+1)];
+    }
+    else if(c >= 'A' && c <= 'Z')
+    {
+        t = &freesans32_table[((c-'A')+10+1+26)];
     }
     else
     {
-        return 0;
+        return false;
     }
+
+    sym->width = t->width;
+    sym->height = t->height;
+    sym->margin_top = t->margin_top;
+    sym->margin_bottom = t->margin_bottom;
+    sym->margin_left = t->margin_left;
+    sym->margin_right = t->margin_right;
+    sym->index = t->index;
+    if(IS_LAST(t))
+    {
+        sym->size = sizeof(freesans32_table) - t->index;
+    }
+    else
+    {
+        sym->size = (t+1)->index - t->index;
+    }
+    return true;
 }
 
 #define FREESANS32_DEFAULT_WIDTH    24

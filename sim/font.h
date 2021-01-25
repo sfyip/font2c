@@ -2,6 +2,7 @@
 #define _FONT_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // define the maximum size of margin top, margin bottom, margin left, margin width
 #define FONT_MARGIN_DATABIT_SIZE        4
@@ -11,7 +12,10 @@
     // Fixed width and height
     #if (CONFIG_FONT_ENC == 0u)
         //Encoding method 0 (Raw Bitblt)
-        typedef uint8_t *font_symbol_t;
+        typedef struct
+        {
+            uint16_t index;
+        }font_symbol_t;
     #elif (CONFIG_FONT_ENC == 1u)
         //Encoding method 1 (RLE)
         typedef struct
@@ -43,7 +47,7 @@
         }font_symbol_t;
     #endif
 
-    typedef const font_symbol_t *(*fnt_lookup_fp)(char c);
+    typedef bool (*fnt_lookup_fp)(char c, font_symbol_t *sym);
 
     typedef struct
     {
@@ -101,7 +105,7 @@
         }font_symbol_t;
     #endif
 
-    typedef const font_symbol_t *(*fnt_lookup_fp)(char c);
+    typedef bool (*fnt_lookup_fp)(char c, font_symbol_t *sym);
 
     typedef struct
     {
