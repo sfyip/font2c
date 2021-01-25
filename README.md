@@ -9,6 +9,8 @@ Usage:<br/>
 
 Output sequence: Left to right, down to bottom sequentially
 
+Preview:
+![Preview Screen Capture](img/screen_cap.png)
 
 | Configuration | Description |
 | --- | --- |
