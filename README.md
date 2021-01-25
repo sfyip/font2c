@@ -25,7 +25,7 @@ Output sequence: Left to right, down to bottom sequentially
 | template_file_path = ['./template_bmp.ini', <br/>'./template_font_table_width_height_margin_index.ini'] | template file path |
 | export_dir = ./export/          | export directory |
 
-**Example 1: Output with fixed width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index.ini as template files, the generated c source file and preview font images is placed under './export' directory**
+**Example 1: Output with fixed width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index.ini as template files, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24                               # font size
@@ -43,7 +43,7 @@ Output sequence: Left to right, down to bottom sequentially
     export_dir = "./export/"                # export directory
 ```
 
-**Example 2: Output with flexible font size, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_width_height_margin_index.ini as template files, the generated c source file and preview font images is placed under './export' directory**
+**Example 2: Output with flexible font size, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_width_height_margin_index.ini as template files, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
     size = 32                               # font size
