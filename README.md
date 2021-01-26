@@ -13,29 +13,29 @@ Output sequence: Left to right, down to bottom sequentially
 ![Preview Screen Capture](img/screen_cap.png)
 
 | Configuration | Description |
-| --- | --- |
-| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style (Tested on Windows platform: cour)|
-| size = 32 | font size |
-| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters |
-| offset = (0,0)                  | x,y offset |
-| fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height | 
-| max_width = 32                  | maximum width |
-| calc_margin = true              | calculate margin area |
-| encoding_method = raw | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
-| template_file_path = ['./template_bmp.ini', <br/>'./template_font_table_width_height_margin_index.ini'] | template file path |
-| export_dir = ./export/          | export directory |
+|       ---     |     ---     |
+| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style <br/>(Windows platform: cour)          |
+| size = 32                       | font size                                                                |
+| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters       |
+| offset = (0,0)                  | x,y offset                                                               |
+| fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height          | 
+| max_width = 32                  | maximum width                                                            |
+| calc_margin = true              | calculate margin area                                                    |
+| encoding_method = raw           | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
+| template_file_path = ['./bmp.tpl', <br/>'./font_table_width_height_margin_index.tpl'] | template file path |
+| export_dir = ./export/          | export directory                                                         |
 
 #### Template files to generate C array structure:
-| fixed_size | calc-margin | encoding | template files                                                       |
-|    ---     |    ---      |    ---   |                                   ---                                |
-|      0     |      0      |  raw(0)  | template_bmp.ini + template_font_table_width_height_index.ini        |
-|      0     |      0      |  rle(1)  | template_bmp.ini + template_font_table_width_height_index.ini        |
-|      0     |      1      |  raw(0)  | template_bmp.ini + template_font_table_width_height_margin_index.ini |
-|      0     |      1      |  rle(1)  | template_bmp.ini + template_font_table_width_height_margin_index.ini |
-|      1     |      0      |  raw(0)  | template_bmp_fixed_array_size.ini                                    |
-|      1     |      0      |  rle(1)  | template_bmp.ini + template_font_table_index.ini                     |
-|      1     |      1      |  raw(0)  | template_bmp.ini + template_font_table_margin_index.ini              |
-|      1     |      1      |  rle(1)  | template_bmp.ini + template_font_table_margin_index.ini              |
+| fixed_size | calc-margin | encoding | template files                                     |
+|    ---     |    ---      |    ---   |                                   ---              |
+|      0     |      0      |  raw(0)  | bmp.tpl + font_table_width_height_index.tpl        |
+|      0     |      0      |  rle(1)  | bmp.tpl + font_table_width_height_index.tpl        |
+|      0     |      1      |  raw(0)  | bmp.tpl + font_table_width_height_margin_index.tpl |
+|      0     |      1      |  rle(1)  | bmp.tpl + font_table_width_height_margin_index.tpl |
+|      1     |      0      |  raw(0)  | bmp_fixed_array_size.tpl                           |
+|      1     |      0      |  rle(1)  | bmp.tpl + font_table_index.tpl                     |
+|      1     |      1      |  raw(0)  | bmp.tpl + font_table_margin_index.tpl              |
+|      1     |      1      |  rle(1)  | bmp.tpl + font_table_margin_index.tpl              |
 
 
 **Example 1: Output with fixed width and height(14,24), calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index.ini as template files, the generated c source file and preview font images are placed under './export' directory**
@@ -52,7 +52,7 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
                                             # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
-    template_file_path = ['./template_bmp.ini', './template_font_table_margin_index.ini'] # template file path
+    template_file_path = ['./bmp.tpl', './font_table_margin_index.tpl'] # template file path
     export_dir = "./export/"                # export directory
 ```
 
@@ -70,6 +70,6 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw                   # encoding method
                                             # raw: direct dump the pixels inside margin area
                                             # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
-    template_file_path = ['./template_bmp.ini', './template_font_table_width_height_margin_index.ini']# template file path
+    template_file_path = ['./bmp.tpl', './font_table_width_height_margin_index.tpl']# template file path
     export_dir = './export/'                # export directory
 ```

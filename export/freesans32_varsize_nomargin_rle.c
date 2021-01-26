@@ -1,5 +1,5 @@
 /*
-    <Generate from ./template_bmp.ini>
+    <Generate from ./bmp.tpl>
     generate font bitmap
     font: FreeSans
     size: 32
@@ -192,7 +192,7 @@ static const uint8_t freesans32_bmp[] = {
     0xF6,  // FreeSans32_Z
 };
 /*
-    <Generate from ./template_font_table_width_height_index.ini>
+    <Generate from ./font_table_width_height_index.tpl>
     generate font_table_t struct: [width, height, index]
     font: FreeSans
     size: 32
@@ -274,56 +274,4 @@ static const font_table_t freesans32_table[] = {
     {22, 32, 2663},  // FreeSans32_X
     {22, 32, 2715},  // FreeSans32_Y
     {20, 32, 2761},  // FreeSans32_Z
-};
-
-#define IS_LAST(e)  (((e) - freesans32_table) == (sizeof(freesans32_table) / sizeof(freesans32_table[0]) - 1)  ) 
-
-static bool freesans32_lookup(char c, font_symbol_t *sym)
-{
-    const font_table_t *t = 0;
-
-    if(c >= '0' && c<= '9')
-    {
-        t = &freesans32_table[(c-'0')];
-    }
-    else if(c == ':')
-    {
-        t = &freesans32_table[10];
-    }
-    else if(c >= 'a' && c <= 'z')
-    {
-        t = &freesans32_table[((c-'a')+10+1)];
-    }
-    else if(c >= 'A' && c <= 'Z')
-    {
-        t = &freesans32_table[((c-'A')+10+1+26)];
-    }
-    else
-    {
-        return false;
-    }
-
-    sym->width = t->width;
-    sym->height = t->height;
-    sym->index = t->index;
-    if(IS_LAST(t))
-    {
-        sym->size = sizeof(freesans32_table) - t->index;
-    }
-    else
-    {
-        sym->size = (t+1)->index - t->index;
-    }
-    return true;
-}
-
-#define FREESANS32_DEFAULT_WIDTH    24
-#define FREESANS32_DEFAULT_HEIGHT   32
-
-font_t freesans32 = 
-{
-    FREESANS32_DEFAULT_WIDTH,
-    FREESANS32_DEFAULT_HEIGHT,
-    freesans32_bmp,
-    freesans32_lookup
 };

@@ -65,7 +65,7 @@ class font_config():
     encoding_method = 'raw'                             # encoding method (raw|rle)
                                                         # raw: direct dump the pixels inside the margin area
                                                         # rle: RLE compression, accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./template_bmp_fixed_array_size.ini']    # template file path
+    template_file_path = ['./bmp_fixed_array_size.tpl']    # template file path
     export_dir = './export/'                            # export directory
     c_filename = extract_filename(font) + str(size)     # generated c source file name
     
