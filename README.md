@@ -1,6 +1,8 @@
 # font2c
 A python script that converts font to C array, target for embedded systems (e.g. LCD Controller ILI9806)
 
+![Flow diagram](img/font2c_flow.png)
+
 Prerequisite: Python3<br/>
 Additional Python Library: Pillow (PIL fork)<br/>
 Usage:<br/>
