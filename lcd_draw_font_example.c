@@ -6,8 +6,13 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 {
     uint16_t i = 0;
     uint8_t j = 0;
+
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint16_t area = fnt->width * fnt->height;
-    
+#else
+    uint16_t area = sym->width * sym->height;
+#endif
+
     const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
     while(area--)
@@ -212,22 +217,22 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
                 if(j == count)
                 {
                     j = 0;
-NEXT_NIBBLE:
-                    if(!nibbleToogle)
-                    {
-                        count = fnt->bmp_base[bi] >> 4;
-                    }
-                    else
-                    {
-                        count = fnt->bmp_base[bi] & 0x0F;
-                        ++bi;
-                    }
-                    nibbleToogle = !nibbleToogle;
-                    if(count == 0)
-                    {
-                        pixelColor = !pixelColor;
-                        goto NEXT_NIBBLE;
-                    }
+                    do{
+                        if(!nibbleToogle)
+                        {
+                            count = fnt->bmp_base[bi] >> 4;
+                        }
+                        else
+                        {
+                            count = fnt->bmp_base[bi] & 0x0F;
+                            ++bi;
+                        }
+                        nibbleToogle = !nibbleToogle;
+                        if(count == 0)
+                        {
+                            pixelColor = !pixelColor;
+                        }
+                    }while(count == 0);
                 }
             }
         }

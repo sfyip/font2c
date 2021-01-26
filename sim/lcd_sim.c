@@ -359,22 +359,22 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
                 if(j == count)
                 {
                     j = 0;
-NEXT_NIBBLE:
-                    if(!nibbleToogle)
-                    {
-                        count = fnt->bmp_base[bi] >> 4;
-                    }
-                    else
-                    {
-                        count = fnt->bmp_base[bi] & 0x0F;
-                        ++bi;
-                    }
-                    nibbleToogle = !nibbleToogle;
-                    if(count == 0)
-                    {
-                        pixelColor = !pixelColor;
-                        goto NEXT_NIBBLE;
-                    }
+                    do{
+                        if(!nibbleToogle)
+                        {
+                            count = fnt->bmp_base[bi] >> 4;
+                        }
+                        else
+                        {
+                            count = fnt->bmp_base[bi] & 0x0F;
+                            ++bi;
+                        }
+                        nibbleToogle = !nibbleToogle;
+                        if(count == 0)
+                        {
+                            pixelColor = !pixelColor;
+                        }
+                    }while(count == 0);
                 }
             }
         }

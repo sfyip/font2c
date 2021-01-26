@@ -147,7 +147,7 @@ class nibble_steam():
 
     def push_nibble(self, n):
         if(n & 0xF0):
-            raise ValueError    #The nibble value is out of range 
+            raise ValueError("The nibble value is out of range")
         self.count += 4
         if(self.count == 8):
             self.count = 0
@@ -491,9 +491,7 @@ class font2c():
                 elif (self.conf.encoding_method.lower() == 'rle'):
                     steam = encoding_method_rle(steam)
                 else:
-                    print("Unsupport encoding method\n")
-                    cfile.close()
-                    return
+                    raise TypeError("Unsupport encoding method. Only support raw or rle")
 
                 #===========================================
 

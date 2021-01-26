@@ -6,7 +6,7 @@ A python script that converts font to C array, target for embedded systems (e.g.
 Prerequisite: Python3<br/>
 Additional Python Library: Pillow (PIL fork)<br/>
 Usage:<br/>
- - Load the font properties from config file: python3 font2c.py font_config.ini<br/>
+ - Load the font properties from config file: python3 font2c.py config.ini<br/>
  - Use default setting: python3 font2c.py
 
 Output sequence: Left to right, down to bottom sequentially
