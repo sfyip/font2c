@@ -25,6 +25,18 @@ Output sequence: Left to right, down to bottom sequentially
 | template_file_path = ['./template_bmp.ini', <br/>'./template_font_table_width_height_margin_index.ini'] | template file path |
 | export_dir = ./export/          | export directory |
 
+#### Templates to generate C array structure:
+| fixed_size |calc-margin| encoding | template                                                             |
+|      0     |      0    |  raw(0)  | template_bmp.ini + template_font_table_width_height_index.ini        |
+|      0     |      0    |  rle(1)  | template_bmp.ini + template_font_table_width_height_index.ini        |
+|      0     |      1    |  raw(0)  | template_bmp.ini + template_font_table_width_height_margin_index.ini |
+|      0     |      1    |  rle(1)  | template_bmp.ini + template_font_table_width_height_margin_index.ini |
+|      1     |      0    |  raw(0)  | template_bmp_fixed_array_size.ini                                    |
+|      1     |      0    |  rle(1)  | template_bmp.ini + template_font_table_index.ini                     |
+|      1     |      1    |  raw(0)  | template_bmp.ini + template_font_table_margin_index.ini              |
+|      1     |      1    |  rle(1)  | template_bmp.ini + template_font_table_margin_index.ini              |
+
+
 **Example 1: Output with fixed width and height, calc_margin set to true, encoding method set to raw, use template_bmp.ini and template_font_table_margin_index.ini as template files, the generated c source file and preview font images is placed under './export' directory**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)

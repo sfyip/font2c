@@ -158,8 +158,13 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 {
     uint16_t i = 0;
     uint8_t j = 0;
-    uint16_t area = fnt->width * fnt->height;
     
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+    uint16_t area = fnt->width * fnt->height;
+#else
+    uint16_t area = sym->width * sym->height;
+#endif
+
     const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
 
     while(area--)

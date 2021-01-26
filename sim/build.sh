@@ -7,11 +7,13 @@
 # 2) sudo ./lcd_sim
 
 # fixed width and height
-gcc -o lcd_sim0 -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freemono24_fixedsize_nomargin_raw.c
-gcc -o lcd_sim1 -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freemono24_fixedsize_nomargin_rle.c
-gcc -o lcd_sim2 -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freemono24_fixedsize_margin_raw.c
-gcc -o lcd_sim3 -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freemono24_fixedsize_margin_rle.c
+gcc -o lcd_sim0_fixedsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freemono24_fixedsize_nomargin_raw.c
+gcc -o lcd_sim1_fixedsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freemono24_fixedsize_nomargin_rle.c
+gcc -o lcd_sim2_fixedsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freemono24_fixedsize_margin_raw.c
+gcc -o lcd_sim3_fixedsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freemono24_fixedsize_margin_rle.c
 
 # flexible font size
-gcc -o lcd_sim2_flexiblesize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freesans32_flexiblesize_margin_raw.c
-gcc -o lcd_sim3_flexiblesize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freesans32_flexiblesize_margin_rle.c
+gcc -o lcd_sim0_varsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freesans32_flexiblesize_nomargin_raw.c
+gcc -o lcd_sim1_varsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freesans32_flexiblesize_nomargin_rle.c
+gcc -o lcd_sim2_varsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=0 main.c lcd_sim.c freesans32_flexiblesize_margin_raw.c
+gcc -o lcd_sim3_varsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=1 main.c lcd_sim.c freesans32_flexiblesize_margin_rle.c
