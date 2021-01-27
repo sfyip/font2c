@@ -244,9 +244,9 @@ def encoding_method_rle(steam, bpp):
     else:
         raise ValueError("bpp only accept 1 or 2")
         
-        if(count != 0):
-            bmpresult.push_nibble(count)    #push remaining byte
-            bppresult.push_bit2(sample)
+    if(count != 0):
+        bmpresult.push_nibble(count)    #push remaining byte
+        bppresult.push_bit2(sample)
     
     return (bppresult.get_result(), bmpresult.get_result())
 
