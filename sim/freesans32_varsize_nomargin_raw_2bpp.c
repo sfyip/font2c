@@ -656,8 +656,8 @@ static bool freesans32_lookup(utf8_t c, font_symbol_t *sym)
 
 font_t freesans32 = 
 {
-    FREESANS32_DEFAULT_WIDTH,
-    FREESANS32_DEFAULT_HEIGHT,
-    freesans32_bmp,
-    freesans32_lookup
+    .default_width = FREESANS32_DEFAULT_WIDTH,
+    .default_height = FREESANS32_DEFAULT_HEIGHT,
+    .bmp_base = freesans32_bmp,
+    .lookup = freesans32_lookup
 };

@@ -362,8 +362,8 @@ static bool freemono24_lookup(utf8_t c, font_symbol_t *sym)
 
 font_t freemono24 = 
 {
-    FREEMONO24_WIDTH,
-    FREEMONO24_HEIGHT,
-    (uint8_t*)freemono24_bmp,
-    freemono24_lookup
+    .width = FREEMONO24_WIDTH,
+    .height = FREEMONO24_HEIGHT,
+    .bmp_base = (uint8_t*)freemono24_bmp,
+    .lookup = freemono24_lookup
 };
