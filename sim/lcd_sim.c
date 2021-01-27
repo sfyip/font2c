@@ -253,11 +253,13 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
     uint16_t i = 0;
     uint8_t j, count;
 
+    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
+
 #if (CONFIG_BPP == 1u)
     bool pixelColor = 0;
-    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
 #elif (CONFIG_BPP == 2u)
     const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
+    uint8_t bpp_count = 2;
     uint8_t pixelColor = (*bpp >> 6) & 0x03;
 #endif
 
@@ -292,7 +294,7 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
         {
             pixelColor = !pixelColor;
         }
-#else
+#elif (CONFIG_BPP == 2u)
         if(!nibbleToogle)
         {
             count = bmp[i] >> 4;
@@ -307,9 +309,17 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
 
         for(j=0; j<count; j++)
         {
-            if(pixelColor)
+            if(pixelColor == 3)
             {
                 lcdsim_write_gram(brush_color);
+            }
+            else if(pixelColor == 2)
+            {
+                lcdsim_write_gram(brush_color66);
+            }
+            else if(pixelColor == 1)
+            {
+                lcdsim_write_gram(brush_color33);
             }
             else
             {
@@ -319,7 +329,14 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
         
         if(count != 15)
         {
-            pixelColor = !pixelColor;
+            bpp_count+=2;
+            if(bpp_count == 10)
+            {
+                ++bpp;
+                bpp_count = 2;
+            }
+
+            pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
         }
 #endif
     }

@@ -227,12 +227,9 @@ def encoding_method_rle(steam, bpp):
             bmpresult.push_nibble(count)    #push remaining byte
     elif bpp == 2:
         sample = 0
-        bppresult.push_bit2(sample)
-
         for byte in (steam):
             for bitpos in range(4):
                 bit2 = (byte >> (bitpos*2)) & 0x03
-
                 if (bit2 == sample):
                     count += 1
 
