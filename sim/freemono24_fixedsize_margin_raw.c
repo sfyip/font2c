@@ -221,7 +221,7 @@ static bool freemono24_lookup(utf8_t c, font_symbol_t *sym)
     sym->bmp_index = t->bmp_index;
     if(IS_LAST(t))
     {
-        sym->size = sizeof(freemono24_table) - t->bmp_index;
+        sym->size = sizeof(freemono24_bmp) - t->bmp_index;
     }
     else
     {
