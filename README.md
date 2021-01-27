@@ -43,35 +43,31 @@ Output sequence: Left to right, down to bottom sequentially
 **Example 1: Output with fixed width and height(14,24), calc_margin set to true, encoding method set to raw, use bmp.tpl and font_table_margin_index.tpl as template files, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)
-    size = 24                               # font size
+    size = 24
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
-    offset = (0,0)                          # x,y offset
+    offset = (0,0)
     fixed_width_height = (14,24)            # fixed width and height
-    max_width = 24                          # maximum width
-    calc_margin = true                      # calculate margin area
-    encoding_method = raw                   # encoding method
-                                            # raw: direct dump the pixels inside margin area
-                                            # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
-    template_file_path = ['./bmp.tpl', './font_table_margin_index.tpl'] # template file path
-    export_dir = "./export/"                # export directory
+    max_width = 24
+    calc_margin = true
+    encoding_method = raw
+    template_file_path = ['./bmp.tpl', './font_table_margin_index.tpl']
+    export_dir = "./export/"
 ```
 
 **Example 2: Output with flexible font size, calc_margin set to true, encoding method set to raw, use bmp.tpl and font_table_width_height_margin_index.tpl as template files, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
-    size = 32                               # font size
+    size = 32
     text = "0123456789:"                \
            "abcdefghijklmnopqrstuvwxyz" \
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
-    offset = (0,0)                          # x,y offset
-    fixed_width_height = None               # adaptive width and height
-    max_width = 32                          # maximum width
-    calc_margin = true                      # calculate margin area
-    encoding_method = raw                   # encoding method
-                                            # raw: direct dump the pixels inside margin area
-                                            # rle: RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area
-    template_file_path = ['./bmp.tpl', './font_table_width_height_margin_index.tpl']# template file path
-    export_dir = './export/'                # export directory
+    offset = (0,0)
+    fixed_width_height = None               # var_size
+    max_width = 32
+    calc_margin = true
+    encoding_method = raw
+    template_file_path = ['./bmp.tpl', './font_table_width_height_margin_index.tpl']
+    export_dir = './export/'
 ```

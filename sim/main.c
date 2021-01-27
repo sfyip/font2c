@@ -1,9 +1,6 @@
 /*
 # Simple LCD simulator by using Linux /dev/fb0 to direct access the color pixel
 # Tested in Ubuntu 18.04
-# Procedure:
-# 1) In Ubuntu, press [Ctrl + Alt + F3] to open a new console
-# 2) sudo ./lcd_sim
 */
 
 #include <stdint.h>

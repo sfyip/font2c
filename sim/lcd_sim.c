@@ -18,6 +18,11 @@ static point_t lcdsim_cur;
 static lcd_color_t back_color = LCD_BLACK_COLOR;
 static lcd_color_t brush_color = LCD_WHITE_COLOR;
 
+#if (CONFIG_BPP == 2u)
+static lcd_color_t brush_color66 = LCD_LIGHT_GREY_COLOR;
+static lcd_color_t brush_color33 = LCD_DARK_GREY_COLOR;
+#endif
+
 //=========================================================================
 
 void lcdsim_init()
@@ -152,6 +157,25 @@ void lcdsim_write_gram(lcd_color_t color)
 }
 
 //=========================================================================
+
+#if (CONFIG_BPP == 2u)
+static void lcdsim_aa_brush_color()
+{
+    uint8_t lr = ((RGB565_TO_R8(brush_color) + RGB565_TO_R8(back_color)) / 3);
+    uint8_t lg = ((RGB565_TO_G8(brush_color) + RGB565_TO_G8(back_color)) / 3);
+    uint8_t lb = ((RGB565_TO_B8(brush_color) + RGB565_TO_B8(back_color)) / 3);
+    
+    brush_color33 = RGB888_TO_RGB565(lr,lg,lb);
+
+    lr <<= 1;
+    lg <<= 1;
+    lb <<= 1;
+
+    brush_color66 = RGB888_TO_RGB565(lr,lg,lb);
+}
+#endif
+
+//=========================================================================
 #if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp
 static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol_t *sym)
@@ -169,6 +193,7 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 
     while(area--)
     {
+#if (CONFIG_BPP == 1u)
         if(bmp[i] & (1<<j))
         {
             lcdsim_write_gram(brush_color);
@@ -187,6 +212,35 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
         {
             ++j;
         }
+#elif (CONFIG_BPP == 2u)
+        uint8_t color_pixel = (bmp[i] >> j) & 0x03;
+        if(color_pixel == 3)
+        {
+            lcdsim_write_gram(brush_color);
+        }
+        else if(color_pixel == 2)
+        {
+            lcdsim_write_gram(brush_color66);
+        }
+        else if(color_pixel == 1)
+        {
+            lcdsim_write_gram(brush_color33);
+        }
+        else
+        {
+            lcdsim_write_gram(back_color);
+        }
+
+        if(j == 6)
+        {
+            ++i;
+            j = 0;
+        }
+        else
+        {
+            j+=2;
+        }
+#endif
     }
 }
 #endif
@@ -269,6 +323,7 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
             }
             else
             {
+#if (CONFIG_BPP == 1u)
                 if(fnt->bmp_base[bi] & (1<<i))
                 {
                     lcdsim_write_gram(brush_color);
@@ -287,6 +342,36 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
                 {
                     ++i;
                 }
+#elif (CONFIG_BPP == 2u)
+                uint8_t color_pixel = (fnt->bmp_base[bi] >> i) & 0x03;
+                if(color_pixel == 3)
+                {
+                    lcdsim_write_gram(brush_color);
+                }
+                else if(color_pixel == 2)
+                {
+                    lcdsim_write_gram(brush_color66);
+                }
+                else if(color_pixel == 1)
+                {
+                    lcdsim_write_gram(brush_color33);
+                }
+                else
+                {
+                    lcdsim_write_gram(back_color);
+                }
+
+                if(i==6)
+                {
+                    i = 0;
+                    ++bi;
+                }
+                else
+                {
+                    i+=2;
+                }
+
+#endif
             }
         }
     }
@@ -470,6 +555,10 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
 void lcdsim_set_back_color(lcd_color_t color)
 {
     back_color = color;
+
+#if (CONFIG_BPP == 2u)
+    lcdsim_aa_brush_color();
+#endif
 }
 
 //=========================================================================
@@ -477,4 +566,9 @@ void lcdsim_set_back_color(lcd_color_t color)
 void lcdsim_set_brush_color(lcd_color_t color)
 {
     brush_color = color;
+
+#if (CONFIG_BPP == 2u)
+    lcdsim_aa_brush_color();
+#endif
 }
+

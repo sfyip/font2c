@@ -17,6 +17,6 @@
 
 static const uint8_t ${font_lowercase}${size}_bmp[] = {
 ====split====
-    ${imgdata},  // ${imgname}
+    ${bmpdata},  // ${imgname}
 ====split====
 };

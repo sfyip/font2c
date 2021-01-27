@@ -1,6 +1,6 @@
 /*
     <Generate from ${template_file_path}>
-    generate font_table_t struct: [index]
+    generate font bpp
     font: ${font}
     size: ${size}
     calc_margin: ${calc_margin}
@@ -10,12 +10,10 @@
     height: ${height}
 */
 
-typedef struct{
-    uint16_t index;
-}font_table_t;
+#include "font.h"
 
-static const font_table_t ${font_lowercase}${size}_table[] = {
+static const uint8_t ${font_lowercase}${size}_bpp[] = {
 ====split====
-    {${bmpaddr}},  // ${imgname}
+    ${bppdata},  // ${imgname}
 ====split====
 };

@@ -19,6 +19,6 @@ typedef struct
 
 static const font_table_t ${font_lowercase}${size}_table[] = {
 ====split====
-    {${width}, ${height}, ${imgaddr}},  // ${imgname}
+    {${width}, ${height}, ${bmpaddr}},  // ${imgname}
 ====split====
 };

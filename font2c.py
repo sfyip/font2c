@@ -136,10 +136,37 @@ class Margin():
 
 #=========================================================================================
 
+class bit2_steam():
+    result = []
+    count = 0
+    buf = 0x0
+
+    def clear(self):
+        self.count = 0
+        self.result.clear()
+
+    def push_bit2(self, n):
+        if(n & 0xFC):
+            raise ValueError("The bit2 value is out of range")
+        self.count += 2
+        if(self.count == 8):
+            self.count = 0
+            self.result.append((self.buf << 2) | (n & 0x03))
+        else:
+            self.buf = (self.buf << 2) | (n & 0x03) 
+
+    def get_result(self):
+        if(self.count != 0):
+            self.count = 0
+            self.result.append(self.buf << (8-self.count))
+        return self.result
+
+#=========================================================================================
+
 class nibble_steam():
     result = []
     count = 0
-    prev_nibble = 0x0
+    buf = 0x0
 
     def clear(self):
         self.count = 0
@@ -151,48 +178,77 @@ class nibble_steam():
         self.count += 4
         if(self.count == 8):
             self.count = 0
-            self.result.append((self.prev_nibble << 4) | ((n & 0x0F)))
+            self.result.append((self.buf << 4) | ((n & 0x0F)))
         else:
-            self.prev_nibble = n & 0x0F
+            self.buf = n & 0x0F
 
     def get_result(self):
-        if(self.count == 4):
+        if(self.count != 0):
             self.count = 0
-            self.result.append((self.prev_nibble << 4))
+            self.result.append((self.buf << 4))
         return self.result
 
 #=========================================================================================
 
 #Encoding method RLE: Accumulate numbers of '0' and '1' packed in nibble
-def encoding_method_rle(steam):
+def encoding_method_rle(steam, bpp):
     if not isinstance(steam, bytearray):
         Print("encoding_method_1 parameter *steam* incorrect")
         return None
     
-    result = nibble_steam()
-    result.clear()
-    sample = 0
+    bmpresult = nibble_steam()
+    bmpresult.clear()
+
+    bppresult = bit2_steam()
+    bppresult.clear()
+
     count = 0
     
-    for byte in (steam):
-        for bitpos in range(8):
-            bit = 1 if (byte & (1<<bitpos)) else 0
+    if bpp == 1:
+        sample = 0
+        for byte in (steam):
+            for bitpos in range(8):
+                bit = (byte >> bitpos) & 0x01
 
-            if (bit == sample):
-                count += 1
+                if (bit == sample):
+                    count += 1
 
-                if count == 15:
-                    result.push_nibble(0xf)
-                    count = 0
-            else:
-                result.push_nibble(count)
-                count = 1
-                sample ^= 1         #inverse the bit
+                    if count == 15:
+                        bmpresult.push_nibble(0xf)
+                        count = 0
+                else:
+                    bmpresult.push_nibble(count)
+                    count = 1
+                    sample ^= 1         #inverse the bit
+        
+        if(count != 0):
+            bmpresult.push_nibble(count)    #push remaining byte
+    elif bpp == 2:
+        sample = steam[0] & 0x03
+        bppresult.push_bit2(sample)
+
+        for byte in (steam):
+            for bitpos in range(4):
+                bit2 = (byte >> (bitpos*2)) & 0x03
+
+                if (bit2 == sample):
+                    count += 1
+
+                    if count == 15:
+                        bmpresult.push_nibble(0xf)
+                        count = 0
+                else:
+                    bmpresult.push_nibble(count)
+                    bppresult.push_bit2(sample)
+                    count = 1
+                    sample = bit2
+    else:
+        raise ValueError("bpp only accept 1 or 2")
+        
+        if(count != 0):
+            bmpresult.push_nibble(count)    #push remaining byte
     
-    if(count != 0):
-        result.push_nibble(count)    #push remaining byte
-    
-    return result.get_result()
+    return (bppresult.get_result(), bmpresult.get_result())
 
 #=========================================================================================
 
@@ -296,19 +352,25 @@ class font2c():
     
     def _img_init(self, img_size):
         if(self.conf.bpp == 1):
-            return Image.new('1', img_size, 0)        # generate mono bmp, 0 = black color
+            return Image.new('1', img_size, 0)      # generate mono bmp, 0 = black color
+        elif (self.conf.bpp == 2):
+            return Image.new('L', img_size, 0)      # generate 8-bit bmp
         else:
             raise TypeError("bpp only accept 1")
     
     def _img_is_pixel_blank(self, img, xy):
         if(self.conf.bpp == 1):
             return (img.getpixel(xy) & 1) == 0
+        elif (self.conf.bpp == 2):
+            return (img.getpixel(xy) & 0xC0) == 0
         else:
             raise TypeError("bpp only accept 1")
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
             return 1, (img.getpixel(xy) & 1)
+        elif (self.conf.bpp == 2):
+            return 2, (img.getpixel(xy) >> 6) 
         else:
             raise TypeError("bpp only accept 1")    
     
@@ -415,11 +477,12 @@ class font2c():
             # If encoding methid is raw and fixed_width_length != None, imglen can be pre-estimated   
             if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
                 pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
-                template_key['imglen'] =  int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 )
+                template_key['imglen'] =  ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
             else:
                 template_key['imglen'] = 'Unknown'
             
-            template_key['imgaddr'] = 0
+            template_key['bmpaddr'] = 0
+            template_key['bppaddr'] = 0
 
             cfile.write(Template(template["header"]).substitute(template_key))
 
@@ -437,7 +500,15 @@ class font2c():
                 img = self._img_init(img_size)
 
                 draw = ImageDraw.Draw(img)
-                draw.text(self.conf.offset, c, font=fnt, fill=1)  # 1= white color
+
+                if(self.conf.bpp == 1):
+                    textcolor = 1
+                elif(self.conf.bpp == 2):
+                    textcolor = 255
+                else:
+                    raise TypeError("bpp only accept 1 or 2")
+                
+                draw.text(self.conf.offset, c, font=fnt, fill=textcolor)  # 1= white color
 
                 alias_c = convert_special_char(c)
 
@@ -465,7 +536,8 @@ class font2c():
 
                 byte = 0x00
                 count = 0
-                steam = bytearray()
+                bmpsteam = bytearray()
+                bppsteam = bytearray()
 
                 # Scan from left to right,  down to bottom sequentially
                 for y in range(margin.top, img_size[1]-margin.bottom):
@@ -475,21 +547,21 @@ class font2c():
 
                         count += bit_shift
                         if (count == 8):
-                            steam.append(byte)
+                            bmpsteam.append(byte)
                             count = 0
                             byte = 0x00
                         elif (count > 8):
                             raise OverflowError("The bit count should be <= 8")
 
                 if (count != 0):
-                    steam.append(byte)  # push remaining byte
+                    bmpsteam.append(byte)  # push remaining byte
 
                 #===========================================
 
                 if (self.conf.encoding_method.lower() == 'raw'):
                     pass
                 elif (self.conf.encoding_method.lower() == 'rle'):
-                    steam = encoding_method_rle(steam)
+                    bppsteam, bmpsteam = encoding_method_rle(bmpsteam, self.conf.bpp)
                 else:
                     raise TypeError("Unsupport encoding method. Only support raw or rle")
 
@@ -505,12 +577,15 @@ class font2c():
                 template_key['margin_right'] = margin.right
                 template_key['width'] = img.size[0]
                 template_key['height'] = img.size[1]
-                template_key['imglen'] = len(steam)
-                template_key['imgdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in steam[y : y + self.rowsize]]) for y in range(0, len(steam), self.rowsize)])
+                template_key['imglen'] = len(bmpsteam)
+                template_key['bpplen'] = len(bppsteam)
+                template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.rowsize]]) for y in range(0, len(bmpsteam), self.rowsize)])
+                template_key['bppdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bppsteam[y : y + self.rowsize]]) for y in range(0, len(bppsteam), self.rowsize)])
 
                 cfile.write(Template(template["loopbody"]).substitute(template_key))
 
-                template_key['imgaddr'] += len(steam)
+                template_key['bmpaddr'] += len(bmpsteam)
+                template_key['bppaddr'] += len(bppsteam)
 
                 print("------------------------------------------")
     

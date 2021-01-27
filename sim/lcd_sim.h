@@ -22,6 +22,8 @@
 #define LCD_CYAN_COLOR              0x07FF
 #define LCD_YELLOW_COLOR            0xFFE0
 #define LCD_PURPLE_COLOR            0xF81F
+#define LCD_LIGHT_GREY_COLOR        0xAD55
+#define LCD_DARK_GREY_COLOR         0x52AA
 
 #define LCD_WIDTH                   800
 #define LCD_HEIGHT                  480
@@ -29,6 +31,8 @@
 #define RGB565_TO_R8(color)         (((color) & 0xF800) >> 8)
 #define RGB565_TO_G8(color)         (((color) & 0x07E0) >> 3)
 #define RGB565_TO_B8(color)         (((color) & 0x001F) << 3)
+
+#define RGB888_TO_RGB565(r,g,b)     ((((lcd_color_t)r) & 0b11111000) << 8) | ((((lcd_color_t)g) & 0b11111100) << 3) | (((lcd_color_t)b) >> 3);
 
 //=========================================================================
 

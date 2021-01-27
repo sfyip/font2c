@@ -18,7 +18,7 @@
 const uint8_t ${font_lowercase}${size}_bmp[][$imglen] = {
 ====split====
     {   // ${imgname}
-    ${imgdata}
+    ${bmpdata}
     },
 ====split====
 };
