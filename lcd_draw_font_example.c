@@ -1,31 +1,28 @@
-
-//=========================================================================
 #if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
 // raw bitblt, 1bpp
 static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t i = 0;
     uint8_t j = 0;
-
+    
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint16_t area = fnt->width * fnt->height;
 #else
     uint16_t area = sym->width * sym->height;
 #endif
 
-    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
+    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
 
     while(area--)
     {
+#if (CONFIG_BPP == 1u)
         if(bmp[i] & (1<<j))
         {
-            //lcdsim_write_gram(brush_color);
-            LCD_WR_DATA(brush_color);
+            lcdsim_write_gram(brush_color);
         }
         else
         {
-            //lcdsim_write_gram(back_color);
-            LCD_WR_DATA(back_color);
+            lcdsim_write_gram(back_color);
         }
 
         if(j == 7)
@@ -37,6 +34,35 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
         {
             ++j;
         }
+#elif (CONFIG_BPP == 2u)
+        uint8_t color_pixel = (bmp[i] >> j) & 0x03;
+        if(color_pixel == 3)
+        {
+            lcdsim_write_gram(brush_color);
+        }
+        else if(color_pixel == 2)
+        {
+            lcdsim_write_gram(brush_color66);
+        }
+        else if(color_pixel == 1)
+        {
+            lcdsim_write_gram(brush_color33);
+        }
+        else
+        {
+            lcdsim_write_gram(back_color);
+        }
+
+        if(j == 6)
+        {
+            ++i;
+            j = 0;
+        }
+        else
+        {
+            j+=2;
+        }
+#endif
     }
 }
 #endif
@@ -45,12 +71,19 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 // rle, 1bpp
 static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    bool pixelColor = 0;
     bool nibbleToogle = false;
     uint16_t i = 0;
     uint8_t j, count;
 
-    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
+    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
+
+#if (CONFIG_BPP == 1u)
+    bool pixelColor = 0;
+#elif (CONFIG_BPP == 2u)
+    const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
+    uint8_t bpp_count = 2;
+    uint8_t pixelColor = (*bpp >> 6) & 0x03;
+#endif
 
     while(i<sym->size)
     {
@@ -68,21 +101,49 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
 
         for(j=0; j<count; j++)
         {
+#if (CONFIG_BPP == 1u)
             if(pixelColor)
             {
-                //lcdsim_write_gram(brush_color);
-                LCD_WR_DATA(brush_color);
+                lcdsim_write_gram(brush_color);
             }
             else
             {
-                //lcdsim_write_gram(back_color);
-                LCD_WR_DATA(back_color);
+                lcdsim_write_gram(back_color);
             }
+#elif (CONFIG_BPP == 2u)
+            if(pixelColor == 3)
+            {
+                lcdsim_write_gram(brush_color);
+            }
+            else if(pixelColor == 2)
+            {
+                lcdsim_write_gram(brush_color66);
+            }
+            else if(pixelColor == 1)
+            {
+                lcdsim_write_gram(brush_color33);
+            }
+            else
+            {
+                lcdsim_write_gram(back_color);
+            }
+#endif
         }
         
         if(count != 15)
         {
+#if (CONFIG_BPP == 1u)
             pixelColor = !pixelColor;
+#elif (CONFIG_BPP == 2u)
+            bpp_count+=2;
+            if(bpp_count == 10)
+            {
+                ++bpp;
+                bpp_count = 2;
+            }
+
+            pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
+#endif
         }
     }
 }
@@ -105,7 +166,7 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
     uint8_t left = sym->margin_left;
     uint8_t right = font_width - sym->margin_right-1;
     
-    uint16_t bi = sym->index;
+    uint16_t bi = sym->bmp_index;
 
     uint8_t h, w;
     uint8_t i=0;
@@ -117,20 +178,18 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
             if(w < left || w > right || h < top || h > bottom)
             {
                 // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
-                //lcdsim_write_gram(back_color);
-                LCD_WR_DATA(back_color);
+                lcdsim_write_gram(back_color);
             }
             else
             {
+#if (CONFIG_BPP == 1u)
                 if(fnt->bmp_base[bi] & (1<<i))
                 {
-                    //lcdsim_write_gram(brush_color);
-                    LCD_WR_DATA(brush_color);
+                    lcdsim_write_gram(brush_color);
                 }
                 else
                 {
-                    //lcdsim_write_gram(back_color);
-                    LCD_WR_DATA(back_color);
+                    lcdsim_write_gram(back_color);
                 }
 
                 if(i==7)
@@ -142,6 +201,36 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
                 {
                     ++i;
                 }
+#elif (CONFIG_BPP == 2u)
+                uint8_t color_pixel = (fnt->bmp_base[bi] >> i) & 0x03;
+                if(color_pixel == 3)
+                {
+                    lcdsim_write_gram(brush_color);
+                }
+                else if(color_pixel == 2)
+                {
+                    lcdsim_write_gram(brush_color66);
+                }
+                else if(color_pixel == 1)
+                {
+                    lcdsim_write_gram(brush_color33);
+                }
+                else
+                {
+                    lcdsim_write_gram(back_color);
+                }
+
+                if(i==6)
+                {
+                    i = 0;
+                    ++bi;
+                }
+                else
+                {
+                    i+=2;
+                }
+
+#endif
             }
         }
     }
@@ -152,8 +241,6 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
 // rle bitblt, 1bpp with margin
 static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    bool pixelColor = 0;
-
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
     uint8_t font_height = fnt->height;
@@ -162,27 +249,40 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
     uint8_t font_height = sym->height;
 #endif
 
+    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
+
+#if (CONFIG_BPP == 1u)
+    bool pixelColor = 0;
+#elif(CONFIG_BPP == 2u)
+    const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
+    uint8_t bpp_count = 2;
+    uint8_t pixelColor = (*bpp >> 6) & 0x03;
+#endif
+
     uint8_t top = sym->margin_top;
     uint8_t bottom = font_height - sym->margin_bottom-1;
     uint8_t left = sym->margin_left;
     uint8_t right = font_width - sym->margin_right-1;
     
-    uint16_t bi = sym->index;
-
     uint8_t h, w;
 
     uint8_t j = 0, count;
 
     bool nibbleToogle = false;
 
-    count = fnt->bmp_base[bi] >> 4;
+    count = *bmp >> 4;
     nibbleToogle = !nibbleToogle;
 
     if(count == 0)
     {
+#if(CONFIG_BPP == 1u)
         pixelColor = !pixelColor;
-        count = fnt->bmp_base[bi] & 0x0F;
-        ++bi;
+#else
+        bpp_count += 2;
+        pixelColor = (*bpp >> 4) & 0x03;
+#endif
+        count = *bmp & 0x0F;
+        ++bmp;
         nibbleToogle = !nibbleToogle;
     }
 
@@ -193,26 +293,52 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
             if(w < left || w > right || h < top || h > bottom)
             {
                 // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
-                //lcdsim_write_gram(back_color);
-                LCD_WR_DATA(back_color);
+                lcdsim_write_gram(back_color);
             }
             else
             {
+#if (CONFIG_BPP == 1u)
                 if(pixelColor)
                 {
-                    //lcdsim_write_gram(brush_color);
-                    LCD_WR_DATA(brush_color);
+                    lcdsim_write_gram(brush_color);
                 }
                 else
                 {
-                    //lcdsim_write_gram(back_color);
-                    LCD_WR_DATA(back_color);
+                    lcdsim_write_gram(back_color);
                 }
-                
+#elif (CONFIG_BPP == 2u)
+                if(pixelColor == 3)
+                {
+                    lcdsim_write_gram(brush_color);
+                }
+                else if(pixelColor == 2)
+                {
+                    lcdsim_write_gram(brush_color66);
+                }
+                else if(pixelColor == 1)
+                {
+                    lcdsim_write_gram(brush_color33);
+                }
+                else
+                {
+                    lcdsim_write_gram(back_color);
+                }
+#endif
                 ++j;
                 if(j == count && j != 15)
                 {
+#if (CONFIG_BPP == 1u)
                     pixelColor = !pixelColor;
+#elif (CONFIG_BPP == 2u)
+                    bpp_count+=2;
+                    if(bpp_count == 10)
+                    {
+                        ++bpp;
+                        bpp_count = 2;
+                    }
+
+                    pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
+#endif
                 }
                 if(j == count)
                 {
@@ -220,17 +346,28 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
                     do{
                         if(!nibbleToogle)
                         {
-                            count = fnt->bmp_base[bi] >> 4;
+                            count = *bmp >> 4;
                         }
                         else
                         {
-                            count = fnt->bmp_base[bi] & 0x0F;
-                            ++bi;
+                            count = *bmp & 0x0F;
+                            ++bmp;
                         }
                         nibbleToogle = !nibbleToogle;
                         if(count == 0)
                         {
+#if (CONFIG_BPP == 1u)
                             pixelColor = !pixelColor;
+#elif (CONFIG_BPP == 2u)
+                            bpp_count+=2;
+                            if(bpp_count == 10)
+                            {
+                                ++bpp;
+                                bpp_count = 2;
+                            }
+
+                            pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
+#endif
                         }
                     }while(count == 0);
                 }
@@ -242,7 +379,7 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
 
 //=========================================================================
 
-void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
+void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, utf8_t c)
 {
     font_symbol_t sym;
     if(!fnt->lookup(c, &sym))
@@ -302,11 +439,12 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
 
 //=========================================================================
 
+
 void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s)
 {
     uint16_t orgx = x;
 
-    char c;
+    utf8_t c;
     while((c = *s) != '\0')
     {
         if(c == '\n')
