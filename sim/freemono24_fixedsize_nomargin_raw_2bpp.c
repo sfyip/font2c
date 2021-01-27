@@ -461,23 +461,23 @@ const uint8_t freemono24_bmp[][84] = {
 //=================== End ======================
 
 
-static bool freemono24_lookup(char c, font_symbol_t *sym)
+static bool freemono24_lookup(utf8_t c, font_symbol_t *sym)
 {
     if(c >= '0' && c<= '9')
     {
-        sym->index = (c-'0') * sizeof(freemono24_bmp[0]);
+        sym->bmp_index = (c-'0') * sizeof(freemono24_bmp[0]);
     }
     else if(c == ':')
     {
-        sym->index = 10 * sizeof(freemono24_bmp[0]);
+        sym->bmp_index = 10 * sizeof(freemono24_bmp[0]);
     }
     else if(c >= 'a' && c <= 'z')
     {
-        sym->index = ((c-'a')+10+1) * sizeof(freemono24_bmp[0]);
+        sym->bmp_index = ((c-'a')+10+1) * sizeof(freemono24_bmp[0]);
     }
     else if(c >= 'A' && c <= 'Z')
     {
-        sym->index = ((c-'A')+10+1+26) * sizeof(freemono24_bmp[0]);
+        sym->bmp_index = ((c-'A')+10+1+26) * sizeof(freemono24_bmp[0]);
     }
     else
     {

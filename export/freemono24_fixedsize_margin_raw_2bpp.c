@@ -191,7 +191,7 @@ typedef struct
     uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
     uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
     uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
-    uint16_t index;
+    uint16_t bmp_index;
 }font_table_t;
 
 static const font_table_t freemono24_table[] = {

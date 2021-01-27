@@ -136,7 +136,7 @@ typedef struct
     uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
     uint8_t margin_left     :FONT_MARGIN_DATABIT_SIZE;
     uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
-    uint16_t index;
+    uint16_t bmp_index;
 }font_table_t;
 
 static const font_table_t freemono24_table[] = {
@@ -209,7 +209,7 @@ static const font_table_t freemono24_table[] = {
 
 #define IS_LAST(e)  (((e) - freemono24_table) == (sizeof(freemono24_table) / sizeof(freemono24_table[0]) - 1)  ) 
 
-static bool freemono24_lookup(char c, font_symbol_t *sym)
+static bool freemono24_lookup(utf8_t c, font_symbol_t *sym)
 {
     const font_table_t *t = 0;
 
@@ -238,14 +238,14 @@ static bool freemono24_lookup(char c, font_symbol_t *sym)
     sym->margin_bottom = t->margin_bottom;
     sym->margin_left = t->margin_left;
     sym->margin_right = t->margin_right;
-    sym->index = t->index;
+    sym->bmp_index = t->bmp_index;
     if(IS_LAST(t))
     {
-        sym->size = sizeof(freemono24_table) - t->index;
+        sym->size = sizeof(freemono24_table) - t->bmp_index;
     }
     else
     {
-        sym->size = (t+1)->index - t->index;
+        sym->size = (t+1)->bmp_index - t->bmp_index;
     }
 
     return true;

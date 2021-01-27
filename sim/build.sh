@@ -18,6 +18,7 @@ gcc -o lcd_sim3_varsize -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=0 -DCONFIG_FONT_MARGIN=
 
 # fixed width and height, 2bpp
 gcc -o lcd_sim0_fixedsize_2bpp -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=0 -DCONFIG_BPP=2 main.c lcd_sim.c freemono24_fixedsize_nomargin_raw_2bpp.c
+gcc -o lcd_sim1_fixedsize_2bpp -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=0 -DCONFIG_FONT_ENC=1 -DCONFIG_BPP=2 main.c lcd_sim.c freemono24_fixedsize_nomargin_rle_2bpp.c
 gcc -o lcd_sim2_fixedsize_2bpp -DCONFIG_FONT_FIXED_WIDTH_HEIGHT=1 -DCONFIG_FONT_MARGIN=1 -DCONFIG_FONT_ENC=0 -DCONFIG_BPP=2 main.c lcd_sim.c freemono24_fixedsize_margin_raw_2bpp.c
 
 # var size, 1bpp

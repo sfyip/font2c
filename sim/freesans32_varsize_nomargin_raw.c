@@ -298,7 +298,7 @@ typedef struct
 {
     uint8_t width;
     uint8_t height;
-    uint16_t index;
+    uint16_t bmp_index;
 }font_table_t;
 
 static const font_table_t freesans32_table[] = {
@@ -369,7 +369,7 @@ static const font_table_t freesans32_table[] = {
 
 #define IS_LAST(e)  (((e) - freesans32_table) == (sizeof(freesans32_table) / sizeof(freesans32_table[0]) - 1)  ) 
 
-static bool freesans32_lookup(char c, font_symbol_t *sym)
+static bool freesans32_lookup(utf8_t c, font_symbol_t *sym)
 {
     const font_table_t *t = 0;
 
@@ -396,14 +396,14 @@ static bool freesans32_lookup(char c, font_symbol_t *sym)
 
     sym->width = t->width;
     sym->height = t->height;
-    sym->index = t->index;
+    sym->bmp_index = t->bmp_index;
     if(IS_LAST(t))
     {
-        sym->size = sizeof(freesans32_table) - t->index;
+        sym->size = sizeof(freesans32_table) - t->bmp_index;
     }
     else
     {
-        sym->size = (t+1)->index - t->index;
+        sym->size = (t+1)->bmp_index - t->bmp_index;
     }
     return true;
 }

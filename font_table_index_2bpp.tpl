@@ -1,6 +1,6 @@
 /*
     <Generate from ${template_file_path}>
-    generate font_table_t struct: [width, height, index]
+    generate font_table_t struct: [index]
     font: ${font}
     size: ${size}
     calc_margin: ${calc_margin}
@@ -10,15 +10,13 @@
     height: ${height}
 */
 
-typedef struct
-{
-    uint8_t width;
-    uint8_t height;
+typedef struct{
     uint16_t bmp_index;
+    uint16_t bpp_index;
 }font_table_t;
 
 static const font_table_t ${font_lowercase}${size}_table[] = {
 ====split====
-    {${width}, ${height}, ${bmpaddr}},  // ${imgname}
+    {${bmpaddr}, ${bppaddr}},  // ${imgname}
 ====split====
 };

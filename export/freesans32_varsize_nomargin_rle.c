@@ -207,7 +207,7 @@ typedef struct
 {
     uint8_t width;
     uint8_t height;
-    uint16_t index;
+    uint16_t bmp_index;
 }font_table_t;
 
 static const font_table_t freesans32_table[] = {

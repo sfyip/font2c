@@ -325,3 +325,53 @@ static const font_table_t freemono24_table[] = {
     {2208, 997},  // FreeMono24_Y
     {2244, 1014},  // FreeMono24_Z
 };
+
+
+#define IS_LAST(e)  (((e) - freemono24_table) == (sizeof(freemono24_table) / sizeof(freemono24_table[0]) - 1)  ) 
+
+static bool freemono24_lookup(utf8_t c, font_symbol_t *sym)
+{
+    const font_table_t *t = 0;
+    
+    if(c >= '0' && c<= '9')
+    {
+        t = &freemono24_table[(c-'0')];
+    }
+    else if(c == ':')
+    {
+        t = &freemono24_table[10];
+    }
+    else if(c >= 'a' && c <= 'z')
+    {
+        t = &freemono24_table[((c-'a')+10+1)];
+    }
+    else if(c >= 'A' && c <= 'Z')
+    {
+        t = &freemono24_table[((c-'A')+10+1+26)];
+    }
+    else
+    {
+        return false;
+    }
+    
+    sym->bmp_index = t->bmp_index;
+    if(IS_LAST(t))
+    {
+        sym->size = sizeof(freemono24_bmp) - t->bmp_index;
+    }
+    else
+    {
+        sym->size = (t+1)->bmp_index - t->bmp_index;
+    }
+
+    return true;
+}
+
+font_t freemono24 = 
+{
+    .width = FREEMONO24_WIDTH,
+    .height = FREEMONO24_HEIGHT,
+    .bmp_base = freemono24_bmp,
+    .bpp_base = freemono24_bpp,
+    .lookup = freemono24_lookup
+};

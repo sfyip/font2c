@@ -189,7 +189,7 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
     uint16_t area = sym->width * sym->height;
 #endif
 
-    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
+    const uint8_t *bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
 
     while(area--)
     {
@@ -249,15 +249,21 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 // rle, 1bpp
 static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
 {
-    bool pixelColor = 0;
     bool nibbleToogle = false;
     uint16_t i = 0;
     uint8_t j, count;
 
-    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->index);
+#if (CONFIG_BPP == 1u)
+    bool pixelColor = 0;
+    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
+#elif (CONFIG_BPP == 2u)
+    const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
+    uint8_t pixelColor = (*bpp >> 6) & 0x03;
+#endif
 
     while(i<sym->size)
     {
+#if (CONFIG_BPP == 1u)
         if(!nibbleToogle)
         {
             count = bmp[i] >> 4;
@@ -286,6 +292,36 @@ static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol
         {
             pixelColor = !pixelColor;
         }
+#else
+        if(!nibbleToogle)
+        {
+            count = bmp[i] >> 4;
+        }
+        else
+        {
+            count = bmp[i] & 0x0F;
+            ++i;
+        }
+
+        nibbleToogle = !nibbleToogle;
+
+        for(j=0; j<count; j++)
+        {
+            if(pixelColor)
+            {
+                lcdsim_write_gram(brush_color);
+            }
+            else
+            {
+                lcdsim_write_gram(back_color);
+            }
+        }
+        
+        if(count != 15)
+        {
+            pixelColor = !pixelColor;
+        }
+#endif
     }
 }
 #endif
@@ -307,7 +343,7 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
     uint8_t left = sym->margin_left;
     uint8_t right = font_width - sym->margin_right-1;
     
-    uint16_t bi = sym->index;
+    uint16_t bi = sym->bmp_index;
 
     uint8_t h, w;
     uint8_t i=0;
@@ -397,7 +433,7 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
     uint8_t left = sym->margin_left;
     uint8_t right = font_width - sym->margin_right-1;
     
-    uint16_t bi = sym->index;
+    uint16_t bi = sym->bmp_index;
 
     uint8_t h, w;
 
@@ -469,7 +505,7 @@ static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t
 
 //=========================================================================
 
-void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, char c)
+void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, utf8_t c)
 {
     font_symbol_t sym;
     if(!fnt->lookup(c, &sym))
@@ -509,7 +545,7 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
 {
     uint16_t orgx = x;
 
-    char c;
+    utf8_t c;
     while((c = *s) != '\0')
     {
         if(c == '\n')

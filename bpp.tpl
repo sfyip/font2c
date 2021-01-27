@@ -10,8 +10,6 @@
     height: ${height}
 */
 
-#include "font.h"
-
 static const uint8_t ${font_lowercase}${size}_bpp[] = {
 ====split====
     ${bppdata},  // ${imgname}

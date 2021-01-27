@@ -9,6 +9,10 @@
 
 //=================================================================
 
+typedef uint32_t utf8_t;
+
+//=================================================================
+
 typedef struct
 {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT == 0u)
@@ -25,7 +29,11 @@ typedef struct
     uint8_t margin_right    :FONT_MARGIN_DATABIT_SIZE;
 #endif
 
-    uint16_t index;
+    uint16_t bmp_index;
+
+#if(CONFIG_BPP>=2u && CONFIG_FONT_ENC == 1u)
+    uint16_t bpp_index;
+#endif
 
 #if ((CONFIG_FONT_ENC==0u && CONFIG_FONT_FIXED_WIDTH_HEIGH==0u) || CONFIG_FONT_ENC == 1u)
     uint8_t size;
@@ -34,7 +42,8 @@ typedef struct
 
 //=================================================================
 
-typedef bool (*fnt_lookup_fp)(char c, font_symbol_t *sym);
+
+typedef bool (*fnt_lookup_fp)(utf8_t c, font_symbol_t *sym);
 
 typedef struct
 {
@@ -47,6 +56,11 @@ typedef struct
 #endif
 
     const uint8_t *bmp_base;
+
+#if(CONFIG_BPP>=2u && CONFIG_FONT_ENC == 1u)
+    const uint8_t *bpp_base;
+#endif
+
     fnt_lookup_fp lookup;
 }font_t;
 

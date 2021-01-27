@@ -22,8 +22,8 @@ sleep $dalay_time
 
 sudo ./lcd_sim0_fixedsize_2bpp
 sleep $dalay_time
-#sudo ./lcd_sim1_fixedsize_2bpp
-#sleep $dalay_time
+sudo ./lcd_sim1_fixedsize_2bpp
+sleep $dalay_time
 sudo ./lcd_sim2_fixedsize_2bpp
 sleep $dalay_time
 #sudo ./lcd_sim3_fixedsize_2bpp

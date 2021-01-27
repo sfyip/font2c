@@ -152,7 +152,7 @@ static const uint8_t freemono24_bmp[] = {
 */
 
 typedef struct{
-    uint16_t index;
+    uint16_t bmp_index;
 }font_table_t;
 
 static const font_table_t freemono24_table[] = {

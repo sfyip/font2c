@@ -139,7 +139,7 @@ class Margin():
 class bit2_steam():
     result = []
     count = 0
-    buf = 0x0
+    buf = 0x00
 
     def clear(self):
         self.count = 0
@@ -152,13 +152,14 @@ class bit2_steam():
         if(self.count == 8):
             self.count = 0
             self.result.append((self.buf << 2) | (n & 0x03))
+            self.buf = 0x00
         else:
             self.buf = (self.buf << 2) | (n & 0x03) 
 
     def get_result(self):
         if(self.count != 0):
-            self.count = 0
             self.result.append(self.buf << (8-self.count))
+            self.count = 0
         return self.result
 
 #=========================================================================================
@@ -166,7 +167,7 @@ class bit2_steam():
 class nibble_steam():
     result = []
     count = 0
-    buf = 0x0
+    buf = 0x00
 
     def clear(self):
         self.count = 0
@@ -179,13 +180,14 @@ class nibble_steam():
         if(self.count == 8):
             self.count = 0
             self.result.append((self.buf << 4) | ((n & 0x0F)))
+            self.buf = 0x00
         else:
             self.buf = n & 0x0F
 
     def get_result(self):
         if(self.count != 0):
-            self.count = 0
             self.result.append((self.buf << 4))
+            self.count = 0
         return self.result
 
 #=========================================================================================
@@ -224,7 +226,7 @@ def encoding_method_rle(steam, bpp):
         if(count != 0):
             bmpresult.push_nibble(count)    #push remaining byte
     elif bpp == 2:
-        sample = steam[0] & 0x03
+        sample = 0
         bppresult.push_bit2(sample)
 
         for byte in (steam):
