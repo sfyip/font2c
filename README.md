@@ -16,6 +16,7 @@ Output sequence: Left to right, down to bottom sequentially
 
 | Configuration | Description |
 |       ---     |     ---     |
+| bpp                             | bit per pixel ( 1 or 2 ), 2 is smoother but occupy more size |
 | font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style <br/>(Windows platform: cour)          |
 | size = 32                       | font size                                                                |
 | text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters       |
@@ -28,16 +29,25 @@ Output sequence: Left to right, down to bottom sequentially
 | export_dir = ./export/          | export directory                                                         |
 
 #### Template files to generate C array structure:
-| fixed_size | calc-margin | encoding | template files                                     |
-|    ---     |    ---      |    ---   |                                   ---              |
-|      0     |      0      |  raw(0)  | bmp.tpl + font_table_width_height_index.tpl        |
-|      0     |      0      |  rle(1)  | bmp.tpl + font_table_width_height_index.tpl        |
-|      0     |      1      |  raw(0)  | bmp.tpl + font_table_width_height_margin_index.tpl |
-|      0     |      1      |  rle(1)  | bmp.tpl + font_table_width_height_margin_index.tpl |
-|      1     |      0      |  raw(0)  | bmp_fixed_array_size.tpl                           |
-|      1     |      0      |  rle(1)  | bmp.tpl + font_table_index.tpl                     |
-|      1     |      1      |  raw(0)  | bmp.tpl + font_table_margin_index.tpl              |
-|      1     |      1      |  rle(1)  | bmp.tpl + font_table_margin_index.tpl              |
+| bpp | fixed_size | calc-margin | encoding | template files                                                    | estimated size    |
+| --- |    ---     |    ---      |    ---   |                         ---                                       |       ---         |
+|  1  |      0     |      0      |  raw(0)  | bmp.tpl + font_table_width_height_index.tpl                       |  XXXXX            |
+|  1  |      0     |      0      |  rle(1)  | bmp.tpl + font_table_width_height_index.tpl                       |  XXXXX            |
+|  1  |      0     |      1      |  raw(0)  | bmp.tpl + font_table_width_height_margin_index.tpl                |  XXXX             |
+|  1  |      0     |      1      |  rle(1)  | bmp.tpl + font_table_width_height_margin_index.tpl                |  XXXX             |
+|  1  |      1     |      0      |  raw(0)  | bmp_fixed_array_size.tpl                                          |  XXXXXXX          |
+|  1  |      1     |      0      |  rle(1)  | bmp.tpl + font_table_index.tpl                                    |  XXXXX            |
+|  1  |      1     |      1      |  raw(0)  | bmp.tpl + font_table_margin_index.tpl                             |  XXX              |
+|  1  |      1     |      1      |  rle(1)  | bmp.tpl + font_table_margin_index.tpl                             |  XX               |
+| --- |    ---     |    ---      |    ---   |                         ---                                       |       ---         |
+|  2  |      0     |      0      |  raw(0)  | bmp.tpl + font_table_width_height_index.tpl                       |  XXXXXXX          |
+|  2  |      0     |      0      |  rle(1)  | bmp.tpl + bpp.tpl + font_table_width_height_index_2bpp.tpl        |  XXXXXXX          |
+|  2  |      0     |      1      |  raw(0)  | bmp.tpl + font_table_width_height_margin_index.tpl                |  XXXXXX           |
+|  2  |      0     |      1      |  rle(1)  | bmp.tpl + bpp.tpl + font_table_width_height_margin_index_2bpp.tpl |  XXXXXX           |
+|  2  |      1     |      0      |  raw(0)  | bmp_fixed_array_size.tpl                                          |  XXXXXXXXX        |
+|  2  |      1     |      0      |  rle(1)  | bmp.tpl + bpp.tpl + font_table_index_2bpp.tpl                     |  XXXXXXX          |
+|  2  |      1     |      1      |  raw(0)  | bmp.tpl + font_table_margin_index.tpl                             |  XXXXX            |
+|  2  |      1     |      1      |  rle(1)  | bmp.tpl + bpp.tpl + font_table_margin_index_2bpp.tpl              |  XXXX             |
 
 
 **Example 1: Output with fixed width and height(14,24), calc_margin set to true, encoding method set to raw, use bmp.tpl and font_table_margin_index.tpl as template files, the generated c source file and preview font images are placed under './export' directory**
