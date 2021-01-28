@@ -3,13 +3,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "utf8.h"
 
 // define the maximum size of margin top, margin bottom, margin left, margin width
 #define FONT_MARGIN_DATABIT_SIZE        4
-
-//=================================================================
-
-typedef uint32_t utf8_t;
 
 //=================================================================
 
