@@ -12,6 +12,7 @@
 
 static const uint8_t ${font_lowercase}${size}_bpp[] = {
 ====split====
-    ${bppdata},  // ${imgname}
+    // ${imgname}
+    ${bppdata},
 ====split====
 };
