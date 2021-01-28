@@ -445,7 +445,7 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
     uint16_t orgx = x;
 
     utf8_t c;
-    while((c = *s) != '\0')
+    while((c = utf8_getchar(s)) != '\0')
     {
         if(c == '\n')
         {
@@ -481,6 +481,6 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
             }
 #endif
         }
-        ++s;
+        s += utf8_charlen(c);
     }
 }
