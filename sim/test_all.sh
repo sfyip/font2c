@@ -38,3 +38,5 @@ sleep $dalay_time
 sudo ./lcd_sim3_varsize_2bpp
 sleep $dalay_time
 
+sudo ./lcd_sim3_varsize_2bpp_utf8
+sleep $dalay_time

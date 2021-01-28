@@ -16,16 +16,17 @@ Output sequence: Left to right, down to bottom sequentially
 
 | Configuration | Description |
 |       ---     |     ---     |
-| bpp                             | bit per pixel ( 1 or 2 ), 2 is smoother but occupy more size |
-| font = /usr/share/fonts/truetype/freefont/FreeSans.ttf | font style <br/>(Windows platform: cour)          |
+| [microhei32_varsize_margin_rle_2bpp] | export C file name                                      |
+| bpp = 2                         | bit per pixel ( 1 or 2 ), 2 is smoother but occupy more size |
+| font = /usr/share/fonts/truetype/wqy/wqy-microhei.ttc | font style ( True Type Font / Open Font )<br/>(Windows platform: kaiu.ttf) |
 | size = 32                       | font size                                                                |
-| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ | output characters       |
+| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>測試間距テスト | output characters       |
 | offset = (0,0)                  | x,y offset                                                               |
 | fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height          | 
 | max_width = 32                  | maximum width                                                            |
 | calc_margin = true              | calculate margin area                                                    |
-| encoding_method = raw           | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
-| template_file_path = ['./bmp.tpl', <br/>'./font_table_width_height_margin_index.tpl'] | template file path |
+| encoding_method = rle           | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
+| template_file_path = ['./bmp.tpl', <br/>'./bpp.tpl', <br/>'./font_table_width_height_margin_index.tpl'] | template file path |
 | export_dir = ./export/          | export directory                                                         |
 
 #### Template files to generate C array structure:

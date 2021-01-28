@@ -1,4 +1,4 @@
-// Extract some utf-8 functions from https://github.com/vigna/ne/blob/master/src/utf8.c
+/* Extract some utf-8 functions from https://github.com/vigna/ne/blob/master/src/utf8.c */
 
 /* UTF-8 support.
    Copyright (C) 1993-1998 Sebastiano Vigna 

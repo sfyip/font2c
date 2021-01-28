@@ -241,12 +241,12 @@ def encoding_method_rle(steam, bpp):
                     bppresult.push_bit2(sample)
                     count = 1
                     sample = bit2
+
+        if(count != 0):
+            bmpresult.push_nibble(count)    #push remaining byte
+            bppresult.push_bit2(sample)
     else:
         raise ValueError("bpp only accept 1 or 2")
-        
-    if(count != 0):
-        bmpresult.push_nibble(count)    #push remaining byte
-        bppresult.push_bit2(sample)
     
     return (bppresult.get_result(), bmpresult.get_result())
 
@@ -297,7 +297,7 @@ def convert_special_char(c):
     elif is_ascii(c) and c.isprintable():   # c.isascii() only supports > python 3.7
         return c
     else:
-        return str(ord(c))          # Unicode character ?
+        return c + '_' + str(hex(ord(c)))          # Unicode character ?
 
 #=========================================================================================
 
@@ -461,7 +461,7 @@ class font2c():
 
             # Build the template parameter list
             template_key = {}
-            template_key['font'] = extract_filename(self.conf.font)
+            template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
             template_key['font_lowercase'] = template_key['font'].lower()
             template_key['font_uppercase'] = template_key['font'].upper()
             template_key['size'] = self.conf.size
