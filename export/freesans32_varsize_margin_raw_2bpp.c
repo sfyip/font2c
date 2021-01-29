@@ -1,5 +1,5 @@
 /*
-    <Generate from ./bmp.tpl>
+    <Generate from bmp.tpl>
     generate font bitmap
     font: FreeSans
     size: 32
@@ -389,7 +389,7 @@ static const uint8_t freesans32_bmp[] = {
     0xFF, 0xFF, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xBF,
 };
 /*
-    <Generate from ./font_table_width_height_margin_index.tpl>
+    <Generate from font_table_width_height_margin_index.tpl>
     generate font_table_t struct: [width, height, margin, index]
     font: FreeSans
     size: 32

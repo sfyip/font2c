@@ -1,5 +1,5 @@
 /*
-    <Generate from ./bmp.tpl>
+    <Generate from bmp.tpl>
     generate font bitmap
     font: FreeSans
     size: 32
@@ -319,7 +319,7 @@ static const uint8_t freesans32_bmp[] = {
     0x3F, 0x01, 0x31, 0xF0, 0x4D, 0x12, 0xF2, 0x12, 0xF2, 0x1F, 0xFF, 0xFF, 0xFF, 0xF1,
 };
 /*
-    <Generate from ./bpp.tpl>
+    <Generate from bpp.tpl>
     generate font bpp
     font: FreeSans
     size: 32
@@ -518,7 +518,7 @@ static const uint8_t freesans32_bpp[] = {
     0x13, 0x8E, 0x1B, 0x4C, 0xB2, 0xC7, 0x4E, 0x32, 0xC7, 0x4E, 0x32, 0xC7, 0x47, 0x4E, 0x32, 0xC7, 0x4E, 0x4E, 0x38,
 };
 /*
-    <Generate from ./font_table_width_height_index_2bpp.tpl>
+    <Generate from font_table_width_height_index_2bpp.tpl>
     generate font_table_t struct: [width, height, index]
     font: FreeSans
     size: 32

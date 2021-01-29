@@ -65,7 +65,6 @@ class font_config():
     encoding_method = 'raw'                             # encoding method (raw|rle)
                                                         # raw: direct dump the pixels inside the margin area
                                                         # rle: RLE compression, accumulate numbers of 0 and 1 inside the margin area
-    template_file_path = ['./bmp_fixed_array_size.tpl']    # template file path
     export_dir = './export/'                            # export directory
     c_filename = extract_filename(font) + str(size)     # generated c source file name
     
@@ -83,18 +82,52 @@ def load_config(config_file_path):
         c.bpp = cfg.getint(section, 'bpp')
         c.font = cfg.get(section, 'font')
         c.size = cfg.getint(section, 'size')
+        #c.text = ''.join(sorted(set(cfg.get(section, 'text'))))
         c.text = cfg.get(section, 'text')
         c.offset = eval(cfg.get(section, 'offset'), {}, {})
         c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
         c.max_width = cfg.getint(section, 'max_width')
         c.calc_margin = cfg.getboolean(section, 'calc_margin')
         c.encoding_method = cfg.get(section, 'encoding_method')
-        c.template_file_path = eval(cfg.get(section, 'template_file_path'), {}, {})
         c.export_dir = cfg.get(section, 'export_dir')
         
         font_list.append(c)
         
     return font_list
+
+def get_template_list(conf):
+
+    value = 0
+    value |= 0x08 if conf.bpp == 2 else 0
+    value |= 0x04 if conf.fixed_width_height else 0
+    value |= 0x02 if conf.calc_margin else 0
+    value |= 0x01 if conf.encoding_method == 'rle' else 0
+
+    conf_combination = {
+    0  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
+    1  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
+    2  : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
+    3  : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
+    4  : ['bmp_fixed_array_size.tpl'],
+    5  : ['bmp.tpl', 'font_table_index.tpl'],
+    6  : ['bmp.tpl', 'font_table_margin_index.tpl'],
+    7  : ['bmp.tpl', 'font_table_margin_index.tpl'],
+    8  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
+    9  : ['bmp.tpl', 'bpp.tpl', 'font_table_width_height_index_2bpp.tpl'],
+    10 : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
+    11 : ['bmp.tpl', 'bpp.tpl', 'font_table_width_height_margin_index_2bpp.tpl'],
+    12 : ['bmp_fixed_array_size.tpl'],
+    13 : ['bmp.tpl', 'bpp.tpl', 'font_table_index_2bpp.tpl'],
+    14 : ['bmp.tpl', 'font_table_margin_index.tpl'],
+    15 : ['bmp.tpl', 'bpp.tpl', 'font_table_margin_index_2bpp.tpl']
+    }
+
+    #with conf as c:
+    # conf.fixed_width_height, conf.calc_margin, conf.encoding_method
+    return conf_combination.get(value, ['Error'])
+
+
+
 
 def load_template(template_file_path):
     template = {}
@@ -438,6 +471,7 @@ class font2c():
 
     def export(self):
         create_dir(self.conf.export_dir)
+        create_dir(self.conf.export_dir + '/img')
         
         try:
             fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
@@ -451,10 +485,12 @@ class font2c():
         # Open the template
         template = None
 
-        for template_file_path in self.conf.template_file_path:
+        template_list = get_template_list(self.conf)
+
+        for template_file_path in template_list:
             
             try:
-                template = load_template(template_file_path)
+                template = load_template('template/'+template_file_path)
             except IOError:
                  print('Cannot open template file: ' + self.conf.template_file_path)
                  exit()
@@ -514,7 +550,7 @@ class font2c():
 
                 font_name = extract_filename(self.conf.font) + str(self.conf.size)
 
-                img.save(self.conf.export_dir + '/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
+                img.save(self.conf.export_dir + '/img/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
 
                 imgname = font_name + '_' + alias_c
                 imgdata = list(img.tobytes())

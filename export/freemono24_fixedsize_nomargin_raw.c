@@ -1,5 +1,5 @@
 /*
-    <Generate from ./bmp_fixed_array_size.tpl>
+    <Generate from bmp_fixed_array_size.tpl>
     generate font bitmap
     font: FreeMono
     size: 24

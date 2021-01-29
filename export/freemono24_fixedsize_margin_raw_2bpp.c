@@ -1,5 +1,5 @@
 /*
-    <Generate from ./bmp.tpl>
+    <Generate from bmp.tpl>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -237,7 +237,7 @@ static const uint8_t freemono24_bmp[] = {
     0x80, 0x02, 0x00, 0x0D, 0xC0, 0x30, 0x00, 0xCC, 0x01, 0xC0, 0x09, 0x00, 0xEC, 0xFF, 0xFF,
 };
 /*
-    <Generate from ./font_table_margin_index.tpl>
+    <Generate from font_table_margin_index.tpl>
     generate font_table_t struct: [margin, index]
     font: FreeMono
     size: 24
