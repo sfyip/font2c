@@ -20,7 +20,7 @@ Output sequence: Left to right, down to bottom sequentially
 | bpp = 2                         | bit per pixel ( 1 or 2 ), 2 is smoother but occupy more size |
 | font = /usr/share/fonts/truetype/wqy/wqy-microhei.ttc | font style ( True Type Font / Open Font )<br/>(Windows platform: kaiu.ttf) |
 | size = 32                       | font size                                                                |
-| text = 0123456789:<br/>abcdefghijklmnopqrstuvwxyz<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>測試間距テスト | output characters       |
+| text = 0123456789:<br/>ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>abcdefghijklmnopqrstuvwxyz<br/>測試間距テスト | output characters (sorted before export)      |
 | offset = (0,0)                  | x,y offset                                                               |
 | fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height          | 
 | max_width = 32                  | maximum width                                                            |
@@ -28,13 +28,13 @@ Output sequence: Left to right, down to bottom sequentially
 | encoding_method = rle           | encoding method<br/>raw=direct dump the pixels inside margin area<br/>rle=RLE compression, accumulate numbers of 0 and 1 in nibble size inside margin area<br/> |
 | export_dir = ./export/          | export directory                                                         |
 
-**Example 1: Output with fixed width and height(14,24), calc_margin set to true, encoding method set to raw, use bmp.tpl and font_table_margin_index.tpl as template files, the generated c source file and preview font images are placed under './export' directory**
+**Example 1: Output with fixed width and height(14,24), calc_margin set to true, encoding method set to raw, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "cour"                           # font style (Test chinese font: kaiu)
     size = 24
     text = "0123456789:"                \
-           "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+           "abcdefghijklmnopqrstuvwxyz"     # "測試間距テスト"  # output which symbol
     offset = (0,0)
     fixed_width_height = (14,24)            # fixed width and height
     max_width = 24
@@ -43,13 +43,13 @@ Output sequence: Left to right, down to bottom sequentially
     export_dir = "./export/"
 ```
 
-**Example 2: Output with flexible font size, calc_margin set to true, encoding method set to raw, use bmp.tpl and font_table_width_height_margin_index.tpl as template files, the generated c source file and preview font images are placed under './export' directory**
+**Example 2: Output with flexible font size, calc_margin set to true, encoding method set to raw, the generated c source file and preview font images are placed under './export' directory**
 ```python
     font = "arial"                          # font style (Test chinese font: kaiu)
     size = 32
     text = "0123456789:"                \
-           "abcdefghijklmnopqrstuvwxyz" \
-           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"     # "測試間距テスト"  # output which symbol
+           "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+           "abcdefghijklmnopqrstuvwxyz"     # "測試間距テスト"  # output which symbol
     offset = (0,0)
     fixed_width_height = None               # var_size
     max_width = 32
@@ -57,3 +57,31 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = raw
     export_dir = './export/'
 ```
+#### Template Keyword Description
+| Template keyword      | Description                                 |
+|        ---            |     ---                                     |
+| ${font}               |  font name option                           |
+| ${font_lowercase}     | font name in lowercase                      |
+| ${font_uppercase}     | font name in UPPERCASE                      |
+| ${size}               | font size option                            |
+| ${calc_margin}        | calc_margin option                          |
+| ${encoding_method}    | encoding method option                      |
+| ${template_file_path} | current template file name                  |
+| ${imgname}            | character name                              |
+| ${imgname_lowercase}  | character name in lowercase                 |
+| ${imgname_uppercase}  | character name in UPPERCASE                 |
+| ${codepoint}          | character UTF-8 codepoint                   |
+| ${margin_top}         | character margin top                        |
+| ${margin_bottom}      | character margin bottom                     |
+| ${margin_left}        | character margin left                       |
+| ${margin_right}       | character margin right                      |
+| ${width}              | character width                             |
+| ${height}             | character height                            |
+| ${imglen}             | character bmp byte size                     |
+| ${bmpdata}            | character bmp data                          |
+| ${bmpaddr}            | character bmp index                         |
+| ${bpplen}             | character bpp byte size (used only on 2bpp) |
+| ${bppdata}            | character bpp data  (used only on 2bpp)     |
+| ${bppaddr}            | character bpp index (used only on 2bpp)     |
+
+
