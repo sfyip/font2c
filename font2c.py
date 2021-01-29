@@ -491,7 +491,7 @@ class font2c():
             exit()
 
         # Open the C file
-        cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w")
+        cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w", encoding='utf8')
         
         # Open the template
         template_list = None
