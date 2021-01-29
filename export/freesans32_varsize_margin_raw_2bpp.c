@@ -1,5 +1,5 @@
 /*
-    <Generate from bmp.tpl>
+    <Generate from 2bpp_varsize_margin_raw.tpl>
     generate font bitmap
     font: FreeSans
     size: 32
@@ -388,17 +388,7 @@ static const uint8_t freesans32_bmp[] = {
     0x00, 0xF0, 0x0F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0xFD, 0x01, 0x00, 0x00, 0xF0, 0xAF, 0xAA, 0xAA, 0x6A, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xBF,
 };
-/*
-    <Generate from font_table_width_height_margin_index.tpl>
-    generate font_table_t struct: [width, height, margin, index]
-    font: FreeSans
-    size: 32
-    calc_margin: True
-    encoding method: raw
 
-    width: Adaptive
-    height: Adaptive
-*/
 
 typedef struct
 {

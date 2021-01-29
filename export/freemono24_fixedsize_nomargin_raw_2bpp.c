@@ -1,5 +1,5 @@
 /*
-    <Generate from bmp_fixed_array_size.tpl>
+    <Generate from 2bpp_fixedsize_nomargin_raw.tpl>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -459,3 +459,4 @@ const uint8_t freemono24_bmp[][84] = {
     },
 };
 //=================== End ======================
+

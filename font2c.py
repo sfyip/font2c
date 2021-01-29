@@ -95,31 +95,31 @@ def load_config(config_file_path):
         
     return font_list
 
-def get_template_list(conf):
+def get_template(conf):
 
     value = 0
-    value |= 0x08 if conf.bpp == 2 else 0
-    value |= 0x04 if conf.fixed_width_height else 0
-    value |= 0x02 if conf.calc_margin else 0
     value |= 0x01 if conf.encoding_method == 'rle' else 0
+    value |= 0x02 if conf.calc_margin else 0
+    value |= 0x04 if conf.fixed_width_height else 0
+    value |= 0x08 if conf.bpp == 2 else 0
 
     conf_combination = {
-    0  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
-    1  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
-    2  : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
-    3  : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
-    4  : ['bmp_fixed_array_size.tpl'],
-    5  : ['bmp.tpl', 'font_table_index.tpl'],
-    6  : ['bmp.tpl', 'font_table_margin_index.tpl'],
-    7  : ['bmp.tpl', 'font_table_margin_index.tpl'],
-    8  : ['bmp.tpl', 'font_table_width_height_index.tpl'],
-    9  : ['bmp.tpl', 'bpp.tpl', 'font_table_width_height_index_2bpp.tpl'],
-    10 : ['bmp.tpl', 'font_table_width_height_margin_index.tpl'],
-    11 : ['bmp.tpl', 'bpp.tpl', 'font_table_width_height_margin_index_2bpp.tpl'],
-    12 : ['bmp_fixed_array_size.tpl'],
-    13 : ['bmp.tpl', 'bpp.tpl', 'font_table_index_2bpp.tpl'],
-    14 : ['bmp.tpl', 'font_table_margin_index.tpl'],
-    15 : ['bmp.tpl', 'bpp.tpl', 'font_table_margin_index_2bpp.tpl']
+    0  : '1bpp_varsize_nomargin_raw.tpl',
+    1  : '1bpp_varsize_nomargin_rle.tpl',
+    2  : '1bpp_varsize_margin_raw.tpl',
+    3  : '1bpp_varsize_margin_rle.tpl',
+    4  : '1bpp_fixedsize_nomargin_raw.tpl',
+    5  : '1bpp_fixedsize_nomargin_rle.tpl',
+    6  : '1bpp_fixedsize_margin_raw.tpl',
+    7  : '1bpp_fixedsize_margin_rle.tpl',
+    8  : '2bpp_varsize_nomargin_raw.tpl',
+    9  : '2bpp_varsize_nomargin_rle.tpl',
+    10 : '2bpp_varsize_margin_raw.tpl',
+    11 : '2bpp_varsize_margin_rle.tpl',
+    12 : '2bpp_fixedsize_nomargin_raw.tpl',
+    13 : '2bpp_fixedsize_nomargin_rle.tpl',
+    14 : '2bpp_fixedsize_margin_raw.tpl',
+    15 : '2bpp_fixedsize_margin_rle.tpl',
     }
 
     #with conf as c:
@@ -127,30 +127,39 @@ def get_template_list(conf):
     return conf_combination.get(value, ['Error'])
 
 
-
+class template():
+    header = ''
+    loopbody = ''
+    footer = ''
 
 def load_template(template_file_path):
-    template = {}
-    template['header'] = ''
-    template['loopbody'] = ''
-    template['footer'] = ''
+    tpl_list = []
 
     with open(template_file_path) as tf:
         s = tf.read()
-        sstr = s.split('====split====\n')   #special keyword to split header, loopbpody and footer
-        sstr_len = len(sstr)
+        section_str = s.split('####split####\n')   #special keyword to split header, loopbpody and footer
 
-        if sstr_len <= 1:
-            template['loopbody'] = sstr[0]
-        elif sstr_len == 2:
-            template["header"] = sstr[0]
-            template["loopbody"] = sstr[1]
-        elif sstr_len >= 3:
-            template["header"] = sstr[0]
-            template["loopbody"] = sstr[1]
-            template["footer"] = sstr[2]
+        for section_str in section_str:
+            subset_str = section_str.split('====split====\n')   #special keyword to split header, loopbpody and footer
+            subset_len = len(subset_str)
 
-    return template
+            tpl = template()
+
+            if subset_len <= 1:
+                tpl.header = subset_str[0]
+            elif subset_len == 2:
+                tpl.header = subset_str[0]
+                tpl.loopbody = subset_str[1]
+            elif subset_len == 3:
+                tpl.header = subset_str[0]
+                tpl.loopbody = subset_str[1]
+                tpl.footer = subset_str[2]
+            else:
+                raise ValueError("Template format is not correct")
+
+            tpl_list.append(tpl)
+
+    return tpl_list
 
 
 def show_help():
@@ -483,18 +492,17 @@ class font2c():
         cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w")
         
         # Open the template
-        template = None
+        template_list = None
 
-        template_list = get_template_list(self.conf)
+        template_file_path = get_template(self.conf)
+        print(template_file_path)
+        try:
+            template_list = load_template('template/'+template_file_path)
+        except IOError:
+             print('Cannot open template file: ' + self.conf.template_file_path)
+             exit()
 
-        for template_file_path in template_list:
-            
-            try:
-                template = load_template('template/'+template_file_path)
-            except IOError:
-                 print('Cannot open template file: ' + self.conf.template_file_path)
-                 exit()
-
+        for template in template_list:
             # Build the template parameter list
             template_key = {}
             template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
@@ -516,11 +524,11 @@ class font2c():
                 template_key['imglen'] =  ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
             else:
                 template_key['imglen'] = 'Unknown'
-            
+
             template_key['bmpaddr'] = 0
             template_key['bppaddr'] = 0
 
-            cfile.write(Template(template["header"]).substitute(template_key))
+            cfile.write(Template(template.header).substitute(template_key))
 
             for c in self.conf.text:
                 fnt_size = fnt.getsize(c)
@@ -543,7 +551,7 @@ class font2c():
                     textcolor = 255
                 else:
                     raise TypeError("bpp only accept 1 or 2")
-                
+
                 draw.text(self.conf.offset, c, font=fnt, fill=textcolor)  # 1= white color
 
                 alias_c = convert_special_char(c)
@@ -618,14 +626,14 @@ class font2c():
                 template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.rowsize]]) for y in range(0, len(bmpsteam), self.rowsize)])
                 template_key['bppdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bppsteam[y : y + self.rowsize]]) for y in range(0, len(bppsteam), self.rowsize)])
 
-                cfile.write(Template(template["loopbody"]).substitute(template_key))
+                cfile.write(Template(template.loopbody).substitute(template_key))
 
                 template_key['bmpaddr'] += len(bmpsteam)
                 template_key['bppaddr'] += len(bppsteam)
 
                 print("------------------------------------------")
-    
-            cfile.write(Template(template["footer"]).substitute(template_key))
+
+            cfile.write(Template(template.footer).substitute(template_key))
         cfile.close()
 
 #=========================================================================================

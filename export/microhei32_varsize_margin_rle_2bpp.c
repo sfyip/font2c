@@ -1,5 +1,5 @@
 /*
-    <Generate from bmp.tpl>
+    <Generate from 2bpp_varsize_margin_rle.tpl>
     generate font bitmap
     font: wqy_microhei
     size: 32
@@ -314,17 +314,7 @@ static const uint8_t wqy_microhei32_bmp[] = {
     0x11, 0x41, 0x31, 0x19, 0x12, 0x13, 0x41, 0x17, 0x11, 0x37, 0x11, 0x41, 0x13, 0xB1, 0x11, 0x13, 0xE1, 0x3E, 0x13, 0xE1,
     0x3E, 0x13, 0xE1, 0x3E, 0x13, 0xE1, 0x3E, 0x13, 0xE1, 0x3F, 0x02, 0x1F, 0x10,
 };
-/*
-    <Generate from bpp.tpl>
-    generate font bpp
-    font: wqy_microhei
-    size: 32
-    calc_margin: True
-    encoding method: rle
 
-    width: Adaptive
-    height: Adaptive
-*/
 
 static const uint8_t wqy_microhei32_bpp[] = {
     // wqy-microhei32_0
@@ -529,17 +519,7 @@ static const uint8_t wqy_microhei32_bpp[] = {
     0x38, 0x71, 0xC7, 0x1C, 0x71, 0xC7, 0x1C, 0x79, 0x1E, 0x47, 0x91, 0xDB, 0x87, 0x1B, 0x9C, 0x6E, 0x72, 0xC7, 0x1C, 0x71,
     0xC7, 0x1C, 0x71, 0xC7, 0x1C, 0xE0,
 };
-/*
-    <Generate from font_table_width_height_margin_index_2bpp.tpl>
-    generate font_table_t struct: [width, height, margin, index]
-    font: wqy_microhei
-    size: 32
-    calc_margin: True
-    encoding method: rle
 
-    width: Adaptive
-    height: Adaptive
-*/
 
 typedef struct
 {

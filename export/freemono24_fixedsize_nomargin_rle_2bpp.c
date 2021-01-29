@@ -1,5 +1,5 @@
 /*
-    <Generate from bmp.tpl>
+    <Generate from 2bpp_fixedsize_nomargin_rle.tpl>
     generate font bitmap
     font: FreeMono
     size: 24
@@ -226,17 +226,7 @@ static const uint8_t freemono24_bmp[] = {
     0xFF, 0xFF, 0xFC, 0x86, 0x16, 0x11, 0x51, 0x51, 0x16, 0x15, 0x17, 0x14, 0x11, 0xB1, 0x1C, 0x1C, 0x11, 0xB2, 0xB1, 0x15,
     0x16, 0x16, 0x15, 0x11, 0x61, 0x41, 0x17, 0x14, 0x19, 0xFF, 0xFD,
 };
-/*
-    <Generate from bpp.tpl>
-    generate font bpp
-    font: FreeMono
-    size: 24
-    calc_margin: False
-    encoding method: rle
 
-    width: 14
-    height: 24
-*/
 
 static const uint8_t freemono24_bpp[] = {
     // FreeMono24_0
@@ -373,17 +363,7 @@ static const uint8_t freemono24_bpp[] = {
     // FreeMono24_Z
     0x23, 0x74, 0xC7, 0x33, 0x23, 0x46, 0x33, 0x48, 0x73, 0x33, 0x34, 0xC6, 0x32, 0xC0,
 };
-/*
-    <Generate from font_table_index_2bpp.tpl>
-    generate font_table_t struct: [index]
-    font: FreeMono
-    size: 24
-    calc_margin: False
-    encoding method: rle
 
-    width: 14
-    height: 24
-*/
 
 typedef struct{
     uint16_t bmp_index;
