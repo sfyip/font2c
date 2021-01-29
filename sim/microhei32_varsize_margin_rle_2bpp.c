@@ -608,7 +608,27 @@ static const font_table_t wqy_microhei32_table[] = {
 
 #define IS_LAST(e)  (((e) - wqy_microhei32_table) == (sizeof(wqy_microhei32_table) / sizeof(wqy_microhei32_table[0]) - 1)  ) 
 
-static utf8_t utf8_map[] = {0x30b9, 0x30c6, 0x30c8, 0x6e2c, 0x8a66, 0x8ddd, 0x9593};
+
+static const utf8_t utf8_map[] = {0x30b9, 0x30c6, 0x30c8, 0x6e2c, 0x8a66, 0x8ddd, 0x9593};
+
+// BINARY SEARCH USING ITERATIVE CALL
+int binary_search(const utf8_t arr[], int l, int r, utf8_t x)
+{
+    while (l <= r)
+    {
+        int m = l + (r-l)/2;
+        if (arr[m] == x)
+            return m;
+        else if (arr[m] < x)
+            l = m + 1;
+        else
+            r = m - 1;
+    }
+
+    // if we reach here, then element was not present
+    return -1;
+}
+
 
 static bool wqy_microhei32_lookup(utf8_t c, font_symbol_t *sym)
 {
@@ -632,9 +652,10 @@ static bool wqy_microhei32_lookup(utf8_t c, font_symbol_t *sym)
     }
     else
     {
-        // Is other UTF-8 char?
+        // Is non-ASCII UTF-8 char?
+        /*
         bool found_char = false;
-        uint32_t i;
+        int i;
         for(i=0; i<sizeof(utf8_map)/sizeof(utf8_map[0]); i++)
         {
             if(c == utf8_map[i])
@@ -644,11 +665,15 @@ static bool wqy_microhei32_lookup(utf8_t c, font_symbol_t *sym)
                 break;
             }
         }
+        */
+        int index = binary_search(utf8_map, 0, sizeof(utf8_map)/sizeof(utf8_map[0]) - 1, c);
 
-        if(!found_char)
+        if(index == -1)
         {
             return false;
         }
+
+        t = &wqy_microhei32_table[63+index];
     }
 
     sym->width = t->width;
