@@ -12,8 +12,8 @@
 
 #include "font.h"
 
-#define ${font_uppercase}${size}_WIDTH     ${width}
-#define ${font_uppercase}${size}_HEIGHT    ${height}
+#define ${font_uppercase}${size}_DEFAULT_WIDTH     ??? /* Specify default font width */
+#define ${font_uppercase}${size}_DEFAULT_HEIGHT    ??? /* Specify default font heighjt */
 
 static const uint8_t ${font_lowercase}${size}_bmp[] = {
 ====split====

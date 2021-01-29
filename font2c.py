@@ -82,8 +82,8 @@ def load_config(config_file_path):
         c.bpp = cfg.getint(section, 'bpp')
         c.font = cfg.get(section, 'font')
         c.size = cfg.getint(section, 'size')
-        #c.text = ''.join(sorted(set(cfg.get(section, 'text'))))
-        c.text = cfg.get(section, 'text')
+        c.text = ''.join(sorted(set(cfg.get(section, 'text'))))     # sort the characters
+        #c.text = cfg.get(section, 'text')
         c.offset = eval(cfg.get(section, 'offset'), {}, {})
         c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
         c.max_width = cfg.getint(section, 'max_width')
@@ -122,9 +122,7 @@ def get_template(conf):
     15 : '2bpp_fixedsize_margin_rle.tpl',
     }
 
-    #with conf as c:
-    # conf.fixed_width_height, conf.calc_margin, conf.encoding_method
-    return conf_combination.get(value, ['Error'])
+    return conf_combination.get(value, ['INCORRECT SETTING'])
 
 
 class template():
@@ -137,7 +135,7 @@ def load_template(template_file_path):
 
     with open(template_file_path) as tf:
         s = tf.read()
-        section_str = s.split('####split####\n')   #special keyword to split header, loopbpody and footer
+        section_str = s.split('####split####\n')   #special keyword to split each section
 
         for section_str in section_str:
             subset_str = section_str.split('====split====\n')   #special keyword to split header, loopbpody and footer
@@ -615,6 +613,7 @@ class font2c():
                 template_key['imgname'] = imgname
                 template_key['imgname_lowercase'] = imgname.lower()
                 template_key['imgname_uppercase'] = imgname.upper()
+                template_key['codepoint'] = str(hex(ord(c)))
                 template_key['margin_top'] = margin.top
                 template_key['margin_bottom'] = margin.bottom
                 template_key['margin_left'] = margin.left
