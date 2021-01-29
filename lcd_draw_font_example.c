@@ -161,7 +161,11 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
     utf8_t c;
     while((c = utf8_getchar(s)) != '\0')
     {
-        if(c == '\n')
+        if(c == '\r')
+        {
+            // no operation
+        }
+        else if(c == '\n')
         {
             y += (fnt->default_height + ROW_CLERANCE_SIZE);
             x = orgx;
