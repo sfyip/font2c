@@ -70,7 +70,11 @@ class font_config():
     
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
-    cfg.read(config_file_path, encoding='utf-8')
+    dataset = cfg.read(config_file_path, encoding='utf-8')
+
+    if dataset == []:
+        print("Failed to open config file: ", config_file_path)
+        exit(1)
     
     font_list = []
     
