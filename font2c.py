@@ -20,11 +20,6 @@
 
 #!/usr/bin/env python3
 
-try:
-    from tkinter import Label, Tk
-except:
-    from Tkinter import Label, Tk
-
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 from string import Template
 import sys
@@ -341,46 +336,7 @@ def convert_special_char(c):
     elif is_ascii(c) and c.isprintable():   # c.isascii() only supports > python 3.7
         return c
     else:
-        return c + '_' + str(hex(ord(c)))          # Unicode character ?
-
-#=========================================================================================
-
-class ttf_label(Label):
-    def __init__(self, master, text, width, foreground="black", truetype_font=None, font_path=None, family=None, size=None, **kwargs):   
-        if truetype_font is None:
-            if font_path is None:
-                raise ValueError("Font path can't be None")
-                
-            # Initialize font
-            try:
-                truetype_font = ImageFont.truetype(font_path, size)
-            except IOError:
-                print('Cannot open the font: ' + font_path)
-                exit()
-
-        lines = textwrap.wrap(text, width=width)
-        
-        width = 0
-        height = 0
-        
-        line_heights = []
-        for line in lines:
-            line_width, line_height = truetype_font.getsize(line)
-            line_heights.append(line_height)
-            
-            width = max(width, line_width)
-            height += line_height
-
-        image = Image.new("RGBA", (width, height), color=(0,0,0,0))
-        draw = ImageDraw.Draw(image)
-
-        y_text = 0
-        for i, line in enumerate(lines):
-            draw.text((0, y_text), line, font=truetype_font, fill=foreground)
-            y_text += line_heights[i]
-
-        self._photoimage = ImageTk.PhotoImage(image)
-        Label.__init__(self, master, image=self._photoimage, **kwargs)
+        return c + '_' + str(hex(ord(c)))   # Unicode character ?
 
 #=========================================================================================
 
@@ -478,8 +434,48 @@ class font2c():
         return margin
 
     def preview(self):
-        ttf_label(root, text=self.conf.text, width=20, font_path=self.conf.font, size=self.conf.size).pack(pady=(30,0))
-
+        fnt = None
+        
+        try:
+            fnt = ImageFont.truetype(self.conf.font, self.conf.size)
+        except IOError:
+            print('Cannot open the font: ' + self.conf.font)
+            exit()
+        
+        DISPLAY_COLUMN_CHAR = 20
+        DISPLAY_ROW_CLEARANCE = 10
+        
+        # Reserve big enough image size
+        width = fnt.getsize('X')[0] * DISPLAY_COLUMN_CHAR * 2
+        height = int(( (len(self.conf.text) / DISPLAY_COLUMN_CHAR) + 1 ) * (fnt.getsize('X')[1] + DISPLAY_ROW_CLEARANCE)) * 2
+        image = Image.new("RGB", (width, height), color=(0,0,0))
+        draw = ImageDraw.Draw(image)
+        
+        x = 0
+        y = 0
+        for idx, c in enumerate(self.conf.text):
+            if self.conf.fixed_width_height != None:
+                width, height = self.conf.fixed_width_height
+            else:
+                fnt_size = fnt.getsize(c)
+                width, height = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])
+            
+            xy0 = (x + self.conf.offset[0], y + self.conf.offset[1])
+            xy1 = (x + self.conf.offset[0] + width, y + self.conf.offset[1] + height)
+            
+            draw.text(xy0, c, font=fnt, fill=(255,153,0))
+            
+            #Draw bounding rectangle
+            draw.rectangle([xy0, xy1], fill=None, outline=(120,120,120), width=1)
+            
+            if ((idx + 1) % DISPLAY_COLUMN_CHAR) == 0:
+                x = 0
+                y += (height + DISPLAY_ROW_CLEARANCE);
+            else:
+                x += width;
+                
+        image.show()
+    
     def export(self):
         create_dir(self.conf.export_dir)
         create_dir(self.conf.export_dir + '/img')
@@ -540,7 +536,7 @@ class font2c():
                 if(self.conf.fixed_width_height != None):
                     img_size = self.conf.fixed_width_height
                 else:
-                    img_size = (min(self.conf.max_width, fnt_size[0]), max(self.conf.size, fnt_size[1]))      # adaptive adjust the font size
+                    img_size = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])      # adaptive adjust the font size
 
 
                 img = self._img_init(img_size)
@@ -641,7 +637,7 @@ class font2c():
 
 #=========================================================================================
 
-root = Tk()
+#root = tk.Tk()
 
 argv_len = len(sys.argv)
 
@@ -662,9 +658,9 @@ elif(argv_len == 2):
 else:
     show_help()
 
-w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
-root.title("Font Preview")
-root.geometry("%dx%d" % (w, h))
-root.mainloop()
+#w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
+#root.title("Font Preview")
+#root.geometry("%dx%d" % (w, h))
+#root.mainloop()
 
 
