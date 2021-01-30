@@ -475,10 +475,10 @@ class font2c():
             
             if ((idx + 1) % DISPLAY_COLUMN_CHAR) == 0:
                 x = 0
-                y += (max_height + DISPLAY_ROW_CLEARANCE);
+                y += (max_height + DISPLAY_ROW_CLEARANCE)
                 max_height = 0
             else:
-                x += width;
+                x += width
                 
         image.show()
     
@@ -643,8 +643,6 @@ class font2c():
 
 #=========================================================================================
 
-#root = tk.Tk()
-
 argv_len = len(sys.argv)
 
 if(argv_len == 1):
@@ -663,10 +661,4 @@ elif(argv_len == 2):
         f2c.preview()
 else:
     show_help()
-
-#w, h = root.winfo_screenwidth()/2, root.winfo_screenheight()/2
-#root.title("Font Preview")
-#root.geometry("%dx%d" % (w, h))
-#root.mainloop()
-
 
