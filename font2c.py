@@ -443,7 +443,7 @@ class font2c():
             exit()
         
         DISPLAY_COLUMN_CHAR = 20
-        DISPLAY_ROW_CLEARANCE = 10
+        DISPLAY_ROW_CLEARANCE = 5
         
         # Reserve big enough image size
         width = fnt.getsize('X')[0] * DISPLAY_COLUMN_CHAR * 2
@@ -453,6 +453,7 @@ class font2c():
         
         x = 0
         y = 0
+        max_height = 0
         for idx, c in enumerate(self.conf.text):
             if self.conf.fixed_width_height != None:
                 width, height = self.conf.fixed_width_height
@@ -460,17 +461,22 @@ class font2c():
                 fnt_size = fnt.getsize(c)
                 width, height = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])
             
+            max_height = max(max_height, height)
+
+            # Draw bounding rectangle without offset
+            xy0 = (x, y)
+            xy1 = (x + width, y + height)
+            draw.rectangle([xy0, xy1], fill=(0,0,0), outline=(120,120,120), width=1)
+
+            # Draw tet
             xy0 = (x + self.conf.offset[0], y + self.conf.offset[1])
             xy1 = (x + self.conf.offset[0] + width, y + self.conf.offset[1] + height)
-            
             draw.text(xy0, c, font=fnt, fill=(255,153,0))
-            
-            #Draw bounding rectangle
-            draw.rectangle([xy0, xy1], fill=None, outline=(120,120,120), width=1)
             
             if ((idx + 1) % DISPLAY_COLUMN_CHAR) == 0:
                 x = 0
-                y += (height + DISPLAY_ROW_CLEARANCE);
+                y += (max_height + DISPLAY_ROW_CLEARANCE);
+                max_height = 0
             else:
                 x += width;
                 
