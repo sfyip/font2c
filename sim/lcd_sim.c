@@ -266,7 +266,7 @@ static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym
 
     uint8_t h, w;
     uint8_t i=0;
-    
+
     for(h=0; h<font_height; h++)
     {
         for(w=0; w<font_width; w++)
