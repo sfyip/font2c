@@ -18,7 +18,7 @@ typedef struct
     uint8_t height;
 #endif
 
-#if (CONFIG_FONT_MARGIN > 0u)
+#if (CONFIG_FONT_ENC >= 1u && CONFIG_FONT_ENC <= 3u)
     // calc_margin
     uint8_t margin_top      :FONT_MARGIN_DATABIT_SIZE;
     uint8_t margin_bottom   :FONT_MARGIN_DATABIT_SIZE;
@@ -28,11 +28,7 @@ typedef struct
 
     uint16_t bmp_index;
 
-#if(CONFIG_BPP>=2u && CONFIG_FONT_ENC == 1u)
-    uint16_t bpp_index;
-#endif
-
-#if ((CONFIG_FONT_ENC==0u && CONFIG_FONT_FIXED_WIDTH_HEIGH==0u) || CONFIG_FONT_ENC == 1u)
+#if (CONFIG_FONT_ENC >= 2u && CONFIG_FONT_ENC <= 3u)
     uint8_t size;
 #endif
 }font_symbol_t;
@@ -53,10 +49,6 @@ typedef struct
 #endif
 
     const uint8_t *bmp_base;
-
-#if(CONFIG_BPP>=2u && CONFIG_FONT_ENC == 1u)
-    const uint8_t *bpp_base;
-#endif
 
     fnt_lookup_fp lookup;
 }font_t;

@@ -24,7 +24,6 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 from string import Template
 import sys
 import os
-import textwrap
 
 try:
     import configparser as configparser
@@ -56,12 +55,11 @@ class font_config():
     offset = (0,0)                                      # x,y offset
     fixed_width_height = (14,24)                        # fixed width and height
     max_width = 24                                      # maximum width
-    calc_margin = False                                 # Calculate margin area
-    encoding_method = 'raw'                             # encoding method (raw|rle)
+    encoding_method = 'raw'                             # encoding method (raw|rawbb|u8g2|lvgl)
                                                         # raw: direct dump the pixels inside the margin area
                                                         # rle: RLE compression, accumulate numbers of 0 and 1 inside the margin area
     export_dir = './export/'                            # export directory
-    c_filename = extract_filename(font) + str(size)     # generated c source file name
+    c_filename = (extract_filename(font) + str(size)).lower()     # generated c source file name
     
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
@@ -86,7 +84,6 @@ def load_config(config_file_path):
         c.offset = eval(cfg.get(section, 'offset'), {}, {})
         c.fixed_width_height = eval(cfg.get(section, 'fixed_width_height'), {}, {})
         c.max_width = cfg.getint(section, 'max_width')
-        c.calc_margin = cfg.getboolean(section, 'calc_margin')
         c.encoding_method = cfg.get(section, 'encoding_method')
         c.export_dir = cfg.get(section, 'export_dir')
         
@@ -95,34 +92,8 @@ def load_config(config_file_path):
     return font_list
 
 def get_template(conf):
-
-    value = 0
-    value |= 0x01 if conf.encoding_method == 'rle' else 0
-    value |= 0x02 if conf.calc_margin else 0
-    value |= 0x04 if conf.fixed_width_height else 0
-    value |= 0x08 if conf.bpp == 2 else 0
-
-    conf_combination = {
-    0  : '1bpp_varsize_nomargin_raw.tpl',
-    1  : '1bpp_varsize_nomargin_rle.tpl',
-    2  : '1bpp_varsize_margin_raw.tpl',
-    3  : '1bpp_varsize_margin_rle.tpl',
-    4  : '1bpp_fixedsize_nomargin_raw.tpl',
-    5  : '1bpp_fixedsize_nomargin_rle.tpl',
-    6  : '1bpp_fixedsize_margin_raw.tpl',
-    7  : '1bpp_fixedsize_margin_rle.tpl',
-    8  : '2bpp_varsize_nomargin_raw.tpl',
-    9  : '2bpp_varsize_nomargin_rle.tpl',
-    10 : '2bpp_varsize_margin_raw.tpl',
-    11 : '2bpp_varsize_margin_rle.tpl',
-    12 : '2bpp_fixedsize_nomargin_raw.tpl',
-    13 : '2bpp_fixedsize_nomargin_rle.tpl',
-    14 : '2bpp_fixedsize_margin_raw.tpl',
-    15 : '2bpp_fixedsize_margin_rle.tpl',
-    }
-
-    return conf_combination.get(value, ['INCORRECT SETTING'])
-
+    tempate_file = ('fixedsize' if conf.fixed_width_height else 'varsize') + '_' + conf.encoding_method +'.tpl'
+    return tempate_file
 
 class template():
     header = ''
@@ -231,63 +202,21 @@ class nibble_steam():
 
 #=========================================================================================
 
-#Encoding method RLE: Accumulate numbers of '0' and '1' packed in nibble
-def encoding_method_rle(steam, bpp):
+def encoding_method_u8g2(steam, bpp):
     if not isinstance(steam, bytearray):
-        Print("encoding_method_1 parameter *steam* incorrect")
+        Print("u8g2 parameter *steam* incorrect")
         return None
     
-    bmpresult = nibble_steam()
-    bmpresult.clear()
+    raise TypeError("Not implement yet")
 
-    bppresult = bit2_steam()
-    bppresult.clear()
+#=========================================================================================
 
-    count = 0
+def encoding_method_lvg2(steam, bpp):
+    if not isinstance(steam, bytearray):
+        Print("lgvl parameter *steam* incorrect")
+        return None
     
-    if bpp == 1:
-        sample = 0
-        for byte in (steam):
-            for bitpos in range(8):
-                bit = (byte >> bitpos) & 0x01
-
-                if (bit == sample):
-                    count += 1
-
-                    if count == 15:
-                        bmpresult.push_nibble(0xf)
-                        count = 0
-                else:
-                    bmpresult.push_nibble(count)
-                    count = 1
-                    sample ^= 1         #inverse the bit
-        
-        if(count != 0):
-            bmpresult.push_nibble(count)    #push remaining byte
-    elif bpp == 2:
-        sample = 0
-        for byte in (steam):
-            for bitpos in range(4):
-                bit2 = (byte >> (bitpos*2)) & 0x03
-                if (bit2 == sample):
-                    count += 1
-
-                    if count == 15:
-                        bmpresult.push_nibble(0xf)
-                        count = 0
-                else:
-                    bmpresult.push_nibble(count)
-                    bppresult.push_bit2(sample)
-                    count = 1
-                    sample = bit2
-
-        if(count != 0):
-            bmpresult.push_nibble(count)    #push remaining byte
-            bppresult.push_bit2(sample)
-    else:
-        raise ValueError("bpp only accept 1 or 2")
-    
-    return (bppresult.get_result(), bmpresult.get_result())
+    raise TypeError("Not implement yet")
 
 #=========================================================================================
 
@@ -356,7 +285,7 @@ class font2c():
         elif (self.conf.bpp == 2):
             return Image.new('L', img_size, 0)      # generate 8-bit bmp
         else:
-            raise TypeError("bpp only accept 1")
+            raise TypeError("bpp only accept 1 or 2")
     
     def _img_is_pixel_blank(self, img, xy):
         if(self.conf.bpp == 1):
@@ -364,7 +293,7 @@ class font2c():
         elif (self.conf.bpp == 2):
             return (img.getpixel(xy) & 0xC0) == 0
         else:
-            raise TypeError("bpp only accept 1")
+            raise TypeError("bpp only accept 1 or 2")
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
@@ -372,7 +301,7 @@ class font2c():
         elif (self.conf.bpp == 2):
             return 2, (img.getpixel(xy) >> 6) 
         else:
-            raise TypeError("bpp only accept 1")    
+            raise TypeError("bpp only accept 1 or 2")
     
     def _img_calc_margin(self, img, img_size):
         margin = Margin()
@@ -503,34 +432,33 @@ class font2c():
         try:
             template_list = load_template('template/'+template_file_path)
         except IOError:
-             print('Cannot open template file: ' + self.conf.template_file_path)
+             print('Cannot open template file: ' + template_file_path)
              exit()
 
         for template in template_list:
             # Build the template parameter list
             template_key = {}
+            template_key['bpp'] = self.conf.bpp
             template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
             template_key['font_lowercase'] = template_key['font'].lower()
             template_key['font_uppercase'] = template_key['font'].upper()
             template_key['size'] = self.conf.size
-            template_key['calc_margin'] = self.conf.calc_margin
             template_key['encoding_method'] = self.conf.encoding_method
             template_key['template_file_path'] = template_file_path
 
             if(self.conf.fixed_width_height != None):
                 (template_key['width'], template_key['height']) = self.conf.fixed_width_height
             else:
-                (template_key['width'], template_key['height']) = ('Adaptive', 'Adaptive')
+                (template_key['width'], template_key['height']) = ('varsize', 'varsize')
 
-            # If encoding methid is raw and fixed_width_length != None, imglen can be pre-estimated   
+            # If encoding methid is raw and fixed_width_length != None, bmplen can be pre-estimated
             if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
                 pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
-                template_key['imglen'] =  ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
+                template_key['sizeof_char'] =  ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
             else:
-                template_key['imglen'] = 'Unknown'
+                template_key['sizeof_char'] = 'Unknown'
 
-            template_key['bmpaddr'] = 0
-            template_key['bppaddr'] = 0
+            template_key['bmpidx'] = 0
 
             cfile.write(Template(template.header).substitute(template_key))
 
@@ -573,7 +501,7 @@ class font2c():
 
                 margin = Margin()
 
-                if (self.conf.calc_margin == True):
+                if self.conf.encoding_method == 'rawbb' or self.conf.encoding_method == 'u8g2' or self.conf.encoding_method == 'lvgl':
                     #===========================================
                     margin = self._img_calc_margin(img, img_size)
                     print("Top margin:", margin.top)
@@ -585,7 +513,6 @@ class font2c():
                 byte = 0x00
                 count = 0
                 bmpsteam = bytearray()
-                bppsteam = bytearray()
 
                 # Scan from left to right,  down to bottom sequentially
                 for y in range(margin.top, img_size[1]-margin.bottom):
@@ -606,19 +533,21 @@ class font2c():
 
                 #===========================================
 
-                if (self.conf.encoding_method.lower() == 'raw'):
+                if (self.conf.encoding_method.lower() == 'raw' or self.conf.encoding_method.lower() == 'rawbb'):
                     pass
-                elif (self.conf.encoding_method.lower() == 'rle'):
-                    bppsteam, bmpsteam = encoding_method_rle(bmpsteam, self.conf.bpp)
+                elif (self.conf.encoding_method.lower() == 'u8g2'):
+                    encoding_method_u8g2(bmpsteam, self.conf.bpp)
+                elif (self.conf.encoding_method.lower() == 'lvgl'):
+                    encoding_method_lvgl(bmpsteam, self.conf.bpp)
                 else:
-                    raise TypeError("Unsupport encoding method. Only support raw or rle")
+                    raise TypeError("Unsupport encoding method. Only support raw, rawbb, u8g2 or lvgl")
 
                 #===========================================
 
                 # Build the template parameter list
-                template_key['imgname'] = imgname
-                template_key['imgname_lowercase'] = imgname.lower()
-                template_key['imgname_uppercase'] = imgname.upper()
+                template_key['charname'] = imgname
+                template_key['charname_lowercase'] = imgname.lower()
+                template_key['charname_uppercase'] = imgname.upper()
                 template_key['codepoint'] = str(hex(ord(c)))
                 template_key['margin_top'] = margin.top
                 template_key['margin_bottom'] = margin.bottom
@@ -626,16 +555,12 @@ class font2c():
                 template_key['margin_right'] = margin.right
                 template_key['width'] = img.size[0]
                 template_key['height'] = img.size[1]
-                template_key['imglen'] = len(bmpsteam)
-                template_key['bpplen'] = len(bppsteam)
+                template_key['sizeof_char'] = len(bmpsteam)
                 template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.rowsize]]) for y in range(0, len(bmpsteam), self.rowsize)])
-                template_key['bppdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bppsteam[y : y + self.rowsize]]) for y in range(0, len(bppsteam), self.rowsize)])
 
                 cfile.write(Template(template.loopbody).substitute(template_key))
 
-                template_key['bmpaddr'] += len(bmpsteam)
-                template_key['bppaddr'] += len(bppsteam)
-
+                template_key['bmpidx'] += len(bmpsteam)
                 print("------------------------------------------")
 
             cfile.write(Template(template.footer).substitute(template_key))

@@ -2,41 +2,41 @@
 
 dalay_time=3
 
-sudo ./lcd_sim0_fixedsize
+sudo ./lcd_fixedsize_raw_1bpp
 sleep $dalay_time
-sudo ./lcd_sim1_fixedsize
+sudo ./lcd_fixedsize_rawbb_1bpp
 sleep $dalay_time
-sudo ./lcd_sim2_fixedsize
-sleep $dalay_time
-sudo ./lcd_sim3_fixedsize
-sleep $dalay_time
+#sudo ./lcd_fixedsize_u8g2_1bpp
+#sleep $dalay_time
+#sudo ./lcd_fixedsize_lvgl_1bpp
+#sleep $dalay_time
 
-sudo ./lcd_sim0_varsize
+sudo ./lcd_varsize_raw_1bpp
 sleep $dalay_time
-sudo ./lcd_sim1_varsize
+sudo ./lcd_varsize_rawbb_1bpp
 sleep $dalay_time
-sudo ./lcd_sim2_varsize
-sleep $dalay_time
-sudo ./lcd_sim3_varsize
-sleep $dalay_time
+#sudo ./lcd_varsize_u8g2_1bpp
+#sleep $dalay_time
+#sudo ./lcd_varsize_lvgl_1bpp
+#sleep $dalay_time
 
-sudo ./lcd_sim0_fixedsize_2bpp
+sudo ./lcd_fixedsize_raw_2bpp
 sleep $dalay_time
-sudo ./lcd_sim1_fixedsize_2bpp
+sudo ./lcd_fixedsize_rawbb_2bpp
 sleep $dalay_time
-sudo ./lcd_sim2_fixedsize_2bpp
-sleep $dalay_time
-sudo ./lcd_sim3_fixedsize_2bpp
-sleep $dalay_time
+#sudo ./lcd_fixedsize_u8g2_2bpp
+#sleep $dalay_time
+#sudo ./lcd_fixedsize_lvgl_2bpp
+#sleep $dalay_time
 
-sudo ./lcd_sim0_varsize_2bpp
+sudo ./lcd_varsize_raw_2bpp
 sleep $dalay_time
-sudo ./lcd_sim1_varsize_2bpp
+sudo ./lcd_varsize_rawbb_2bpp
 sleep $dalay_time
-sudo ./lcd_sim2_varsize_2bpp
-sleep $dalay_time
-sudo ./lcd_sim3_varsize_2bpp
-sleep $dalay_time
+#sudo ./lcd_varsize_u8g2_2bpp
+#sleep $dalay_time
+#sudo ./lcd_varsize_lvgl_2bpp
+#sleep $dalay_time
 
-sudo ./lcd_sim3_varsize_2bpp_utf8
+sudo ./lcd_varsize_rawbb_2bpp_utf8
 sleep $dalay_time

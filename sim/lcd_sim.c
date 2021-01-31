@@ -177,8 +177,8 @@ static void lcdsim_aa_brush_color()
 
 //=========================================================================
 #if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
-// raw bitblt, 1bpp
-static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol_t *sym)
+// encoding method: raw
+static void font_render_engine_raw(const font_t *fnt, const font_symbol_t *sym)
 {
     uint16_t i = 0;
     uint8_t j = 0;
@@ -245,91 +245,9 @@ static void font_render_engine_nomargin_raw(const font_t *fnt, const font_symbol
 }
 #endif
 
-#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
-// rle, 1bpp
-static void font_render_engine_nomargin_rle(const font_t *fnt, const font_symbol_t *sym)
-{
-    bool nibbleToogle = false;
-    uint16_t i = 0;
-    uint8_t j, count;
-
-    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
-
-#if (CONFIG_BPP == 1u)
-    bool pixelColor = 0;
-#elif (CONFIG_BPP == 2u)
-    const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
-    uint8_t bpp_count = 2;
-    uint8_t pixelColor = (*bpp >> 6) & 0x03;
-#endif
-
-    while(i<sym->size)
-    {
-        if(!nibbleToogle)
-        {
-            count = bmp[i] >> 4;
-        }
-        else
-        {
-            count = bmp[i] & 0x0F;
-            ++i;
-        }
-
-        nibbleToogle = !nibbleToogle;
-
-        for(j=0; j<count; j++)
-        {
-#if (CONFIG_BPP == 1u)
-            if(pixelColor)
-            {
-                lcdsim_write_gram(brush_color);
-            }
-            else
-            {
-                lcdsim_write_gram(back_color);
-            }
-#elif (CONFIG_BPP == 2u)
-            if(pixelColor == 3)
-            {
-                lcdsim_write_gram(brush_color);
-            }
-            else if(pixelColor == 2)
-            {
-                lcdsim_write_gram(brush_color66);
-            }
-            else if(pixelColor == 1)
-            {
-                lcdsim_write_gram(brush_color33);
-            }
-            else
-            {
-                lcdsim_write_gram(back_color);
-            }
-#endif
-        }
-        
-        if(count != 15)
-        {
-#if (CONFIG_BPP == 1u)
-            pixelColor = !pixelColor;
-#elif (CONFIG_BPP == 2u)
-            bpp_count+=2;
-            if(bpp_count == 10)
-            {
-                ++bpp;
-                bpp_count = 2;
-            }
-
-            pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
-#endif
-        }
-    }
-}
-#endif
-
-#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
-// raw bitblt, 1bpp with margin
-static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t *sym)
+#if (CONFIG_FONT_ENC == 1u)
+// encoding method: rawbb
+static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym)
 {
 #if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     uint8_t font_width = fnt->width;
@@ -415,146 +333,6 @@ static void font_render_engine_margin_raw(const font_t *fnt, const font_symbol_t
 }
 #endif
 
-#if (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
-// rle bitblt, 1bpp with margin
-static void font_render_engine_margin_rle(const font_t *fnt, const font_symbol_t *sym)
-{
-#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
-    uint8_t font_width = fnt->width;
-    uint8_t font_height = fnt->height;
-#else
-    uint8_t font_width = sym->width;
-    uint8_t font_height = sym->height;
-#endif
-
-    const uint8_t* bmp = (const uint8_t*)(fnt->bmp_base + sym->bmp_index);
-
-#if (CONFIG_BPP == 1u)
-    bool pixelColor = 0;
-#elif(CONFIG_BPP == 2u)
-    const uint8_t* bpp = (const uint8_t*)(fnt->bpp_base + sym->bpp_index);
-    uint8_t bpp_count = 2;
-    uint8_t pixelColor = (*bpp >> 6) & 0x03;
-#endif
-
-    uint8_t top = sym->margin_top;
-    uint8_t bottom = font_height - sym->margin_bottom-1;
-    uint8_t left = sym->margin_left;
-    uint8_t right = font_width - sym->margin_right-1;
-    
-    uint8_t h, w;
-
-    uint8_t j = 0, count;
-
-    bool nibbleToogle = false;
-
-    count = *bmp >> 4;
-    nibbleToogle = !nibbleToogle;
-
-    if(count == 0)
-    {
-#if(CONFIG_BPP == 1u)
-        pixelColor = !pixelColor;
-#else
-        bpp_count += 2;
-        pixelColor = (*bpp >> 4) & 0x03;
-#endif
-        count = *bmp & 0x0F;
-        ++bmp;
-        nibbleToogle = !nibbleToogle;
-    }
-
-    for(h=0; h<font_height; h++)
-    {
-        for(w=0; w<font_width; w++)
-        {
-            if(w < left || w > right || h < top || h > bottom)
-            {
-                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
-                lcdsim_write_gram(back_color);
-            }
-            else
-            {
-#if (CONFIG_BPP == 1u)
-                if(pixelColor)
-                {
-                    lcdsim_write_gram(brush_color);
-                }
-                else
-                {
-                    lcdsim_write_gram(back_color);
-                }
-#elif (CONFIG_BPP == 2u)
-                if(pixelColor == 3)
-                {
-                    lcdsim_write_gram(brush_color);
-                }
-                else if(pixelColor == 2)
-                {
-                    lcdsim_write_gram(brush_color66);
-                }
-                else if(pixelColor == 1)
-                {
-                    lcdsim_write_gram(brush_color33);
-                }
-                else
-                {
-                    lcdsim_write_gram(back_color);
-                }
-#endif
-                ++j;
-                if(j == count && j != 15)
-                {
-#if (CONFIG_BPP == 1u)
-                    pixelColor = !pixelColor;
-#elif (CONFIG_BPP == 2u)
-                    bpp_count+=2;
-                    if(bpp_count == 10)
-                    {
-                        ++bpp;
-                        bpp_count = 2;
-                    }
-
-                    pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
-#endif
-                }
-                if(j == count)
-                {
-                    j = 0;
-                    do{
-                        if(!nibbleToogle)
-                        {
-                            count = *bmp >> 4;
-                        }
-                        else
-                        {
-                            count = *bmp & 0x0F;
-                            ++bmp;
-                        }
-                        nibbleToogle = !nibbleToogle;
-                        if(count == 0)
-                        {
-#if (CONFIG_BPP == 1u)
-                            pixelColor = !pixelColor;
-#elif (CONFIG_BPP == 2u)
-                            bpp_count+=2;
-                            if(bpp_count == 10)
-                            {
-                                ++bpp;
-                                bpp_count = 2;
-                            }
-
-                            pixelColor = (*bpp >> (8-bpp_count)) & 0x03;
-#endif
-                        }
-                    }while(count == 0);
-                }
-            }
-        }
-    }
-}
-#endif
-
 //=========================================================================
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, utf8_t c)
@@ -575,14 +353,14 @@ void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, utf8_t c)
 
     lcdsim_set_bound(x, y, x+font_width-1, y+font_height-1);
 
-#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
-    font_render_engine_nomargin_raw(fnt, &sym);
-#elif(CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
-    font_render_engine_nomargin_rle(fnt, &sym);
-#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
-    font_render_engine_margin_raw(fnt, &sym);
-#elif(CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
-    font_render_engine_margin_rle(fnt, &sym);
+#if (CONFIG_FONT_ENC == 0u)
+    font_render_engine_raw(fnt, &sym);
+#elif(CONFIG_FONT_ENC == 1u)
+    font_render_engine_rawbb(fnt, &sym);
+#elif(CONFIG_FONT_ENC == 2u)
+    font_render_engine_u8g2(fnt, &sym);
+#elif(CONFIG_FONT_ENC == 3u)
+    font_render_engine_lvgl(fnt, &sym);
 #else
     #error "Unsupported ENCODING_METHOD"
 #endif

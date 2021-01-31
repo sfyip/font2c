@@ -10,7 +10,7 @@
 //=========================================================================
 #if (TEST_UTF8 > 0u)
     #include "microhei32.h"
-    font_t *select_fnt = &microhei32;
+    font_t *select_fnt = &wqy_microhei32;
 #elif (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
     #include "freemono24.h"
     font_t *select_fnt = &freemono24;
@@ -36,14 +36,14 @@ int main ()
     lcdsim_draw_pixel(100, 100, GREEN_COLOR);
 #endif
 
-#if (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 0u)
+#if (CONFIG_FONT_ENC == 0u)
     lcdsim_set_brush_color(LCD_RED_COLOR);
-#elif (CONFIG_FONT_MARGIN == 0u && CONFIG_FONT_ENC == 1u)
-    lcdsim_set_brush_color(LCD_GREEN_COLOR);
-#elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 0u)
-    lcdsim_set_brush_color(LCD_CYAN_COLOR);
-#elif (CONFIG_FONT_MARGIN > 0u && CONFIG_FONT_ENC == 1u)
+#elif (CONFIG_FONT_ENC == 1u)
     lcdsim_set_brush_color(LCD_YELLOW_COLOR);
+#elif (CONFIG_FONT_ENC == 2u)
+    lcdsim_set_brush_color(LCD_CYAN_COLOR);
+#elif (CONFIG_FONT_ENC == 3u)
+    lcdsim_set_brush_color(LCD_GREEN_COLOR);
 #endif
 
 #if (TEST_UTF8 > 0u)

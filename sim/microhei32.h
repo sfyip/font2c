@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "font.h"
 
-extern font_t microhei32;
+extern font_t wqy_microhei32;
 
 #endif
