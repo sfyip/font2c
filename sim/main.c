@@ -33,8 +33,10 @@ int main ()
         lcdsim_write_data(LCD_RED_COLOR);
     }
 
-    lcdsim_draw_pixel(100, 100, GREEN_COLOR);
+    lcdsim_draw_pixel(100, 100, LCD_GREEN_COLOR);
 #endif
+
+lcdsim_set_back_color(LCD_BLACK_COLOR);
 
 #if (CONFIG_FONT_ENC == 0u)
     lcdsim_set_brush_color(LCD_RED_COLOR);

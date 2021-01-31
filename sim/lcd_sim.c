@@ -15,12 +15,27 @@ static point_t lcdsim_cur;
 
 #define ROW_CLERANCE_SIZE   5
 
-static lcd_color_t back_color = LCD_BLACK_COLOR;
-static lcd_color_t brush_color = LCD_WHITE_COLOR;
-
-#if (CONFIG_BPP == 2u)
-static lcd_color_t brush_color66 = LCD_LIGHT_GREY_COLOR;
-static lcd_color_t brush_color33 = LCD_DARK_GREY_COLOR;
+#if (CONFIG_BPP == 1u)
+static lcd_color_t brush_color[2] = {LCD_BLACK_COLOR, LCD_WHITE_COLOR};
+#elif (CONFIG_BPP == 2u)
+static lcd_color_t brush_color[4] = {LCD_BLACK_COLOR, LCD_DARK_GREY_COLOR, LCD_LIGHT_GREY_COLOR, LCD_WHITE_COLOR};
+#elif (CONFIG_BPP == 4u)
+static lcd_color_t brush_color[16] = {  LCD_BLACK_COLOR,
+                                        LCD_BLACK_COLOR,
+                                        LCD_BLACK_COLOR,
+                                        LCD_BLACK_COLOR,
+                                        LCD_BLACK_COLOR,
+                                        LCD_DARK_GREY_COLOR,
+                                        LCD_DARK_GREY_COLOR,
+                                        LCD_DARK_GREY_COLOR,
+                                        LCD_LIGHT_GREY_COLOR,
+                                        LCD_LIGHT_GREY_COLOR,
+                                        LCD_LIGHT_GREY_COLOR,
+                                        LCD_LIGHT_GREY_COLOR,
+                                        LCD_WHITE_COLOR,
+                                        LCD_WHITE_COLOR,
+                                        LCD_WHITE_COLOR,
+                                        LCD_WHITE_COLOR};
 #endif
 
 //=========================================================================
@@ -158,20 +173,33 @@ void lcdsim_write_gram(lcd_color_t color)
 
 //=========================================================================
 
-#if (CONFIG_BPP == 2u)
+#if (CONFIG_BPP == 2u || CONFIG_BPP == 4u)
 static void lcdsim_aa_brush_color()
 {
-    uint8_t lr = ((RGB565_TO_R8(brush_color) + RGB565_TO_R8(back_color)) / 3);
-    uint8_t lg = ((RGB565_TO_G8(brush_color) + RGB565_TO_G8(back_color)) / 3);
-    uint8_t lb = ((RGB565_TO_B8(brush_color) + RGB565_TO_B8(back_color)) / 3);
-    
-    brush_color33 = RGB888_TO_RGB565(lr,lg,lb);
+    uint8_t i;
+    uint8_t lr;
+    uint8_t lg;
+    uint8_t lb;
 
-    lr <<= 1;
-    lg <<= 1;
-    lb <<= 1;
+#if (CONFIG_BPP == 2)
+    uint8_t idxmax = 2;
+#elif(CONFIG_BPP == 4)
+    uint8_t idxmax = 14;
+#endif
 
-    brush_color66 = RGB888_TO_RGB565(lr,lg,lb);
+    for(i=1; i<=idxmax; i++)
+    {
+#if (CONFIG_BPP == 2)
+        lr = (((uint16_t)RGB565_TO_R8(brush_color[3]))*i + ((uint16_t)RGB565_TO_R8(brush_color[0]))*(3-i))/3;
+        lg = (((uint16_t)RGB565_TO_G8(brush_color[3]))*i + ((uint16_t)RGB565_TO_G8(brush_color[0]))*(3-i))/3;
+        lb = (((uint16_t)RGB565_TO_B8(brush_color[3]))*i + ((uint16_t)RGB565_TO_B8(brush_color[0]))*(3-i))/3;
+#elif(CONFIG_BPP == 4)
+        lr = (((uint16_t)RGB565_TO_R8(brush_color[15]))*i + ((uint16_t)RGB565_TO_R8(brush_color[0]))*(15-i))/15;
+        lg = (((uint16_t)RGB565_TO_G8(brush_color[15]))*i + ((uint16_t)RGB565_TO_G8(brush_color[0]))*(15-i))/15;
+        lb = (((uint16_t)RGB565_TO_B8(brush_color[15]))*i + ((uint16_t)RGB565_TO_B8(brush_color[0]))*(15-i))/15;
+#endif
+        brush_color[i] = RGB888_TO_RGB565(lr, lg, lb);
+    }
 }
 #endif
 
@@ -194,14 +222,8 @@ static void font_render_engine_raw(const font_t *fnt, const font_symbol_t *sym)
     while(area--)
     {
 #if (CONFIG_BPP == 1u)
-        if(bmp[i] & (1<<j))
-        {
-            lcdsim_write_gram(brush_color);
-        }
-        else
-        {
-            lcdsim_write_gram(back_color);
-        }
+        uint8_t color_pixel = (bmp[i] >> j) & 0x01;
+        lcdsim_write_gram(brush_color[color_pixel]);
 
         if(j == 7)
         {
@@ -214,22 +236,7 @@ static void font_render_engine_raw(const font_t *fnt, const font_symbol_t *sym)
         }
 #elif (CONFIG_BPP == 2u)
         uint8_t color_pixel = (bmp[i] >> j) & 0x03;
-        if(color_pixel == 3)
-        {
-            lcdsim_write_gram(brush_color);
-        }
-        else if(color_pixel == 2)
-        {
-            lcdsim_write_gram(brush_color66);
-        }
-        else if(color_pixel == 1)
-        {
-            lcdsim_write_gram(brush_color33);
-        }
-        else
-        {
-            lcdsim_write_gram(back_color);
-        }
+        lcdsim_write_gram(brush_color[color_pixel]);
 
         if(j == 6)
         {
@@ -239,6 +246,19 @@ static void font_render_engine_raw(const font_t *fnt, const font_symbol_t *sym)
         else
         {
             j+=2;
+        }
+#elif (CONFIG_BPP == 4u)
+        uint8_t color_pixel = (bmp[i] >> j) & 0x0F;
+        lcdsim_write_gram(brush_color[color_pixel]);
+
+        if(j == 4)
+        {
+            ++i;
+            j = 0;
+        }
+        else
+        {
+            j+=4;
         }
 #endif
     }
@@ -274,19 +294,13 @@ static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym
             if(w < left || w > right || h < top || h > bottom)
             {
                 // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
-                lcdsim_write_gram(back_color);
+                lcdsim_write_gram(brush_color[0]);
             }
             else
             {
 #if (CONFIG_BPP == 1u)
-                if(fnt->bmp_base[bi] & (1<<i))
-                {
-                    lcdsim_write_gram(brush_color);
-                }
-                else
-                {
-                    lcdsim_write_gram(back_color);
-                }
+                uint8_t color_pixel = (fnt->bmp_base[bi] >> i) & 0x01;
+                lcdsim_write_gram(brush_color[color_pixel]);
 
                 if(i==7)
                 {
@@ -299,22 +313,7 @@ static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym
                 }
 #elif (CONFIG_BPP == 2u)
                 uint8_t color_pixel = (fnt->bmp_base[bi] >> i) & 0x03;
-                if(color_pixel == 3)
-                {
-                    lcdsim_write_gram(brush_color);
-                }
-                else if(color_pixel == 2)
-                {
-                    lcdsim_write_gram(brush_color66);
-                }
-                else if(color_pixel == 1)
-                {
-                    lcdsim_write_gram(brush_color33);
-                }
-                else
-                {
-                    lcdsim_write_gram(back_color);
-                }
+                lcdsim_write_gram(brush_color[color_pixel]);
 
                 if(i==6)
                 {
@@ -325,8 +324,21 @@ static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym
                 {
                     i+=2;
                 }
+#elif (CONFIG_BPP == 4u)
+                uint8_t color_pixel = (fnt->bmp_base[bi] >> i) & 0x0F;
+                lcdsim_write_gram(brush_color[color_pixel]);
 
+                if(i==4)
+                {
+                    i = 0;
+                    ++bi;
+                }
+                else
+                {
+                    i+=4;
+                }
 #endif
+
             }
         }
     }
@@ -424,9 +436,9 @@ void lcdsim_draw_string(uint16_t x, uint16_t y, const font_t *fnt, const char *s
 
 void lcdsim_set_back_color(lcd_color_t color)
 {
-    back_color = color;
+    brush_color[0] = color;
 
-#if (CONFIG_BPP == 2u)
+#if (CONFIG_BPP== 2u || CONFIG_BPP == 4u)
     lcdsim_aa_brush_color();
 #endif
 }
@@ -435,9 +447,9 @@ void lcdsim_set_back_color(lcd_color_t color)
 
 void lcdsim_set_brush_color(lcd_color_t color)
 {
-    brush_color = color;
+    brush_color[(1<<CONFIG_BPP) - 1] = color;
 
-#if (CONFIG_BPP == 2u)
+#if (CONFIG_BPP== 2u || CONFIG_BPP == 4u)
     lcdsim_aa_brush_color();
 #endif
 }

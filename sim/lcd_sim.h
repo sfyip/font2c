@@ -32,7 +32,7 @@
 #define RGB565_TO_G8(color)         (((color) & 0x07E0) >> 3)
 #define RGB565_TO_B8(color)         (((color) & 0x001F) << 3)
 
-#define RGB888_TO_RGB565(r,g,b)     ((((lcd_color_t)r) & 0b11111000) << 8) | ((((lcd_color_t)g) & 0b11111100) << 3) | (((lcd_color_t)b) >> 3);
+#define RGB888_TO_RGB565(r,g,b)     (((((lcd_color_t)r) & 0b11111000) << 8) | ((((lcd_color_t)g) & 0b11111100) << 3) | (((lcd_color_t)b) >> 3))
 
 //=========================================================================
 

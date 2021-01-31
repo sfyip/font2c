@@ -282,26 +282,28 @@ class font2c():
     def _img_init(self, img_size):
         if(self.conf.bpp == 1):
             return Image.new('1', img_size, 0)      # generate mono bmp, 0 = black color
-        elif (self.conf.bpp == 2):
+        elif (self.conf.bpp == 2 or self.conf.bpp == 4):
             return Image.new('L', img_size, 0)      # generate 8-bit bmp
         else:
-            raise TypeError("bpp only accept 1 or 2")
+            raise TypeError("bpp only accept 1, 2 or 4")
     
     def _img_is_pixel_blank(self, img, xy):
         if(self.conf.bpp == 1):
             return (img.getpixel(xy) & 1) == 0
-        elif (self.conf.bpp == 2):
+        elif (self.conf.bpp == 2 or self.conf.bpp == 4):
             return (img.getpixel(xy) & 0xC0) == 0
         else:
-            raise TypeError("bpp only accept 1 or 2")
+            raise TypeError("bpp only accept 1, 2 or 4")
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
             return 1, (img.getpixel(xy) & 1)
         elif (self.conf.bpp == 2):
-            return 2, (img.getpixel(xy) >> 6) 
+            return 2, (img.getpixel(xy) >> 6)
+        elif (self.conf.bpp == 4):
+            return 4, (img.getpixel(xy) >> 4)
         else:
-            raise TypeError("bpp only accept 1 or 2")
+            raise TypeError("bpp only accept 1, 2 or 4")
     
     def _img_calc_margin(self, img, img_size):
         margin = Margin()
@@ -479,10 +481,10 @@ class font2c():
 
                 if(self.conf.bpp == 1):
                     textcolor = 1
-                elif(self.conf.bpp == 2):
+                elif(self.conf.bpp == 2 or self.conf.bpp == 4):
                     textcolor = 255
                 else:
-                    raise TypeError("bpp only accept 1 or 2")
+                    raise TypeError("bpp only accept 1, 2 or 4")
 
                 draw.text(self.conf.offset, c, font=fnt, fill=textcolor)  # 1= white color
 
