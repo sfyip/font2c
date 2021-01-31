@@ -12,8 +12,8 @@
 
 #include "font.h"
 
-#define FREESANS32_DEFAULT_WIDTH     24   /*???*/ /* Specify default font width */
-#define FREESANS32_DEFAULT_HEIGHT    32   /*???*/ /* Specify default font height */
+#define FREESANS32_DEFAULT_WIDTH     ??? /* Specify default font width */
+#define FREESANS32_DEFAULT_HEIGHT    ??? /* Specify default font height */
 
 static const uint8_t freesans32_bmp[] = {
     // FreeSans32_0

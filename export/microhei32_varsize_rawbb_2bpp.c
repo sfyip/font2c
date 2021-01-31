@@ -12,8 +12,8 @@
 
 #include "font.h"
 
-#define WQY_MICROHEI32_DEFAULT_WIDTH     24   /*???*/ /* Specify default font width */
-#define WQY_MICROHEI32_DEFAULT_HEIGHT    32   /*???*/ /* Specify default font height */
+#define WQY_MICROHEI32_DEFAULT_WIDTH     ??? /* Specify default font width */
+#define WQY_MICROHEI32_DEFAULT_HEIGHT    ??? /* Specify default font height */
 
 static const uint8_t wqy_microhei32_bmp[] = {
     // wqy-microhei32_0
