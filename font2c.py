@@ -30,6 +30,7 @@ try:
 except:
     import ConfigParser as configparser
 
+import lvgl
 
 #=========================================================================================
 
@@ -55,9 +56,10 @@ class font_config():
     offset = (0,0)                                      # x,y offset
     fixed_width_height = (14,24)                        # fixed width and height
     max_width = 24                                      # maximum width
-    encoding_method = 'raw'                             # encoding method (raw|rawbb|u8g2|lvgl)
+    encoding_method = 'raw'                             # encoding method (raw|rawbb|lvgl)
                                                         # raw: direct dump the pixels inside the margin area
-                                                        # rle: RLE compression, accumulate numbers of 0 and 1 inside the margin area
+                                                        # rawbb: direct dump the pixel inside margin area (bounding box)
+                                                        # lvgl: use lvgl font compression (modified i3bn)
     export_dir = './export/'                            # export directory
     c_filename = (extract_filename(font) + str(size)).lower()     # generated c source file name
     
@@ -146,80 +148,6 @@ class Margin():
 
 #=========================================================================================
 
-class bit2_steam():
-    result = []
-    count = 0
-    buf = 0x00
-
-    def clear(self):
-        self.count = 0
-        self.result.clear()
-
-    def push_bit2(self, n):
-        if(n & 0xFC):
-            raise ValueError("The bit2 value is out of range")
-        self.count += 2
-        if(self.count == 8):
-            self.count = 0
-            self.result.append((self.buf << 2) | (n & 0x03))
-            self.buf = 0x00
-        else:
-            self.buf = (self.buf << 2) | (n & 0x03) 
-
-    def get_result(self):
-        if(self.count != 0):
-            self.result.append(self.buf << (8-self.count))
-            self.count = 0
-        return self.result
-
-#=========================================================================================
-
-class nibble_steam():
-    result = []
-    count = 0
-    buf = 0x00
-
-    def clear(self):
-        self.count = 0
-        self.result.clear()
-
-    def push_nibble(self, n):
-        if(n & 0xF0):
-            raise ValueError("The nibble value is out of range")
-        self.count += 4
-        if(self.count == 8):
-            self.count = 0
-            self.result.append((self.buf << 4) | ((n & 0x0F)))
-            self.buf = 0x00
-        else:
-            self.buf = n & 0x0F
-
-    def get_result(self):
-        if(self.count != 0):
-            self.result.append((self.buf << 4))
-            self.count = 0
-        return self.result
-
-#=========================================================================================
-
-def encoding_method_u8g2(steam, bpp):
-    if not isinstance(steam, bytearray):
-        Print("u8g2 parameter *steam* incorrect")
-        return None
-    
-    raise TypeError("Not implement yet")
-
-#=========================================================================================
-
-def encoding_method_lvg2(steam, bpp):
-    if not isinstance(steam, bytearray):
-        Print("lgvl parameter *steam* incorrect")
-        return None
-    
-    raise TypeError("Not implement yet")
-
-#=========================================================================================
-
 special_char = {
     ' '   : 'sp',
     '!'   : 'excl',
@@ -297,11 +225,11 @@ class font2c():
     
     def _img_push_pixel_to_steam(self, img, xy):
         if(self.conf.bpp == 1):
-            return 1, (img.getpixel(xy) & 1)
+            return img.getpixel(xy) & 1
         elif (self.conf.bpp == 2):
-            return 2, (img.getpixel(xy) >> 6)
+            return img.getpixel(xy) >> 6
         elif (self.conf.bpp == 4):
-            return 4, (img.getpixel(xy) >> 4)
+            return img.getpixel(xy) >> 4
         else:
             raise TypeError("bpp only accept 1, 2 or 4")
     
@@ -413,6 +341,47 @@ class font2c():
                 
         image.show()
     
+    def encoding_method_raw(self, img, x0, y0, x1, y1):
+        # Scan from left to right,  down to bottom sequentially
+        byte = 0x00
+        count = 0
+        bs = bytearray()
+
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                pixel = self._img_push_pixel_to_steam(img, (x,y))
+
+                byte |= (pixel << count)
+                count += self.conf.bpp
+                if (count == 8):
+                    bs.append(byte)
+                    count = 0
+                    byte = 0x00
+                elif (count > 8):
+                    raise OverflowError("The bit count should be <= 8")
+
+        if (count != 0):
+            bs.append(byte)  # push remaining byte
+
+        return bs
+
+    def encoding_method_lvgl(self, img, x0, y0, x1, y1):
+        bs = lvgl.bitstream()
+        pixel_2d = []
+
+        for y in range(y0, y1):
+            x_line = []
+            for x in range(x0, x1):
+                pixel = self._img_push_pixel_to_steam(img, (x,y))
+                x_line.append(pixel)
+            pixel_2d.append(x_line)
+
+        pixels = sum(pixel_2d, [])
+
+        lvgl.compress(bs, pixels, self.conf.bpp)
+
+        return bs.get_result()
+
     def export(self):
         create_dir(self.conf.export_dir)
         create_dir(self.conf.export_dir + '/img')
@@ -503,7 +472,7 @@ class font2c():
 
                 margin = Margin()
 
-                if self.conf.encoding_method == 'rawbb' or self.conf.encoding_method == 'u8g2' or self.conf.encoding_method == 'lvgl':
+                if self.conf.encoding_method == 'rawbb' or self.conf.encoding_method == 'lvgl':
                     #===========================================
                     margin = self._img_calc_margin(img, img_size)
                     print("Top margin:", margin.top)
@@ -512,37 +481,19 @@ class font2c():
                     print("Right margin:", margin.right)
                     #===========================================
 
-                byte = 0x00
-                count = 0
-                bmpsteam = bytearray()
+                y0 = margin.top
+                y1 = img_size[1]-margin.bottom
+                x0 = margin.left
+                x1 = img_size[0]-margin.right
 
-                # Scan from left to right,  down to bottom sequentially
-                for y in range(margin.top, img_size[1]-margin.bottom):
-                    for x in range(margin.left, img_size[0]-margin.right):
-                        bit_shift, pattern = self._img_push_pixel_to_steam(img, (x,y))
-                        byte |= (pattern << count)
-
-                        count += bit_shift
-                        if (count == 8):
-                            bmpsteam.append(byte)
-                            count = 0
-                            byte = 0x00
-                        elif (count > 8):
-                            raise OverflowError("The bit count should be <= 8")
-
-                if (count != 0):
-                    bmpsteam.append(byte)  # push remaining byte
-
-                #===========================================
+                bmpsteam = None
 
                 if (self.conf.encoding_method.lower() == 'raw' or self.conf.encoding_method.lower() == 'rawbb'):
-                    pass
-                elif (self.conf.encoding_method.lower() == 'u8g2'):
-                    encoding_method_u8g2(bmpsteam, self.conf.bpp)
-                elif (self.conf.encoding_method.lower() == 'lvgl'):
-                    encoding_method_lvgl(bmpsteam, self.conf.bpp)
+                    bmpsteam = self.encoding_method_raw(img, x0, y0, x1, y1)
+                elif self.conf.encoding_method.lower() == 'lvgl':
+                    bmpsteam = self.encoding_method_lvgl(img, x0, y0, x1, y1)
                 else:
-                    raise TypeError("Unsupport encoding method. Only support raw, rawbb, u8g2 or lvgl")
+                    raise TypeError("Unsupport encoding method. Only support raw, rawbb or lvgl")
 
                 #===========================================
 
