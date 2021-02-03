@@ -345,6 +345,183 @@ static void font_render_engine_rawbb(const font_t *fnt, const font_symbol_t *sym
 }
 #endif
 
+#if (CONFIG_FONT_ENC == 3u)
+
+typedef enum {
+    RLE_STATE_SINGLE = 0,
+    RLE_STATE_REPEATE,
+    RLE_STATE_COUNTER,
+} rle_state_t;
+
+static uint32_t rle_rdp;
+static const uint8_t * rle_in;
+static uint8_t rle_bpp;
+static uint8_t rle_prev_v;
+static uint8_t rle_cnt;
+static rle_state_t rle_state;
+
+static inline void rle_init(const uint8_t * in,  uint8_t bpp);
+static inline uint8_t rle_next(void);
+
+static void font_render_engine_lvgl(const font_t *fnt, const font_symbol_t *sym)
+{
+#if (CONFIG_FONT_FIXED_WIDTH_HEIGHT > 0u)
+    uint8_t font_width = fnt->width;
+    uint8_t font_height = fnt->height;
+#else
+    uint8_t font_width = sym->width;
+    uint8_t font_height = sym->height;
+#endif
+
+    uint8_t top = sym->margin_top;
+    uint8_t bottom = font_height - sym->margin_bottom-1;
+    uint8_t left = sym->margin_left;
+    uint8_t right = font_width - sym->margin_right-1;
+
+    uint16_t bi = sym->bmp_index;
+
+    uint8_t h, w;
+    uint8_t i=0;
+
+    rle_init(&fnt->bmp_base[bi], CONFIG_BPP);
+
+    for(h=0; h<font_height; h++)
+    {
+        for(w=0; w<font_width; w++)
+        {
+            if(w < left || w > right || h < top || h > bottom)
+            {
+                // debug: lcdsim_write_gram(LCD_BLUE_COLOR);
+                lcdsim_write_gram(brush_color[0]);
+            }
+            else
+            {
+#if (CONFIG_BPP == 1u)
+                uint8_t b = rle_next() & 0x01;
+                lcdsim_write_gram(brush_color[b]);
+#elif (CONFIG_BPP == 2u)
+                uint8_t b = rle_next() & 0x03;
+                lcdsim_write_gram(brush_color[b]);
+#elif (CONFIG_BPP == 4u)
+                uint8_t b = rle_next() & 0x0F;
+                lcdsim_write_gram(brush_color[b]);
+#endif
+
+            }
+        }
+    }
+}
+
+/**
+ * Read bits from an input buffer. The read can cross byte boundary.
+ * @param in the input buffer to read from.
+ * @param bit_pos index of the first bit to read.
+ * @param len number of bits to read (must be <= 8).
+ * @return the read bits
+ */
+static inline uint8_t get_bits(const uint8_t * in, uint32_t bit_pos, uint8_t len)
+{
+    uint8_t bit_mask;
+    switch(len) {
+        case 1:
+            bit_mask = 0x1;
+            break;
+        case 2:
+            bit_mask = 0x3;
+            break;
+        case 3:
+            bit_mask = 0x7;
+            break;
+        case 4:
+            bit_mask = 0xF;
+            break;
+        case 8:
+            bit_mask = 0xFF;
+            break;
+        default:
+            bit_mask = (uint16_t)((uint16_t) 1 << len) - 1;
+    }
+
+    uint32_t byte_pos = bit_pos >> 3;
+    bit_pos = bit_pos & 0x7;
+
+    if(bit_pos + len >= 8) {
+        uint16_t in16 = (in[byte_pos] << 8) + in[byte_pos + 1];
+        return (in16 >> (16 - bit_pos - len)) & bit_mask;
+    }
+    else {
+        return (in[byte_pos] >> (8 - bit_pos - len)) & bit_mask;
+    }
+}
+
+static inline void rle_init(const uint8_t * in,  uint8_t bpp)
+{
+    rle_in = in;
+    rle_bpp = bpp;
+    rle_state = RLE_STATE_SINGLE;
+    rle_rdp = 0;
+    rle_prev_v = 0;
+    rle_cnt = 0;
+}
+
+static inline uint8_t rle_next(void)
+{
+    uint8_t v = 0;
+    uint8_t ret = 0;
+
+    if(rle_state == RLE_STATE_SINGLE) {
+        ret = get_bits(rle_in, rle_rdp, rle_bpp);
+        if(rle_rdp != 0 && rle_prev_v == ret) {
+            rle_cnt = 0;
+            rle_state = RLE_STATE_REPEATE;
+        }
+
+        rle_prev_v = ret;
+        rle_rdp += rle_bpp;
+    }
+    else if(rle_state == RLE_STATE_REPEATE) {
+        v = get_bits(rle_in, rle_rdp, 1);
+        rle_cnt++;
+        rle_rdp += 1;
+        if(v == 1) {
+            ret = rle_prev_v;
+            if(rle_cnt == 11) {
+                rle_cnt = get_bits(rle_in, rle_rdp, 6);
+                rle_rdp += 6;
+                if(rle_cnt != 0) {
+                    rle_state = RLE_STATE_COUNTER;
+                }
+                else {
+                    ret = get_bits(rle_in, rle_rdp, rle_bpp);
+                    rle_prev_v = ret;
+                    rle_rdp += rle_bpp;
+                    rle_state = RLE_STATE_SINGLE;
+                }
+            }
+        }
+        else {
+            ret = get_bits(rle_in, rle_rdp, rle_bpp);
+            rle_prev_v = ret;
+            rle_rdp += rle_bpp;
+            rle_state = RLE_STATE_SINGLE;
+        }
+
+    }
+    else if(rle_state == RLE_STATE_COUNTER) {
+        ret = rle_prev_v;
+        rle_cnt--;
+        if(rle_cnt == 0) {
+            ret = get_bits(rle_in, rle_rdp, rle_bpp);
+            rle_prev_v = ret;
+            rle_rdp += rle_bpp;
+            rle_state = RLE_STATE_SINGLE;
+        }
+    }
+
+    return ret;
+}
+#endif
+
 //=========================================================================
 
 void lcdsim_draw_char(uint16_t x, uint16_t y, const font_t *fnt, utf8_t c)

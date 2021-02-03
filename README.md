@@ -24,7 +24,7 @@ Output sequence: Left to right, down to bottom sequentially
 | offset = (0,0)                  | x,y offset                                                               |
 | fixed_width_height = None       | None: Flexible size<br/>(width, height): Fixed width and height          | 
 | max_width = 32                  | maximum width                                                            |
-| encoding_method = rawbb           | encoding method<br/>raw=direct dump the pixels<br/>rawbb=direct dump the pixel inside margin area (bounding box)|
+| encoding_method = rawbb           | encoding method<br/>raw=direct dump the pixels<br/>rawbb=direct dump the pixel inside margin area (bounding box)<br/>lvgl=use lvgl compression algorithm (currently prefilter set to disable)<br/>|
 | export_dir = ./export/          | export directory                                                         |
 
 **Example 1: Output with fixed width and height(14,24), encoding method set to rawbb, the generated c source file and preview font images are placed under './export' directory**
