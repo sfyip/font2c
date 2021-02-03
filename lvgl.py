@@ -31,6 +31,11 @@ class bitstream():
     offset = 0
     bs = bytearray()
 
+    def __init__(self):
+        self.bs.clear()
+        self.b = 0x00
+        self.offset = 0
+
     def clear(self):
         self.bs.clear()
         self.b = 0x00

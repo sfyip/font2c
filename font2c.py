@@ -367,7 +367,7 @@ class font2c():
 
     def encoding_method_lvgl(self, img, x0, y0, x1, y1):
         bs = lvgl.bitstream()
-        bs.clear()
+
         pixel_2d = []
         for y in range(y0, y1):
             x_line = []
@@ -488,8 +488,7 @@ class font2c():
                 x0 = margin.left
                 x1 = img_size[0]-margin.right
 
-                bmpsteam = bytearray()
-                del bmpsteam
+                bmpsteam = None
 
                 if (self.conf.encoding_method.lower() == 'raw' or self.conf.encoding_method.lower() == 'rawbb'):
                     bmpsteam = self.encoding_method_raw(img, x0, y0, x1, y1)
