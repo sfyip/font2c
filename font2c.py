@@ -110,7 +110,7 @@ def load_template(template_file_path):
         section_str = s.split('####split####\n')   #special keyword to split each section
 
         for section_str in section_str:
-            subset_str = section_str.split('====split====\n')   #special keyword to split header, loopbpody and footer
+            subset_str = section_str.split('====split====\n')   #special keyword to split header, loopbody and footer
             subset_len = len(subset_str)
 
             tpl = template()
