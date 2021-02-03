@@ -43,7 +43,6 @@ def create_dir(directory):
 def extract_filename(path):
     return os.path.splitext(os.path.basename(path))[0]
 
-
 #=========================================================================================
 
 class font_config():
@@ -98,9 +97,10 @@ def get_template(conf):
     return tempate_file
 
 class template():
-    header = ''
-    loopbody = ''
-    footer = ''
+    def __init__(self):
+        self.header = ''
+        self.loopbody = ''
+        self.footer = ''
 
 def load_template(template_file_path):
     tpl_list = []
@@ -135,16 +135,18 @@ def load_template(template_file_path):
 def show_help():
     print("font2c.py by yipxxx@gmail.com")
     print("------------------------------------------------------")
-    print("Load the setting from config file: python3 font2c.py font_config.ini")
+    print("Usage:")
+    print("Load the setting from config file: python3 font2c.py config.ini")
     print("Use default setting: python3 font2c.py")
 
 #=========================================================================================
 
 class Margin():
-    top = 0
-    bottom = 0
-    left = 0
-    right = 0
+    def __init__(self):
+        self.top = 0
+        self.bottom = 0
+        self.left = 0
+        self.right = 0
 
 #=========================================================================================
 
@@ -198,8 +200,7 @@ def convert_special_char(c):
 #=========================================================================================
 
 class font2c():
-    conf = None
-    rowsize = 20
+    ROWSIZE = 20
     
     def __init__(self, conf):
         if(isinstance(conf, font_config)):
@@ -401,7 +402,7 @@ class font2c():
         template_list = None
 
         template_file_path = get_template(self.conf)
-        print(template_file_path)
+        print('Load template file:', template_file_path)
         try:
             template_list = load_template('template/'+template_file_path)
         except IOError:
@@ -511,7 +512,7 @@ class font2c():
                 template_key['width'] = img.size[0]
                 template_key['height'] = img.size[1]
                 template_key['sizeof_char'] = len(bmpsteam)
-                template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.rowsize]]) for y in range(0, len(bmpsteam), self.rowsize)])
+                template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.ROWSIZE]]) for y in range(0, len(bmpsteam), self.ROWSIZE)])
 
                 cfile.write(Template(template.loopbody).substitute(template_key))
 
