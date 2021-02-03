@@ -27,12 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.'''
 
 
 class bitstream():
-    b = 0x00
-    offset = 0
-    bs = bytearray()
-
     def __init__(self):
-        self.bs.clear()
+        self.bs = bytearray()
         self.b = 0x00
         self.offset = 0
 

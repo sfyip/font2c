@@ -523,22 +523,25 @@ class font2c():
 
 #=========================================================================================
 
-argv_len = len(sys.argv)
+if __name__ == "__main__":
+    if sys.version_info[0] < 3:
+        raise Exception("Run on Python 3 only")
 
-if(argv_len == 1):
-    config = font_config()
-    f2c = font2c(config)
-    f2c.export()
-    f2c.preview()
-    
-elif(argv_len == 2):
-    print("Load from config file: ", sys.argv[1])
-    font_config_list = load_config(sys.argv[1])
-    
-    for config in font_config_list:
+    argv_len = len(sys.argv)
+
+    if(argv_len == 1):
+        config = font_config()
         f2c = font2c(config)
         f2c.export()
         f2c.preview()
-else:
-    show_help()
 
+    elif(argv_len == 2):
+        print("Load from config file: ", sys.argv[1])
+        font_config_list = load_config(sys.argv[1])
+
+        for config in font_config_list:
+            f2c = font2c(config)
+            f2c.export()
+            f2c.preview()
+    else:
+        show_help()
