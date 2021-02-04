@@ -20,7 +20,7 @@
 
 #!/usr/bin/env python3
 
-from PIL import Image, ImageDraw, ImageFont, ImageTk
+from PIL import Image, ImageDraw, ImageFont
 from string import Template
 import sys
 import os
@@ -52,8 +52,8 @@ class font_config():
     text = '0123456789:'                \
            'abcdefghijklmnopqrstuvwxyz' \
            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'                 # '測試間距テスト'  # output which symbol
-    offset = (0,0)                                      # x,y offset
-    fixed_width_height = (14,24)                        # fixed width and height
+    offset = (0, 0)                                     # x,y offset
+    fixed_width_height = (14, 24)                       # fixed width and height
     max_width = 24                                      # maximum width
     encoding_method = 'raw'                             # encoding method (raw|rawbb|lvgl)
                                                         # raw: direct dump the pixels inside the margin area
@@ -61,7 +61,7 @@ class font_config():
                                                         # lvgl: use lvgl font compression (modified i3bn)
     export_dir = './export/'                            # export directory
     c_filename = (extract_filename(font) + str(size)).lower()     # generated c source file name
-    
+
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
     dataset = cfg.read(config_file_path, encoding='utf-8')
@@ -69,12 +69,12 @@ def load_config(config_file_path):
     if dataset == []:
         print("Failed to open config file: ", config_file_path)
         exit(1)
-    
+
     font_list = []
-    
+
     for section in cfg.sections():
         print("Section: %s" % section)
-        
+
         c = font_config()
         c.c_filename = section
         c.bpp = cfg.getint(section, 'bpp')
@@ -89,7 +89,7 @@ def load_config(config_file_path):
         c.export_dir = cfg.get(section, 'export_dir')
         
         font_list.append(c)
-        
+
     return font_list
 
 def get_template(conf):
@@ -201,7 +201,7 @@ def convert_special_char(c):
 
 class font2c():
     ROWSIZE = 20
-    
+
     def __init__(self, conf):
         if(isinstance(conf, font_config)):
             self.conf = conf
@@ -233,60 +233,60 @@ class font2c():
             return img.getpixel(xy) >> 4
         else:
             raise TypeError("bpp only accept 1, 2 or 4")
-    
+
     def _img_calc_margin(self, img, img_size):
         margin = Margin()
 
         #calculate top margin
-        for y in range(img_size[1]) :
-            accumulateBlank = 0
+        for y in range(img_size[1]):
+            accumulate_blank = 0
             for x in range(img_size[0]):
-                if (self._img_is_pixel_blank(img, (x,y))):
-                    accumulateBlank += 1
+                if (self._img_is_pixel_blank(img, (x, y))):
+                    accumulate_blank += 1
                 else:
                     break
-            if(accumulateBlank == img_size[0]):
+            if(accumulate_blank == img_size[0]):
                 margin.top += 1
             else:
                 break
 
         #calculate bottom margin
         for y in reversed(range(img_size[1])):
-            accumulateBlank = 0
+            accumulate_blank = 0
             for x in range(img_size[0]):
                 if (self._img_is_pixel_blank(img, (x, y))):
-                    accumulateBlank += 1
+                    accumulate_blank += 1
                 else:
                     break
 
-            if(accumulateBlank == img_size[0]):
+            if(accumulate_blank == img_size[0]):
                 margin.bottom += 1
             else:
                 break
 
         #calculate left margin
         for x in range(img_size[0]):
-            accumulateBlank = 0
+            accumulate_blank = 0
             for y in range(img_size[1]):
                 if (self._img_is_pixel_blank(img, (x, y))):
-                    accumulateBlank += 1
+                    accumulate_blank += 1
                 else:
                     break
 
-            if(accumulateBlank == img_size[1]):
+            if(accumulate_blank == img_size[1]):
                 margin.left += 1
             else:
                 break
 
         #calculate right margin
         for x in reversed(range(img_size[0])):
-            accumulateBlank = 0
+            accumulate_blank = 0
             for y in range(img_size[1]):
                 if (self._img_is_pixel_blank(img, (x, y))):
-                    accumulateBlank += 1
+                    accumulate_blank += 1
                 else:
                     break
-            if(accumulateBlank == img_size[1]):
+            if(accumulate_blank == img_size[1]):
                 margin.right += 1
             else:
                 break
@@ -295,22 +295,22 @@ class font2c():
 
     def preview(self):
         fnt = None
-        
+
         try:
             fnt = ImageFont.truetype(self.conf.font, self.conf.size)
         except IOError:
             print('Cannot open the font: ' + self.conf.font)
-            exit()
-        
+            exit(1)
+
         DISPLAY_COLUMN_CHAR = 20
         DISPLAY_ROW_CLEARANCE = 5
-        
+
         # Reserve big enough image size
         width = fnt.getsize('X')[0] * DISPLAY_COLUMN_CHAR * 2
         height = int(( (len(self.conf.text) / DISPLAY_COLUMN_CHAR) + 1 ) * (fnt.getsize('X')[1] + DISPLAY_ROW_CLEARANCE)) * 2
-        image = Image.new("RGB", (width, height), color=(0,0,0))
+        image = Image.new("RGB", (width, height), color=(0, 0, 0))
         draw = ImageDraw.Draw(image)
-        
+
         x = 0
         y = 0
         max_height = 0
@@ -320,28 +320,28 @@ class font2c():
             else:
                 fnt_size = fnt.getsize(c)
                 width, height = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])
-            
+
             max_height = max(max_height, height)
 
             # Draw bounding rectangle without offset
             xy0 = (x, y)
             xy1 = (x + width, y + height)
-            draw.rectangle([xy0, xy1], fill=(0,0,0), outline=(120,120,120), width=1)
+            draw.rectangle([xy0, xy1], fill=(0, 0, 0), outline=(120, 120, 120), width=1)
 
             # Draw tet
             xy0 = (x + self.conf.offset[0], y + self.conf.offset[1])
             xy1 = (x + self.conf.offset[0] + width, y + self.conf.offset[1] + height)
-            draw.text(xy0, c, font=fnt, fill=(255,153,0))
-            
+            draw.text(xy0, c, font=fnt, fill=(255, 153, 0))
+
             if ((idx + 1) % DISPLAY_COLUMN_CHAR) == 0:
                 x = 0
                 y += (max_height + DISPLAY_ROW_CLEARANCE)
                 max_height = 0
             else:
                 x += width
-                
+
         image.show()
-    
+
     def encoding_method_raw(self, img, x0, y0, x1, y1):
         # Scan from left to right,  down to bottom sequentially
         byte = 0x00
@@ -350,7 +350,7 @@ class font2c():
 
         for y in range(y0, y1):
             for x in range(x0, x1):
-                pixel = self._img_push_pixel_to_steam(img, (x,y))
+                pixel = self._img_push_pixel_to_steam(img, (x, y))
 
                 byte |= (pixel << count)
                 count += self.conf.bpp
@@ -373,7 +373,7 @@ class font2c():
         for y in range(y0, y1):
             x_line = []
             for x in range(x0, x1):
-                pixel = self._img_push_pixel_to_steam(img, (x,y))
+                pixel = self._img_push_pixel_to_steam(img, (x, y))
                 x_line.append(pixel)
             pixel_2d.append(x_line)
 
@@ -388,16 +388,16 @@ class font2c():
     def export(self):
         create_dir(self.conf.export_dir)
         create_dir(self.conf.export_dir + '/img')
-        
+
         try:
             fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
         except IOError:
             print('Cannot open the font: ' + self.conf.font)
-            exit()
+            exit(1)
 
         # Open the C file
         cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w", encoding='utf8')
-        
+
         # Open the template
         template_list = None
 
@@ -406,8 +406,8 @@ class font2c():
         try:
             template_list = load_template('template/'+template_file_path)
         except IOError:
-             print('Cannot open template file: ' + template_file_path)
-             exit()
+            print('Cannot open template file: ' + template_file_path)
+            exit(1)
 
         for template in template_list:
             # Build the template parameter list
@@ -428,7 +428,7 @@ class font2c():
             # If encoding methid is raw and fixed_width_length != None, bmplen can be pre-estimated
             if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
                 pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
-                template_key['sizeof_char'] =  ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
+                template_key['sizeof_char'] = ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
             else:
                 template_key['sizeof_char'] = 'Unknown'
 
@@ -467,7 +467,6 @@ class font2c():
                 img.save(self.conf.export_dir + '/img/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
 
                 imgname = font_name + '_' + alias_c
-                imgdata = list(img.tobytes())
 
                 # Print out image info
                 print('Image name:   {0}'.format(imgname))
