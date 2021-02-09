@@ -156,26 +156,26 @@ def test_compress():
     bs = bitstream()
 
     bs.clear()
-    lvgl_compress(bs, [1,2,3,2], 8)
+    compress(bs, [1,2,3,2], 8)
     if (bs.get_result() != b'\x01\x02\x03\x02'):
         print('failed #1', bs.get_result())
         exit(1)
     
 
     bs.clear()
-    lvgl_compress(bs, [1,2,3,2], 4)
+    compress(bs, [1,2,3,2], 4)
     if (bs.get_result() != b'\x12\x32'):
         print('failed #2', bs.get_result())
         exit(1)
 
     bs.clear()
-    lvgl_compress(bs, [0xFF, 0xF1, 0xFF], 3)
+    compress(bs, [0xFF, 0xF1, 0xFF], 3)
     if (bs.get_result() != b'\xE7\x80'):
         print('failed #3', bs.get_result())
         exit(1)
 
     bs.clear()
-    lvgl_compress(bs, [0x1, 0x3, 0x3, 0x3, 0x1], 4)
+    compress(bs, [0x1, 0x3, 0x3, 0x3, 0x1], 4)
     if (bs.get_result() != b'\x13\x38\x40'):
         print('failed #4', bs.get_result())
         exit(1)
@@ -183,7 +183,7 @@ def test_compress():
     bs.clear()
     pixels = [0 for i in range(15)]
     pixels[14] = 3
-    lvgl_compress(bs, pixels, 2)
+    compress(bs, pixels, 2)
     if (bs.get_result() != b'\x0F\xFE\x16'):
         print('failed #5', bs.get_result())
         exit(1)
@@ -191,7 +191,7 @@ def test_compress():
     bs.clear()
     pixels = [0 for i in range(77)]
     pixels[76] = 3
-    lvgl_compress(bs, pixels, 2)
+    compress(bs, pixels, 2)
     if (bs.get_result() != b'\x0F\xFF\xF9\x80'):
         print('failed #6', bs.get_result())
         exit(1)

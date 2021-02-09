@@ -396,130 +396,129 @@ class font2c():
             exit(1)
 
         # Open the C file
-        cfile = open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w", encoding='utf8')
+        with open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w", encoding='utf8') as cfile:
 
-        # Open the template
-        template_list = None
+            # Open the template
+            template_list = None
 
-        template_file_path = get_template(self.conf)
-        print('Load template file:', template_file_path)
-        try:
-            template_list = load_template('template/'+template_file_path)
-        except IOError:
-            print('Cannot open template file: ' + template_file_path)
-            exit(1)
+            template_file_path = get_template(self.conf)
+            print('Load template file:', template_file_path)
+            try:
+                template_list = load_template('template/'+template_file_path)
+            except IOError:
+                print('Cannot open template file: ' + template_file_path)
+                exit(1)
 
-        for template in template_list:
-            # Build the template parameter list
-            template_key = {}
-            template_key['bpp'] = self.conf.bpp
-            template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
-            template_key['font_lowercase'] = template_key['font'].lower()
-            template_key['font_uppercase'] = template_key['font'].upper()
-            template_key['size'] = self.conf.size
-            template_key['encoding_method'] = self.conf.encoding_method
-            template_key['template_file_path'] = template_file_path
-
-            if(self.conf.fixed_width_height != None):
-                (template_key['width'], template_key['height']) = self.conf.fixed_width_height
-            else:
-                (template_key['width'], template_key['height']) = ('varsize', 'varsize')
-
-            # If encoding methid is raw and fixed_width_length != None, bmplen can be pre-estimated
-            if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
-                pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
-                template_key['sizeof_char'] = ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
-            else:
-                template_key['sizeof_char'] = 'Unknown'
-
-            template_key['bmpidx'] = 0
-
-            cfile.write(Template(template.header).substitute(template_key))
-
-            for c in self.conf.text:
-                fnt_size = fnt.getsize(c)
-                print("Char: {0}".format(c))
-                print("Actual font size: {0}".format(fnt_size))
+            for template in template_list:
+                # Build the template parameter list
+                template_key = {}
+                template_key['bpp'] = self.conf.bpp
+                template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
+                template_key['font_lowercase'] = template_key['font'].lower()
+                template_key['font_uppercase'] = template_key['font'].upper()
+                template_key['size'] = self.conf.size
+                template_key['encoding_method'] = self.conf.encoding_method
+                template_key['template_file_path'] = template_file_path
 
                 if(self.conf.fixed_width_height != None):
-                    img_size = self.conf.fixed_width_height
+                    (template_key['width'], template_key['height']) = self.conf.fixed_width_height
                 else:
-                    img_size = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])      # adaptive adjust the font size
+                    (template_key['width'], template_key['height']) = ('varsize', 'varsize')
 
-
-                img = self._img_init(img_size)
-
-                draw = ImageDraw.Draw(img)
-
-                if(self.conf.bpp == 1):
-                    textcolor = 1
-                elif(self.conf.bpp == 2 or self.conf.bpp == 4):
-                    textcolor = 255
+                # If encoding methid is raw and fixed_width_length != None, bmplen can be pre-estimated
+                if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
+                    pixel_size = self.conf.fixed_width_height[0] * self.conf.fixed_width_height[1]
+                    template_key['sizeof_char'] = ( int(pixel_size / 8) + (1 if (pixel_size % 8) else 0 ) ) * self.conf.bpp
                 else:
-                    raise TypeError("bpp only accept 1, 2 or 4")
+                    template_key['sizeof_char'] = 'Unknown'
 
-                draw.text(self.conf.offset, c, font=fnt, fill=textcolor)  # 1= white color
+                template_key['bmpidx'] = 0
 
-                alias_c = convert_special_char(c)
+                cfile.write(Template(template.header).substitute(template_key))
 
-                font_name = extract_filename(self.conf.font) + str(self.conf.size)
+                for c in self.conf.text:
+                    fnt_size = fnt.getsize(c)
+                    print("Char: {0}".format(c))
+                    print("Actual font size: {0}".format(fnt_size))
 
-                img.save(self.conf.export_dir + '/img/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
+                    if(self.conf.fixed_width_height != None):
+                        img_size = self.conf.fixed_width_height
+                    else:
+                        img_size = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])      # adaptive adjust the font size
 
-                imgname = font_name + '_' + alias_c
 
-                # Print out image info
-                print('Image name:   {0}'.format(imgname))
-                print('Image size:   {0}'.format(img.size))
+                    img = self._img_init(img_size)
 
-                margin = Margin()
+                    draw = ImageDraw.Draw(img)
 
-                if self.conf.encoding_method == 'rawbb' or self.conf.encoding_method == 'lvgl':
+                    if(self.conf.bpp == 1):
+                        textcolor = 1
+                    elif(self.conf.bpp == 2 or self.conf.bpp == 4):
+                        textcolor = 255
+                    else:
+                        raise TypeError("bpp only accept 1, 2 or 4")
+
+                    draw.text(self.conf.offset, c, font=fnt, fill=textcolor)  # 1= white color
+
+                    alias_c = convert_special_char(c)
+
+                    font_name = extract_filename(self.conf.font) + str(self.conf.size)
+
+                    img.save(self.conf.export_dir + '/img/' + font_name + ('_l' if c.islower() else '_') + alias_c + '.png')
+
+                    imgname = font_name + '_' + alias_c
+
+                    # Print out image info
+                    print('Image name:   {0}'.format(imgname))
+                    print('Image size:   {0}'.format(img.size))
+
+                    margin = Margin()
+
+                    if self.conf.encoding_method == 'rawbb' or self.conf.encoding_method == 'lvgl':
+                        #===========================================
+                        margin = self._img_calc_margin(img, img_size)
+                        print("Top margin:", margin.top)
+                        print("Bottom margin:", margin.bottom)
+                        print("Left margin:", margin.left)
+                        print("Right margin:", margin.right)
+                        #===========================================
+
+                    y0 = margin.top
+                    y1 = img_size[1]-margin.bottom
+                    x0 = margin.left
+                    x1 = img_size[0]-margin.right
+
+                    bmpsteam = None
+
+                    if (self.conf.encoding_method.lower() == 'raw' or self.conf.encoding_method.lower() == 'rawbb'):
+                        bmpsteam = self.encoding_method_raw(img, x0, y0, x1, y1)
+                    elif self.conf.encoding_method.lower() == 'lvgl':
+                        bmpsteam = self.encoding_method_lvgl(img, x0, y0, x1, y1)
+                    else:
+                        raise TypeError("Unsupport encoding method. Only support raw, rawbb or lvgl")
+
                     #===========================================
-                    margin = self._img_calc_margin(img, img_size)
-                    print("Top margin:", margin.top)
-                    print("Bottom margin:", margin.bottom)
-                    print("Left margin:", margin.left)
-                    print("Right margin:", margin.right)
-                    #===========================================
 
-                y0 = margin.top
-                y1 = img_size[1]-margin.bottom
-                x0 = margin.left
-                x1 = img_size[0]-margin.right
+                    # Build the template parameter list
+                    template_key['charname'] = imgname
+                    template_key['charname_lowercase'] = imgname.lower()
+                    template_key['charname_uppercase'] = imgname.upper()
+                    template_key['codepoint'] = str(hex(ord(c)))
+                    template_key['margin_top'] = margin.top
+                    template_key['margin_bottom'] = margin.bottom
+                    template_key['margin_left'] = margin.left
+                    template_key['margin_right'] = margin.right
+                    template_key['width'] = img.size[0]
+                    template_key['height'] = img.size[1]
+                    template_key['sizeof_char'] = len(bmpsteam)
+                    template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.ROWSIZE]]) for y in range(0, len(bmpsteam), self.ROWSIZE)])
 
-                bmpsteam = None
+                    cfile.write(Template(template.loopbody).substitute(template_key))
 
-                if (self.conf.encoding_method.lower() == 'raw' or self.conf.encoding_method.lower() == 'rawbb'):
-                    bmpsteam = self.encoding_method_raw(img, x0, y0, x1, y1)
-                elif self.conf.encoding_method.lower() == 'lvgl':
-                    bmpsteam = self.encoding_method_lvgl(img, x0, y0, x1, y1)
-                else:
-                    raise TypeError("Unsupport encoding method. Only support raw, rawbb or lvgl")
+                    template_key['bmpidx'] += len(bmpsteam)
+                    print("------------------------------------------")
 
-                #===========================================
-
-                # Build the template parameter list
-                template_key['charname'] = imgname
-                template_key['charname_lowercase'] = imgname.lower()
-                template_key['charname_uppercase'] = imgname.upper()
-                template_key['codepoint'] = str(hex(ord(c)))
-                template_key['margin_top'] = margin.top
-                template_key['margin_bottom'] = margin.bottom
-                template_key['margin_left'] = margin.left
-                template_key['margin_right'] = margin.right
-                template_key['width'] = img.size[0]
-                template_key['height'] = img.size[1]
-                template_key['sizeof_char'] = len(bmpsteam)
-                template_key['bmpdata'] = ',\n    '.join([', '.join(['0x{:02X}'.format((x)) for x in bmpsteam[y : y + self.ROWSIZE]]) for y in range(0, len(bmpsteam), self.ROWSIZE)])
-
-                cfile.write(Template(template.loopbody).substitute(template_key))
-
-                template_key['bmpidx'] += len(bmpsteam)
-                print("------------------------------------------")
-
-            cfile.write(Template(template.footer).substitute(template_key))
-        cfile.close()
+                cfile.write(Template(template.footer).substitute(template_key))
 
 #=========================================================================================
 
