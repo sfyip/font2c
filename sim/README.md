@@ -1,8 +1,7 @@
 # font2c simulator
 
-A simple LCD simulator aims at testing the generated font characters.
-This program used Linux /dev/fb0 to access the framebuffer color pixel directly (sudo premission is required).<br/>
-Tested in Ubuntu 20.04
+A simple LCD simulator is designed to test the generated font characters.
+This program accesses the framebuffer color pixels directly via /dev/fb0 on Linux (sudo permission is required). It has been tested on Ubuntu 22.04.
 
 Procedure:
 1) Execute ./build.sh to build the test programs

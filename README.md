@@ -3,15 +3,25 @@ A python script that converts font to C array, target for embedded systems (e.g.
 
 ![Flow diagram](img/font2c_flow.png)
 
-Prerequisite: Python3<br/>
-Additional Python Library: Pillow (PIL fork)<br/>
-Usage:<br/>
- - Load the font properties from config file: python3 font2c.py config.ini<br/>
- - Use default setting: python3 font2c.py
+## Prerequisite:
+Pillow (should be installed by default. pip3 install pillow==10.2.0)
 
-Output sequence: Left to right, down to bottom sequentially
+## Usage
+ * Load the font properties from config file:
+```bash
+python3 font2c.py config.ini
+```
+ * Use default setting (freemono 24 fixed width):
+```bash
+python3 font2c.py
+```
 
-#### Preview:
+## Output format
+* Output sequence: Left to right, down to bottom sequentially
+* Encoding mode: raw, raw with trim bounding box (rawbb), lvgl
+* Bits per pixel(bpp): 1, 2, 4
+
+## Preview:
 ![Preview Screen Capture](img/screen_cap.png)
 
 | Configuration | Description |
@@ -54,28 +64,32 @@ Output sequence: Left to right, down to bottom sequentially
     encoding_method = rawbb
     export_dir = './export/'
 ```
-#### Template Keyword Description
-| Template keyword      | Description                                 |
-|        ---            |     ---                                     |
-| ${bpp}                | bpp option                                  |
-| ${font}               | font option                                 |
-| ${font_lowercase}     | font in lowercase                           |
-| ${font_uppercase}     | font in UPPERCASE                           |
-| ${size}               | font size option                            |
-| ${encoding_method}    | encoding method option                      |
-| ${template_file_path} | current template file name                  |
-| ${charname}           | character name                              |
-| ${charname_lowercase} | character name in lowercase                 |
-| ${charname_uppercase} | character name in UPPERCASE                 |
-| ${codepoint}          | character UTF-8 codepoint                   |
-| ${margin_top}         | character margin top                        |
-| ${margin_bottom}      | character margin bottom                     |
-| ${margin_left}        | character margin left                       |
-| ${margin_right}       | character margin right                      |
-| ${width}              | character width                             |
-| ${height}             | character height                            |
-| ${sizeof_char}        | character bmp byte size                     |
-| ${bmpdata}            | character bmp data                          |
-| ${bmpidx}             | character bmp index                         |
+## Template Keyword Description
+| Template keyword      | Description                                          |
+|        ---            |     ---                                              |
+| ${bpp}                | bpp option                                           |
+| ${font}               | font option                                          |
+| ${font_lowercase}     | font in lowercase                                    |
+| ${font_uppercase}     | font in UPPERCASE                                    |
+| ${size}               | font size option                                     |
+| ${space_width}        | the width of space character                         |
+| ${space_height}       | the height of space character                        |
+| ${enable_utf8}        | 1 if the text contains any unicode char, otherwise 0 |
+| ${utf8_map}           | the unicode char hex representation                  |
+| ${encoding_method}    | encoding method option                               |
+| ${template_file_path} | current template file name                           |
+| ${charname}           | character name                                       |
+| ${charname_lowercase} | character name in lowercase                          |
+| ${charname_uppercase} | character name in UPPERCASE                          |
+| ${codepoint}          | character UTF-8 codepoint                            |
+| ${margin_top}         | character margin top                                 |
+| ${margin_bottom}      | character margin bottom                              |
+| ${margin_left}        | character margin left                                |
+| ${margin_right}       | character margin right                               |
+| ${width}              | character width                                      |
+| ${height}             | character height                                     |
+| ${sizeof_char}        | character bmp byte size                              |
+| ${bmpdata}            | character bmp data                                   |
+| ${bmpidx}             | character bmp index                                  |
 
 

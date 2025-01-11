@@ -5,6 +5,7 @@
     font: wqy_microhei
     size: 32
     encoding method: rawbb
+    enable utf8: 1
 
     width: varsize
     height: varsize
@@ -12,8 +13,10 @@
 
 #include "font.h"
 
-#define WQY_MICROHEI32_DEFAULT_WIDTH     ??? /* Specify default font width */
-#define WQY_MICROHEI32_DEFAULT_HEIGHT    ??? /* Specify default font height */
+#define ENABLE_UTF8 1
+
+#define WQY_MICROHEI32_DEFAULT_WIDTH     8 /* Specify default font width */
+#define WQY_MICROHEI32_DEFAULT_HEIGHT    30 /* Specify default font height */
 
 static const uint8_t wqy_microhei32_bmp[] = {
     // wqy-microhei32_0
@@ -470,56 +473,56 @@ static const font_table_t wqy_microhei32_table[] = {
     {9, 30, 13, 0, 2, 3, 828},  // wqy-microhei32_colon
     {20, 30, 7, 0, 0, 0, 845},  // wqy-microhei32_A
     {20, 30, 7, 0, 3, 2, 960},  // wqy-microhei32_B
-    {20, 30, 7, 0, 2, 2, 1047},  // wqy-microhei32_C
+    {19, 30, 7, 0, 2, 1, 1047},  // wqy-microhei32_C
     {22, 30, 7, 0, 3, 2, 1139},  // wqy-microhei32_D
     {17, 30, 7, 0, 3, 2, 1237},  // wqy-microhei32_E
     {16, 30, 7, 0, 3, 1, 1306},  // wqy-microhei32_F
-    {23, 30, 7, 0, 2, 3, 1375},  // wqy-microhei32_G
-    {23, 30, 7, 0, 3, 3, 1479},  // wqy-microhei32_H
+    {22, 30, 7, 0, 2, 2, 1375},  // wqy-microhei32_G
+    {22, 30, 7, 0, 3, 2, 1479},  // wqy-microhei32_H
     {11, 30, 7, 0, 1, 1, 1577},  // wqy-microhei32_I
-    {12, 36, 7, 0, 0, 6, 1629},  // wqy-microhei32_J
+    {9, 36, 7, 0, 0, 3, 1629},  // wqy-microhei32_J
     {19, 30, 7, 0, 3, 1, 1673},  // wqy-microhei32_K
     {16, 30, 7, 0, 3, 1, 1760},  // wqy-microhei32_L
     {28, 30, 7, 0, 3, 3, 1829},  // wqy-microhei32_M
-    {24, 30, 7, 0, 3, 4, 1956},  // wqy-microhei32_N
+    {23, 30, 7, 0, 3, 3, 1956},  // wqy-microhei32_N
     {24, 30, 7, 0, 2, 2, 2054},  // wqy-microhei32_O
-    {19, 30, 7, 0, 3, 2, 2169},  // wqy-microhei32_P
+    {18, 30, 7, 0, 3, 1, 2169},  // wqy-microhei32_P
     {24, 36, 7, 0, 2, 2, 2250},  // wqy-microhei32_Q
     {19, 30, 7, 0, 3, 1, 2395},  // wqy-microhei32_R
     {17, 30, 7, 0, 1, 2, 2482},  // wqy-microhei32_S
     {17, 30, 7, 0, 0, 0, 2563},  // wqy-microhei32_T
-    {23, 30, 7, 0, 3, 3, 2661},  // wqy-microhei32_U
+    {22, 30, 7, 0, 3, 2, 2661},  // wqy-microhei32_U
     {19, 30, 7, 0, 0, 1, 2759},  // wqy-microhei32_V
-    {29, 30, 7, 0, 0, 1, 2863},  // wqy-microhei32_W
+    {28, 30, 7, 0, 0, 0, 2863},  // wqy-microhei32_W
     {18, 30, 7, 0, 0, 1, 3024},  // wqy-microhei32_X
     {17, 30, 7, 0, 0, 0, 3122},  // wqy-microhei32_Y
-    {18, 30, 7, 0, 1, 2, 3220},  // wqy-microhei32_Z
+    {17, 30, 7, 0, 1, 1, 3220},  // wqy-microhei32_Z
     {17, 30, 13, 0, 1, 2, 3307},  // wqy-microhei32_a
     {19, 30, 6, 0, 2, 2, 3367},  // wqy-microhei32_b
     {15, 30, 13, 0, 2, 1, 3457},  // wqy-microhei32_c
     {19, 30, 6, 0, 2, 3, 3508},  // wqy-microhei32_d
-    {18, 30, 13, 0, 2, 2, 3592},  // wqy-microhei32_e
+    {17, 30, 13, 0, 2, 1, 3592},  // wqy-microhei32_e
     {12, 30, 6, 0, 0, 0, 3652},  // wqy-microhei32_f
     {17, 38, 13, 0, 0, 1, 3724},  // wqy-microhei32_g
     {19, 30, 6, 0, 2, 2, 3824},  // wqy-microhei32_h
-    {9, 30, 6, 0, 2, 3, 3914},  // wqy-microhei32_i
-    {11, 38, 6, 0, 0, 5, 3938},  // wqy-microhei32_j
+    {8, 30, 6, 0, 2, 2, 3914},  // wqy-microhei32_i
+    {8, 38, 6, 0, 0, 2, 3938},  // wqy-microhei32_j
     {16, 30, 6, 0, 2, 0, 3986},  // wqy-microhei32_k
-    {9, 30, 6, 0, 2, 3, 4070},  // wqy-microhei32_l
+    {8, 30, 6, 0, 2, 2, 4070},  // wqy-microhei32_l
     {29, 30, 13, 0, 2, 3, 4094},  // wqy-microhei32_m
     {19, 30, 13, 0, 2, 2, 4196},  // wqy-microhei32_n
-    {19, 30, 13, 0, 2, 2, 4260},  // wqy-microhei32_o
+    {18, 30, 13, 0, 2, 1, 4260},  // wqy-microhei32_o
     {19, 38, 13, 0, 2, 2, 4324},  // wqy-microhei32_p
     {19, 38, 13, 0, 2, 3, 4418},  // wqy-microhei32_q
     {13, 30, 13, 0, 2, 1, 4506},  // wqy-microhei32_r
-    {15, 30, 13, 0, 1, 2, 4549},  // wqy-microhei32_s
+    {14, 30, 13, 0, 1, 1, 4549},  // wqy-microhei32_s
     {11, 30, 9, 0, 0, 1, 4600},  // wqy-microhei32_t
     {19, 30, 13, 0, 2, 3, 4653},  // wqy-microhei32_u
     {16, 30, 13, 0, 0, 1, 4713},  // wqy-microhei32_v
     {24, 30, 13, 0, 0, 0, 4777},  // wqy-microhei32_w
     {16, 30, 13, 0, 1, 1, 4879},  // wqy-microhei32_x
     {16, 38, 13, 0, 0, 0, 4939},  // wqy-microhei32_y
-    {15, 30, 13, 0, 1, 2, 5039},  // wqy-microhei32_z
+    {14, 30, 13, 0, 1, 1, 5039},  // wqy-microhei32_z
     {32, 33, 7, 1, 3, 3, 5090},  // wqy-microhei32_ス_0x30b9
     {32, 32, 7, 0, 3, 3, 5253},  // wqy-microhei32_テ_0x30c6
     {32, 32, 5, 0, 10, 4, 5416},  // wqy-microhei32_ト_0x30c8
@@ -529,8 +532,8 @@ static const font_table_t wqy_microhei32_table[] = {
     {32, 33, 4, 0, 2, 2, 6177},  // wqy-microhei32_間_0x9593
 };
 
-#if 0
-static const utf8_t utf8_map[] = {???};
+#if ENABLE_UTF8
+static const utf8_t utf8_map[] = {0x30b9, 0x30c6, 0x30c8, 0x6e2c, 0x8a66, 0x8ddd, 0x9593};
 
 // BINARY SEARCH USING ITERATIVE CALL
 int binary_search(const utf8_t arr[], int l, int r, utf8_t x)
@@ -573,7 +576,7 @@ static bool wqy_microhei32_lookup(utf8_t c, font_symbol_t *sym)
     }
     else
     {
-#if 0
+#if ENABLE_UTF8
         // Search utf8_map to find the character ?
         int index = binary_search(utf8_map, 0, sizeof(utf8_map)/sizeof(utf8_map[0]) - 1, c);
 

@@ -5,12 +5,15 @@
     font: ${font}
     size: ${size}
     encoding method: ${encoding_method}
+    enable utf8: ${enable_utf8}
 
     width: ${width}
     height: ${height}
 */
 
 #include "font.h"
+
+#define ENABLE_UTF8 ${enable_utf8}
 
 #define ${font_uppercase}${size}_WIDTH     ${width}
 #define ${font_uppercase}${size}_HEIGHT    ${height}
@@ -39,8 +42,8 @@ static const font_table_t ${font_lowercase}${size}_table[] = {
 ====split====
 };
 
-#if 0
-static const utf8_t utf8_map[] = {???};
+#if ENABLE_UTF8
+static const utf8_t utf8_map[] = {${utf8_map}};
 
 // BINARY SEARCH USING ITERATIVE CALL
 int binary_search(const utf8_t arr[], int l, int r, utf8_t x)
@@ -83,7 +86,7 @@ static bool ${font_lowercase}${size}_lookup(utf8_t c, font_symbol_t *sym)
     }
     else
     {
-#if 0
+#if ENABLE_UTF8
         // Search utf8_map to find the character ?
         int index = binary_search(utf8_map, 0, sizeof(utf8_map)/sizeof(utf8_map[0]) - 1, c);
 

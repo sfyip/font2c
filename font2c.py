@@ -20,10 +20,12 @@
 
 #!/usr/bin/env python3
 
-from PIL import Image, ImageDraw, ImageFont
-from string import Template
 import sys
 import os
+import argparse
+from PIL import Image, ImageDraw, ImageFont
+from string import Template
+
 
 try:
     import configparser as configparser
@@ -60,7 +62,7 @@ class font_config():
                                                         # rawbb: direct dump the pixel inside margin area (bounding box)
                                                         # lvgl: use lvgl font compression (modified i3bn)
     export_dir = './export/'                            # export directory
-    c_filename = (extract_filename(font) + str(size)).lower()     # generated c source file name
+    c_filename = f'{extract_filename(font)}{size}'.lower()     # generated c source file name
 
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
@@ -189,13 +191,21 @@ special_char = {
 def is_ascii(c):
     return ord(c) < 128
 
+def is_unicode(c):
+    if c in special_char:
+        return False
+    elif is_ascii(c) and c.isprintable():
+        return False
+    else:
+        return True
+
 def convert_special_char(c):
     if c in special_char:
         return special_char[c]
     elif is_ascii(c) and c.isprintable():   # c.isascii() only supports > python 3.7
         return c
     else:
-        return c + '_' + str(hex(ord(c)))   # Unicode character ?
+        return f'{c}_{hex(ord(c))}'   # Unicode character ?
 
 #=========================================================================================
 
@@ -306,8 +316,10 @@ class font2c():
         DISPLAY_ROW_CLEARANCE = 5
 
         # Reserve big enough image size
-        width = fnt.getsize('X')[0] * DISPLAY_COLUMN_CHAR * 2
-        height = int(( (len(self.conf.text) / DISPLAY_COLUMN_CHAR) + 1 ) * (fnt.getsize('X')[1] + DISPLAY_ROW_CLEARANCE)) * 2
+        #FIXED: fnt.getsize() is not support anymore starting from v10.0
+        _, _, right, bottom = fnt.getbbox('X')
+        width = right * DISPLAY_COLUMN_CHAR * 2
+        height = int(( (len(self.conf.text) / DISPLAY_COLUMN_CHAR) + 1 ) * (bottom + DISPLAY_ROW_CLEARANCE)) * 2
         image = Image.new("RGB", (width, height), color=(0, 0, 0))
         draw = ImageDraw.Draw(image)
 
@@ -318,8 +330,13 @@ class font2c():
             if self.conf.fixed_width_height != None:
                 width, height = self.conf.fixed_width_height
             else:
-                fnt_size = fnt.getsize(c)
-                width, height = (min(self.conf.max_width, fnt_size[0]), fnt_size[1])
+                #fnt_size = fnt.getsize(c)
+
+                #FIXED: fnt.getsize() is not support anymore starting from v10.0
+                _, _, right, bottom = fnt.getbbox(c)
+                width = right
+                height = bottom
+                width, height = (min(self.conf.max_width, width), height)
 
             max_height = max(max_height, height)
 
@@ -387,7 +404,7 @@ class font2c():
 
     def export(self):
         create_dir(self.conf.export_dir)
-        create_dir(self.conf.export_dir + '/img')
+        create_dir(os.path.join(self.conf.export_dir, 'img'))
 
         try:
             fnt = ImageFont.truetype(font=self.conf.font, size=self.conf.size, index=0, encoding='')
@@ -396,22 +413,26 @@ class font2c():
             exit(1)
 
         # Open the C file
-        with open(self.conf.export_dir + '/' +self.conf.c_filename + ".c", "w", encoding='utf8') as cfile:
+        filename = os.path.join(self.conf.export_dir, f'{self.conf.c_filename}.c')
+        with open(filename, "w", encoding='utf8') as cfile:
 
             # Open the template
             template_list = None
 
             template_file_path = get_template(self.conf)
-            print('Load template file:', template_file_path)
+            print(f'Load template file:{template_file_path}')
             try:
-                template_list = load_template('template/'+template_file_path)
+                template_filename = os.path.join('template', template_file_path)
+                template_list = load_template(template_filename)
             except IOError:
-                print('Cannot open template file: ' + template_file_path)
+                print(f'Cannot open template file: {template_file_path}')
                 exit(1)
 
             for template in template_list:
                 # Build the template parameter list
                 template_key = {}
+                utf8_map = [hex(ord(c)) for c in self.conf.text if is_unicode(c)]
+
                 template_key['bpp'] = self.conf.bpp
                 template_key['font'] = extract_filename(self.conf.font).replace('-', '_')   # replace - keyword to _
                 template_key['font_lowercase'] = template_key['font'].lower()
@@ -420,10 +441,16 @@ class font2c():
                 template_key['encoding_method'] = self.conf.encoding_method
                 template_key['template_file_path'] = template_file_path
 
-                if(self.conf.fixed_width_height != None):
-                    (template_key['width'], template_key['height']) = self.conf.fixed_width_height
-                else:
+                _, _, right, bottom = fnt.getbbox(' ')
+                template_key['space_width'] = right
+                template_key['space_height'] = bottom
+                template_key['utf8_map'] = ', '.join(utf8_map)
+                template_key['enable_utf8'] = '1' if len(utf8_map) > 0 else '0'
+
+                if self.conf.fixed_width_height is None:
                     (template_key['width'], template_key['height']) = ('varsize', 'varsize')
+                else:
+                    (template_key['width'], template_key['height']) = self.conf.fixed_width_height
 
                 # If encoding methid is raw and fixed_width_length != None, bmplen can be pre-estimated
                 if self.conf.encoding_method.lower() == 'raw' and self.conf.fixed_width_height != None:
@@ -437,7 +464,12 @@ class font2c():
                 cfile.write(Template(template.header).substitute(template_key))
 
                 for c in self.conf.text:
-                    fnt_size = fnt.getsize(c)
+                    #fnt_size = fnt.getsize(c)
+
+                    #FIXED: fnt.getsize(c) does not support anymore in PIL since v10.0
+                    _, _, right, bottom = fnt.getbbox(c)
+                    fnt_size = (right, bottom)
+
                     print("Char: {0}".format(c))
                     print("Actual font size: {0}".format(fnt_size))
 
