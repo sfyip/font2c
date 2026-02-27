@@ -63,6 +63,7 @@ class font_config():
                                                         # lvgl: use lvgl font compression (modified i3bn)
     export_dir = './export/'                            # export directory
     c_filename = f'{extract_filename(font)}{size}'.lower()     # generated c source file name
+    bit_order = 'lsb'                                   # bit order in byte (msb or lsb)
 
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
@@ -89,6 +90,7 @@ def load_config(config_file_path):
         c.max_width = cfg.getint(section, 'max_width')
         c.encoding_method = cfg.get(section, 'encoding_method')
         c.export_dir = cfg.get(section, 'export_dir')
+        c.bit_order = cfg.get(section, 'bit_order')
         
         font_list.append(c)
 
@@ -369,7 +371,11 @@ class font2c():
             for x in range(x0, x1):
                 pixel = self._img_push_pixel_to_steam(img, (x, y))
 
-                byte |= (pixel << count)
+                if (self.conf.bit_order.lower() == 'msb'):
+                    byte = (byte << self.conf.bpp) | (pixel & ((1 << self.conf.bpp) - 1))
+                else:
+                    byte |= (pixel << count)
+
                 count += self.conf.bpp
                 if (count == 8):
                     bs.append(byte)

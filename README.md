@@ -36,6 +36,7 @@ python3 font2c.py
 | max_width = 32                  | maximum width                                                            |
 | encoding_method = rawbb           | encoding method<br/>raw=direct dump the pixels<br/>rawbb=direct dump the pixel inside margin area (bounding box)<br/>lvgl=use lvgl compression algorithm (currently prefilter set to disable)<br/>|
 | export_dir = ./export/          | export directory                                                         |
+| bit_order = msb/lsb             | choose MSB-first of LSB-first encoding                                   |
 
 **Example 1: Output with fixed width and height(14,24), encoding method set to rawbb, the generated c source file and preview font images are placed under './export' directory**
 ```python
@@ -49,6 +50,7 @@ python3 font2c.py
     max_width = 24
     encoding_method = rawbb
     export_dir = "./export/"
+    bit_order = lsb
 ```
 
 **Example 2: Output with flexible glyph size, encoding method set to rawbb, the generated c source file and preview font images are placed under './export' directory**
@@ -63,6 +65,7 @@ python3 font2c.py
     max_width = 32
     encoding_method = rawbb
     export_dir = './export/'
+    bit_order = lsb
 ```
 ## Template Keyword Description
 | Template keyword      | Description                                          |
