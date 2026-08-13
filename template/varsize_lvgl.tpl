@@ -6,6 +6,7 @@
     size: ${size}
     encoding method: ${encoding_method}
     enable utf8: ${enable_utf8}
+    bit order: ${bit_order}
 
     width: ${width}
     height: ${height}

@@ -64,6 +64,7 @@ class font_config():
     export_dir = './export/'                            # export directory
     c_filename = f'{extract_filename(font)}{size}'.lower()     # generated c source file name
     bit_order = 'lsb'                                   # bit order in byte (msb or lsb)
+    enable_utf8 = None                                  # enable UTF-8 support (None: auto-detect, 0: disable, 1: enable)
 
 def load_config(config_file_path):
     cfg = configparser.ConfigParser()
@@ -91,6 +92,10 @@ def load_config(config_file_path):
         c.encoding_method = cfg.get(section, 'encoding_method')
         c.export_dir = cfg.get(section, 'export_dir')
         c.bit_order = cfg.get(section, 'bit_order')
+        
+        # Read enable_utf8 if specified in config, otherwise leave as None for auto-detection
+        if cfg.has_option(section, 'enable_utf8'):
+            c.enable_utf8 = cfg.getint(section, 'enable_utf8')
         
         font_list.append(c)
 
@@ -446,12 +451,17 @@ class font2c():
                 template_key['size'] = self.conf.size
                 template_key['encoding_method'] = self.conf.encoding_method
                 template_key['template_file_path'] = template_file_path
+                template_key['bit_order'] = self.conf.bit_order
 
                 _, _, right, bottom = fnt.getbbox(' ')
                 template_key['space_width'] = right
                 template_key['space_height'] = bottom
                 template_key['utf8_map'] = ', '.join(utf8_map)
-                template_key['enable_utf8'] = '1' if len(utf8_map) > 0 else '0'
+                # Use config value if specified, otherwise auto-detect based on text content
+                if self.conf.enable_utf8 is not None:
+                    template_key['enable_utf8'] = str(self.conf.enable_utf8)
+                else:
+                    template_key['enable_utf8'] = '1' if len(utf8_map) > 0 else '0'
 
                 if self.conf.fixed_width_height is None:
                     (template_key['width'], template_key['height']) = ('varsize', 'varsize')

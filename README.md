@@ -37,6 +37,7 @@ python3 font2c.py
 | encoding_method = rawbb           | encoding method<br/>raw=direct dump the pixels<br/>rawbb=direct dump the pixel inside margin area (bounding box)<br/>lvgl=use lvgl compression algorithm (currently prefilter set to disable)<br/>|
 | export_dir = ./export/          | export directory                                                         |
 | bit_order = msb/lsb             | choose MSB-first of LSB-first encoding                                   |
+| enable_utf8 = 0/1               | explicitly allow or block UTF-8 table. If omitted, it will be automatically set if UTF-8 characters are used |
 
 **Example 1: Output with fixed width and height(14,24), encoding method set to rawbb, the generated c source file and preview font images are placed under './export' directory**
 ```python
@@ -78,6 +79,7 @@ python3 font2c.py
 | ${space_width}        | the width of space character                         |
 | ${space_height}       | the height of space character                        |
 | ${enable_utf8}        | 1 if the text contains any unicode char, otherwise 0 |
+| ${bit_order}          | either lsb or msb                                    |
 | ${utf8_map}           | the unicode char hex representation                  |
 | ${encoding_method}    | encoding method option                               |
 | ${template_file_path} | current template file name                           |
